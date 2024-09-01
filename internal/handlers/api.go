@@ -16,6 +16,6 @@ func Handle(r *chi.Mux) {
 
     router.Get("/services", GetUserServices)
 
-
   })
+  
 }
