@@ -17,5 +17,8 @@ func Handle(r *chi.Mux) {
     router.Get("/services", GetUserServices)
 
   })
-  
+
+  r.Route("/oci", func(router chi.Router) {
+    router.Get("/all", GetAllImages)
+  })
 }

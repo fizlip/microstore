@@ -16,7 +16,7 @@ func main() {
 
   handlers.Handle(r)
 
-  fmt.Println("Starting GO API service...")
+  fmt.Println("Starting GO API service on localhost:8000...")
   fmt.Println(`
                 _                                              
                (_)                          _                    
