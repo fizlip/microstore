@@ -2,6 +2,7 @@ package tools
 
 import (
   "time"
+  "github.com/aws/aws-sdk-go-v2/service/ecr/types"
 )
 
 type mockDB struct{}
@@ -60,6 +61,27 @@ func (d *mockDB) GetUserServices(username string) *ServiceDetails {
   }
 
   return &clientData
+}
+
+func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []Metadata{
+  result := make([]Metadata, len(digests))
+
+  for i, digest := range digests {
+    result[i] = Metadata{
+      Digest: *digest.ImageDigest,
+      Created: 1234,
+      Title: "title",
+      Description: "Description",
+      Reviews: 102,
+      Tag: *digest.ImageTag,
+      Creator: "filip",
+      Requests: 123232,
+      Pulls: 12,
+      Price: 0.001,      
+    }
+  }
+  
+  return result
 }
 
 func (d *mockDB) SetupDatabase() error {
