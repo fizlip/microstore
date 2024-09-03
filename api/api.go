@@ -19,6 +19,17 @@ type Error struct {
   Message string
 }
 
+type Image struct {
+  Name 		string `json:name`
+  Description 	string `json:description`
+  Rating 	string `json:rating`
+  ImageID 	string `json:image_id`
+  Tags 		string `json:tags`
+  Creator 	string `json:creator`
+  Requests 	string `json:requests`
+  Price 	string `json:price`
+}
+
 func writeError(w http.ResponseWriter, message string, code int) {
 
   resp := Error {
