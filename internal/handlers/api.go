@@ -24,9 +24,11 @@ func Handle(r *chi.Mux) {
 
   r.Route("/user", func(router chi.Router){
     router.Use(middleware.Authorization)
-    router.Post("/create/oci", CreateImage)     
-    router.Patch("/update/oci", UpdateImage)     
-    router.Post("/deploy/oci", DeployImage)     
+    router.Post("/oci/create", CreateImage)     
+    router.Patch("/oci/update", UpdateImage)     
+    router.Post("/oci/deploy", DeployImage)     
+    router.Post("/oci/taskdef/create", CreateTaskdef) 
+    router.Post("/oci/upload", DeployImage) 
   })
   r.Route("/store", func(router chi.Router){
     router.Get("/trending", GetTrending)     
