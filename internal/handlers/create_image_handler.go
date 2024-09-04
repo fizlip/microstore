@@ -12,6 +12,7 @@ import (
   log "github.com/sirupsen/logrus"
 )
 
+// CreateImage will create the metadata for a given image.
 func CreateImage(w http.ResponseWriter, r *http.Request) {
   var err error
   var database *tools.DatabaseInterface
@@ -21,19 +22,18 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
   if err != nil {
     panic(err)
   }
+
   var meta tools.Metadata 
   err = json.Unmarshal(body, &meta)
   if err != nil {
     panic(err)
   }  
 
-  if err != nil {
-    api.InternalErrorHandler(w)
-    return
-  }
-
+  // UUID is used to create a unique identifier just in case 
+  // two recrods are created with the same title at the same time.
   meta.UUID = uuid.New().String()
 
+  // Call create method in db interface
   err = (*database).CreateMetadata(meta)
 
   w.Header().Set("Content-Type", "application/json")
@@ -43,10 +43,12 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
     api.InternalErrorHandler(w)
     return
   }
+
   response := api.Success{
     Code: 200,
     Message: fmt.Sprintf("New record with ID: %s has successfully been created", meta.UUID),
   }
+
   err = json.NewEncoder(w).Encode(response)
   if err != nil {
     log.Error(err)

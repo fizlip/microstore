@@ -25,5 +25,6 @@ func Handle(r *chi.Mux) {
   r.Route("/user", func(router chi.Router){
     router.Use(middleware.Authorization)
     router.Post("/create/oci", CreateImage)     
+    router.Patch("/update/oci", UpdateImage)     
   })
 }

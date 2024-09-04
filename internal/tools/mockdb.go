@@ -1,8 +1,10 @@
 package tools
 
 import (
+  "fmt"
   "time"
   "github.com/aws/aws-sdk-go-v2/service/ecr/types"
+  "github.com/fizlip/microstore/api"
 
   log "github.com/sirupsen/logrus"
 )
@@ -87,6 +89,11 @@ func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []Metadata{
 
 func (d *mockDB) CreateMetadata(metadata Metadata) error{
   log.Println("Created OCI with title: ", metadata.Title)  
+  return nil 
+}
+
+func (d *mockDB) UpdateMetadata(upd api.UpdateParams) error{
+  log.Println(fmt.Sprintf("Updating '%s' setting '%s' = '%s'", upd.ID, upd.Field, upd.Value))  
   return nil 
 }
 

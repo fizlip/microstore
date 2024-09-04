@@ -14,6 +14,12 @@ type UserServiceResponse struct {
   Balance int64
 }
 
+type UpdateParams struct {
+  ID    string `json:"id"`
+  Field string `json:"field"`
+  Value string `json:"value"`
+}
+
 type Success struct {
   Code int
   Message string

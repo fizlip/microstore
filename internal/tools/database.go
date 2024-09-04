@@ -3,6 +3,7 @@ package tools
 import (
   log "github.com/sirupsen/logrus"
   "github.com/aws/aws-sdk-go-v2/service/ecr/types"
+  "github.com/fizlip/microstore/api"
 
 )
 
@@ -36,6 +37,7 @@ type DatabaseInterface interface {
   GetUserServices(username string) *ServiceDetails
   GetMetadata(imageDigest []types.ImageIdentifier) []Metadata
   CreateMetadata(metadata Metadata) error
+  UpdateMetadata(upd api.UpdateParams) error
   SetupDatabase() error
 }
 
