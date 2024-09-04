@@ -46,6 +46,28 @@ type Metadata struct {
   RunEndpoint string    `json:"run_endpoint"`
 }
 
+type Taskdef struct {
+  ContainerName		string `json:"container_name"`
+  Image			string `json:"image"`
+  Cpu			int    `json:"cpu"` 
+  Memory		int    `json:"memory"` 
+  PortMappings		string `json:"port_mappings"` 
+  Group			string `json:"group"` 
+  Region		string `json:"region"` 
+  StreamPrefix		string `json:"stream_prefix"` 
+  Family		string `json:"family"` 
+  ExecutionRoleARN 	string `json:"execution_role_arn"` 
+  TaskRoleARN 		string `json:"task_role_arn"` 
+}
+
+type ECSParams struct {
+  TaskDefARN	string `json:"taskdef_arn"`
+  Cluster 	string `json:"cluster"`
+  LaunchType	string `json:"launch_type"`
+  ContainerName	string `json:"container_name"`
+  TaskCount	string `json:"task_count"`
+}
+
 func writeError(w http.ResponseWriter, message string, code int) {
 
   resp := Error {

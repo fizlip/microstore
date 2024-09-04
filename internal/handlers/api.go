@@ -28,7 +28,7 @@ func Handle(r *chi.Mux) {
     router.Patch("/oci/update", UpdateImage)     
     router.Post("/oci/deploy", DeployImage)     
     router.Post("/oci/taskdef/create", CreateTaskdef) 
-    router.Post("/oci/upload", DeployImage) 
+    router.Post("/oci/cluster/create", CreateCluster) 
   })
   r.Route("/store", func(router chi.Router){
     router.Get("/trending", GetTrending)     

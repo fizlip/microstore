@@ -25,7 +25,12 @@ func CreateTaskdef(w http.ResponseWriter, r *http.Request) {
   }
   log.Println(taskdef)
 
-  err = json.NewEncoder(w).Encode("{}")
+  response := api.Success {
+    Code: 200,
+    Message: "Taskdef created",
+  }
+
+  err = json.NewEncoder(w).Encode(response)
   if err != nil {
     log.Error(err)
     api.InternalErrorHandler(w)
