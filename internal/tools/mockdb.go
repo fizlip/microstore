@@ -97,6 +97,26 @@ func (d *mockDB) UpdateMetadata(upd api.UpdateParams) error{
   return nil 
 }
 
+func (d *mockDB) GetTrending() []Metadata{
+  log.Println("yooooo")  
+  var item1 = Metadata{}
+  item1.Title = "title1"
+
+  var item2 = Metadata{}
+  item1.Title = "title2"
+
+  var item3 = Metadata{}
+  item1.Title = "title3"
+
+  var item4 = Metadata{}
+  item1.Title = "title4"
+
+  var item5 = Metadata{}
+  item1.Title = "title5"
+
+  return []Metadata{item1, item2, item3, item4, item5}
+}
+
 func (d *mockDB) SetupDatabase() error {
   return nil
 }

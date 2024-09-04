@@ -37,6 +37,7 @@ type DatabaseInterface interface {
   GetMetadata(imageDigest []types.ImageIdentifier) []Metadata
   CreateMetadata(metadata api.Metadata) error
   UpdateMetadata(upd api.UpdateParams) error
+  GetTrending() []Metadata 
   SetupDatabase() error
 }
 

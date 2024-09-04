@@ -28,4 +28,7 @@ func Handle(r *chi.Mux) {
     router.Patch("/update/oci", UpdateImage)     
     router.Post("/deploy/oci", DeployImage)     
   })
+  r.Route("/store", func(router chi.Router){
+    router.Get("/trending", GetTrending)     
+  })
 }
