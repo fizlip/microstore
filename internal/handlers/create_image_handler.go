@@ -23,7 +23,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
     panic(err)
   }
 
-  var meta tools.Metadata 
+  var meta api.Metadata 
   err = json.Unmarshal(body, &meta)
   if err != nil {
     panic(err)
@@ -32,6 +32,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
   // UUID is used to create a unique identifier just in case 
   // two recrods are created with the same title at the same time.
   meta.UUID = uuid.New().String()
+  meta.RunEndpoint = fmt.Sprintf("https://run.botify.com/oci/%s", meta.UUID)
 
   // Call create method in db interface
   err = (*database).CreateMetadata(meta)
@@ -46,7 +47,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 
   response := api.Success{
     Code: 200,
-    Message: fmt.Sprintf("New record with ID: %s has successfully been created", meta.UUID),
+    Message: fmt.Sprintf("New record with ID: '%s' has successfully been created", meta.UUID),
   }
 
   err = json.NewEncoder(w).Encode(response)

@@ -42,6 +42,8 @@ type Metadata struct {
   Requests    int       `json:"requests"`     // Number of requests for the item
   Pulls       int       `json:"pulls"`        // Number of pulls (e.g., for a Docker image)
   Price       float64   `json:"price"`        // Price of the item
+  UUID        string    `json:"uuid"`
+  RunEndpoint string    `json:"run_endpoint"`
 }
 
 func writeError(w http.ResponseWriter, message string, code int) {

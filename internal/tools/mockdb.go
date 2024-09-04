@@ -87,8 +87,8 @@ func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []Metadata{
   return result
 }
 
-func (d *mockDB) CreateMetadata(metadata Metadata) error{
-  log.Println("Created OCI with title: ", metadata.Title)  
+func (d *mockDB) CreateMetadata(metadata api.Metadata) error{
+  log.Println(fmt.Sprintf("Created OCI with title: '%s' and endpoint: '%s'", metadata.Title, metadata.RunEndpoint))  
   return nil 
 }
 

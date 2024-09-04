@@ -4,7 +4,6 @@ import (
   log "github.com/sirupsen/logrus"
   "github.com/aws/aws-sdk-go-v2/service/ecr/types"
   "github.com/fizlip/microstore/api"
-
 )
 
 type LoginDetails struct {
@@ -36,7 +35,7 @@ type DatabaseInterface interface {
   GetUserLoginDetails(username string) *LoginDetails
   GetUserServices(username string) *ServiceDetails
   GetMetadata(imageDigest []types.ImageIdentifier) []Metadata
-  CreateMetadata(metadata Metadata) error
+  CreateMetadata(metadata api.Metadata) error
   UpdateMetadata(upd api.UpdateParams) error
   SetupDatabase() error
 }
