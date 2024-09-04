@@ -45,8 +45,6 @@ var mockImages = ecr.ListImagesOutput{
 func (e *mockECRClient) GetImages(input *ecr.ListImagesInput) (*ecr.ListImagesOutput, error) {
   log.Println("Fetching images...")
 
-  time.Sleep(time.Second * 1)
-  
   return &mockImages, nil
 
 }

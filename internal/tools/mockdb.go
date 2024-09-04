@@ -38,7 +38,6 @@ var mockServiceDetails = map[string]ServiceDetails{
 }
 
 func (d *mockDB) GetUserLoginDetails(username string) *LoginDetails {
-  time.Sleep(time.Second * 1)
 
   var clientData = LoginDetails{}
   clientData, ok := mockLoginDetails[username]

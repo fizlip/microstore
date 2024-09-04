@@ -21,4 +21,9 @@ func Handle(r *chi.Mux) {
   r.Route("/oci", func(router chi.Router) {
     router.Get("/all", GetAllImages)
   })
+
+  r.Route("/user", func(router chi.Router){
+    router.Use(middleware.Authorization)
+    router.Post("/create/oci", CreateImage)     
+  })
 }
