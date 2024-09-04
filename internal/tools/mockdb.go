@@ -3,6 +3,8 @@ package tools
 import (
   "time"
   "github.com/aws/aws-sdk-go-v2/service/ecr/types"
+
+  log "github.com/sirupsen/logrus"
 )
 
 type mockDB struct{}
@@ -81,6 +83,11 @@ func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []Metadata{
   }
   
   return result
+}
+
+func (d *mockDB) CreateMetadata(metadata Metadata) error{
+  log.Println("Created OCI with title: ", metadata.Title)  
+  return nil 
 }
 
 func (d *mockDB) SetupDatabase() error {

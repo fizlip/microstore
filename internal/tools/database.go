@@ -28,12 +28,14 @@ type Metadata struct {
   Requests    int       `json:"requests"`     // Number of requests for the item
   Pulls       int       `json:"pulls"`        // Number of pulls (e.g., for a Docker image)
   Price       float64   `json:"price"`        // Price of the item
+  UUID        string    `json:"uuid"`
 }
 
 type DatabaseInterface interface {
   GetUserLoginDetails(username string) *LoginDetails
   GetUserServices(username string) *ServiceDetails
   GetMetadata(imageDigest []types.ImageIdentifier) []Metadata
+  CreateMetadata(metadata Metadata) error
   SetupDatabase() error
 }
 

@@ -14,20 +14,28 @@ type UserServiceResponse struct {
   Balance int64
 }
 
+type Success struct {
+  Code int
+  Message string
+}
+
 type Error struct {
   Code int
   Message string
 }
 
-type Image struct {
-  Name 		string `json:name`
-  Description 	string `json:description`
-  Rating 	string `json:rating`
-  ImageID 	string `json:image_id`
-  Tags 		string `json:tags`
-  Creator 	string `json:creator`
-  Requests 	string `json:requests`
-  Price 	string `json:price`
+// AI generated
+type Metadata struct {
+  Digest      string    `json:"digest"`     // ID of the image associated with the item
+  Created     int 	`json:"created"`      // Creation time of the item
+  Title       string    `json:"title"`        // Title of the item
+  Description string    `json:"description"`  // Description of the item
+  Reviews     int       `json:"reviews"`      // Number of reviews
+  Tag         string    `json:"tag"`          // Tag associated with the item
+  Creator     string    `json:"creator"`      // Creator of the item
+  Requests    int       `json:"requests"`     // Number of requests for the item
+  Pulls       int       `json:"pulls"`        // Number of pulls (e.g., for a Docker image)
+  Price       float64   `json:"price"`        // Price of the item
 }
 
 func writeError(w http.ResponseWriter, message string, code int) {
