@@ -1,9 +1,13 @@
 package tools
 
 import (
+  "context"
   "github.com/aws/aws-sdk-go-v2/service/ecr"
   "github.com/aws/aws-sdk-go-v2/service/ecr/types"
   "github.com/aws/aws-sdk-go-v2/aws"
+  "github.com/fizlip/microstore/api"
+  "github.com/aws/aws-sdk-go-v2/config"
+
   "time"
   "math/rand"
 
@@ -35,16 +39,51 @@ func generatePlaceholderImageIds(amt int) []types.ImageIdentifier {
 
 var nextToken string = "nextToken"
 
-type mockECRClient struct{}
+type mockComputeClient struct{
+  cfg aws.Config
+}
 
 var mockImages = ecr.ListImagesOutput{
   ImageIds: generatePlaceholderImageIds(10),
   NextToken: &nextToken,
 }
 
-func (e *mockECRClient) GetImages(input *ecr.ListImagesInput) (*ecr.ListImagesOutput, error) {
+func (e *mockComputeClient) Connect() (interface{}, error) {
+  cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithSharedConfigProfile("default"))
+  if err != nil {
+    log.Fatalf("unable to load SDK config, %v", err)
+    return nil, err 
+  }
+
+  e.cfg = cfg
+
+  return cfg, nil
+}
+
+func (e *mockComputeClient) GetImages(input *ecr.ListImagesInput) (*ecr.ListImagesOutput, error) {
   log.Println("Fetching images...")
+  log.Println("Current region: ", e.cfg.Region)
 
   return &mockImages, nil
+}
 
+func (e *mockComputeClient) CreateContainer() error {
+  log.Println("Creating container, beep boop beep")
+  log.Println("Current region: ", e.cfg.Region)
+
+  return nil
+}
+
+func (e *mockComputeClient) CreateConfig(cfg api.Taskdef) error {
+  log.Println("Creating config...")
+  log.Println("Current region: ", e.cfg.Region)
+
+  return nil
+}
+
+func (e *mockComputeClient) DeployCluster(params api.ClusterParams) error {
+  log.Println("Cluster deployment...")
+  log.Println("Current region: ", e.cfg.Region)
+
+  return nil
 }

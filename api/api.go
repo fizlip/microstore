@@ -60,7 +60,7 @@ type Taskdef struct {
   TaskRoleARN 		string `json:"task_role_arn"` 
 }
 
-type ECSParams struct {
+type ClusterParams struct {
   TaskDefARN	string `json:"taskdef_arn"`
   Cluster 	string `json:"cluster"`
   LaunchType	string `json:"launch_type"`

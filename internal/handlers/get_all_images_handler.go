@@ -2,10 +2,8 @@ package handlers
 
 import (
   "encoding/json"
-  "context"
   "net/http"
   "github.com/aws/aws-sdk-go-v2/service/ecr"
-  "github.com/aws/aws-sdk-go-v2/config"
   "github.com/fizlip/microstore/internal/tools"
   "github.com/fizlip/microstore/api"
 
@@ -17,7 +15,7 @@ func GetAllImages(w http.ResponseWriter, r *http.Request) {
 
   var err error
   var name string = "f4rmhouse"
-  var ecrClient *tools.ECRClientInterface
+  var computeClient *tools.ComputeClientInterface
   var database *tools.DatabaseInterface
   database, err = tools.NewDatabase()
 
@@ -26,15 +24,10 @@ func GetAllImages(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  // First fetch the OCI data
-  cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithSharedConfigProfile("default"))
-  if err != nil {
-    log.Fatalf("unable to load SDK config, %v", err)
-  }
-
-  ecrClient, err = tools.NewEcrClient(cfg)
+  computeClient, err = tools.NewComputeClient()
+  _, err = (*computeClient).Connect()
   listImagesInput := ecr.ListImagesInput{RepositoryName: &name}
-  listImagesOutput, err := (*ecrClient).GetImages(&listImagesInput)
+  listImagesOutput, err := (*computeClient).GetImages(&listImagesInput)
 
   if err != nil {
     log.Fatalf("failed to get ECR images, %v", err)

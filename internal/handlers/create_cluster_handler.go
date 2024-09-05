@@ -5,6 +5,7 @@ import (
   "encoding/json"
   "net/http"
   "io/ioutil"
+  "github.com/fizlip/microstore/internal/tools"
 
   "github.com/fizlip/microstore/api"
   log "github.com/sirupsen/logrus"
@@ -12,18 +13,23 @@ import (
 
 func CreateCluster(w http.ResponseWriter, r *http.Request) {
   var err error
-  var ecsParams api.ECSParams
+  var clusterParams api.ClusterParams
+  var computeClient *tools.ComputeClientInterface
 
   body, err := ioutil.ReadAll(r.Body)
   if err != nil {
     panic(err)
   }
 
-  err = json.Unmarshal(body, &ecsParams)
+  err = json.Unmarshal(body, &clusterParams)
   if err != nil {
     panic(err)
   }
-  log.Println(ecsParams)
+
+  computeClient, err = tools.NewComputeClient()
+  _, err = (*computeClient).Connect()
+
+  err = (*computeClient).DeployCluster(clusterParams)
 
   response := api.Success {
     Code: 200,
