@@ -5,8 +5,16 @@ import (
   "net/http"
 )
 
+type SearchParams struct {
+  Query string
+}
+
 type UserServiceParams struct {
   Username string
+}
+
+type GetProductParams struct {
+  UID string
 }
 
 type UserServiceResponse struct {

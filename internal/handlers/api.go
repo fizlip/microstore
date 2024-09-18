@@ -20,6 +20,8 @@ func Handle(r *chi.Mux) {
 
   r.Route("/oci", func(router chi.Router) {
     router.Get("/all", GetAllImages)
+    router.Get("/get", GetProduct)
+    router.Post("/search", Search)
   })
 
   r.Route("/user", func(router chi.Router){

@@ -19,6 +19,8 @@ type ServiceDetails struct {
 type DatabaseInterface interface {
   GetUserLoginDetails(username string) *LoginDetails
   GetUserServices(username string) *ServiceDetails
+  GetProduct(uid string) api.Product
+  SearchProduct(query string) []api.Product
   GetMetadata(imageDigest []types.ImageIdentifier) []api.Product
   CreateMetadata(metadata api.Product) error
   UpdateMetadata(upd api.UpdateParams) error

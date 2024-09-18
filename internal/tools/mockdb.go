@@ -1,6 +1,7 @@
 package tools
 
 import (
+  "strconv"
   "fmt"
   "time"
   "github.com/aws/aws-sdk-go-v2/service/ecr/types"
@@ -64,6 +65,27 @@ func (d *mockDB) GetUserServices(username string) *ServiceDetails {
   }
 
   return &clientData
+}
+
+func (d *mockDB) GetProduct(uid string) api.Product{
+
+  return api.Product{
+	UID:          uid,
+	Title:        "Sample Product",
+	Description:  "This is a sample product description.",
+	Rating:       4.5,
+	Price:        99.99,
+	Thumbnail:    "https://example.com/sample-thumbnail.jpg",
+	Overview:     "A brief overview of the sample product.",
+	CommunityURL: "https://community.example.com/sample-product",
+	Reviews:      100,
+	Developer:    "Sample Developer",
+	PricingType:  "One-time purchase",
+	ReleaseType:  "Stable",
+	Version:      "1.0.0",
+	Showcase:     []string{"https://example.com/showcase1.jpg", "https://example.com/showcase2.jpg"},
+	Tags:         []string{"sample", "product", "example"},
+    }
 }
 
 func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []api.Product{
@@ -144,6 +166,7 @@ func (d *mockDB) GetTrending() [9]api.Product{
 
   for i, _ := range names {
     product := api.Product{};
+    product.UID = strconv.Itoa(i)
     product.Title = names[i];
     product.Description = descriptions[i];
     product.Price = prices[i];
@@ -151,6 +174,117 @@ func (d *mockDB) GetTrending() [9]api.Product{
   }
 
   return products;
+}
+
+func (d *mockDB) SearchProduct(query string) []api.Product {
+  products := []api.Product{
+        {
+            UID:          "uuid1",  // Replace with actual UUIDs
+            Title:        "Super Productivity App",
+            Description:  "Boost your productivity with our amazing app!",
+            Rating:       2.7,
+            Price:        19.99,
+            Thumbnail:    "https://example.com/thumbnails/productivity-app.jpg",
+            Overview:     "This app helps you manage tasks, track time, and collaborate with your team.",
+            CommunityURL: "https://community.superproductivityapp.com",
+            Reviews:      1250,
+            Developer:    "ProductiveSoft Inc.",
+            PricingType:  "Subscription",
+            ReleaseType:  "Stable",
+            Version:      "2.5.1",
+            Showcase: []string{
+                "https://example.com/showcase/productivity-app-1.jpg",
+                "https://example.com/showcase/productivity-app-2.jpg",
+                "https://example.com/showcase/productivity-app-3.jpg",
+            },
+            Tags: []string{"productivity", "value"},
+        },
+        {
+            UID:          "uuid2",  // Replace with actual UUIDs
+            Title:        "Awesome Game Engine",
+            Description:  "Create stunning games with our powerful engine!",
+            Rating:       4.9,
+            Price:        299.99,
+            Thumbnail:    "https://example.com/thumbnails/game-engine.jpg",
+            Overview:     "A comprehensive game development platform for both 2D and 3D games.",
+            CommunityURL: "https://community.awesomegameengine.com",
+            Reviews:      3500,
+            Developer:    "GameTech Solutions",
+            PricingType:  "One-time purchase",
+            ReleaseType:  "Beta",
+            Version:      "0.9.5",
+            Showcase: []string{
+                "https://example.com/showcase/game-engine-1.jpg",
+                "https://example.com/showcase/game-engine-2.jpg",
+                "https://example.com/showcase/game-engine-3.jpg",
+            },
+            Tags: []string{"gaming", "development"},
+        },
+        {
+            UID:          "uuid3",  // Replace with actual UUIDs
+            Title:        "Smart Home Controller",
+            Description:  "Control your entire home with a single app!",
+            Rating:       4.5,
+            Price:        49.99,
+            Thumbnail:    "https://example.com/thumbnails/smart-home.jpg",
+            Overview:     "Integrate all your smart home devices and control them from one central hub.",
+            CommunityURL: "https://community.smarthomecontroller.com",
+            Reviews:      875,
+            Developer:    "SmartTech Innovations",
+            PricingType:  "Freemium",
+            ReleaseType:  "Stable",
+            Version:      "3.2.0",
+            Showcase: []string{
+                "https://example.com/showcase/smart-home-1.jpg",
+                "https://example.com/showcase/smart-home-2.jpg",
+                "https://example.com/showcase/smart-home-3.jpg",
+            },
+            Tags: []string{"iot", "smarthome", "fun"},
+        },
+        {
+            UID:          "uuid4",  // Replace with actual UUIDs
+            Title:        "Photo Editor Pro",
+            Description:  "Edit your photos like a pro with our powerful tools!",
+            Rating:       4.8,
+            Price:        79.99,
+            Thumbnail:    "https://example.com/thumbnails/photo-editor.jpg",
+            Overview:     "Advanced photo editing software with AI-powered features and intuitive interface.",
+            CommunityURL: "https://community.photoeditorpro.com",
+            Reviews:      2100,
+            Developer:    "CreativeSoft Labs",
+            PricingType:  "Subscription",
+            ReleaseType:  "Stable",
+            Version:      "5.1.3",
+            Showcase: []string{
+                "https://example.com/showcase/photo-editor-1.jpg",
+                "https://example.com/showcase/photo-editor-2.jpg",
+                "https://example.com/showcase/photo-editor-3.jpg",
+            },
+            Tags: []string{"photography", "creativity", "editing", "social"},
+        },
+        {
+            UID:          "uuid5",  // Replace with actual UUIDs
+            Title:        "Fitness Tracker Deluxe",
+            Description:  "Track your fitness journey with precision!",
+            Rating:       1.6,
+            Price:        0,
+            Thumbnail:    "https://example.com/thumbnails/fitness-tracker.jpg",
+            Overview:     "Comprehensive fitness tracking app with personalized workout plans and nutrition advice.",
+            CommunityURL: "https://community.fitnesstrackerdeluxe.com",
+            Reviews:      1800,
+            Developer:    "HealthTech Solutions",
+            PricingType:  "Free with in-app purchases",
+            ReleaseType:  "Stable",
+            Version:      "4.0.2",
+            Showcase: []string{
+                "https://example.com/showcase/fitness-tracker-1.jpg",
+                "https://example.com/showcase/fitness-tracker-2.jpg",
+                "https://example.com/showcase/fitness-tracker-3.jpg",
+            },
+            Tags: []string{"fitness", "tracker", "deluxe"},
+        },
+    }
+  return products
 }
 
 func (d *mockDB) SetupDatabase() error {
