@@ -22,6 +22,7 @@ func GetTrending(w http.ResponseWriter, r *http.Request) {
   result := (*database).GetTrending()
 
   w.Header().Set("Content-Type", "application/json")
+  log.Println("Get trending")
 
   err = json.NewEncoder(w).Encode(result)
   if err != nil {

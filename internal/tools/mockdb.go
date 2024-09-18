@@ -66,29 +66,34 @@ func (d *mockDB) GetUserServices(username string) *ServiceDetails {
   return &clientData
 }
 
-func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []Metadata{
-  result := make([]Metadata, len(digests))
+func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []api.Product{
+  result := make([]api.Product, len(digests))
 
   for i, digest := range digests {
-    result[i] = Metadata{
-      Digest: *digest.ImageDigest,
-      Created: 1234,
-      Title: "title",
-      Description: "Description",
-      Reviews: 102,
-      Tag: *digest.ImageTag,
-      Creator: "filip",
-      Requests: 123232,
-      Pulls: 12,
-      Price: 0.001,      
+    result[i] = api.Product{
+	UID:          *digest.ImageDigest,
+	Title:        "Sample Product",
+	Description:  "This is a sample product description.",
+	Rating:       4.5,
+	Price:        99.99,
+	Thumbnail:    "https://example.com/sample-thumbnail.jpg",
+	Overview:     "A brief overview of the sample product.",
+	CommunityURL: "https://community.example.com/sample-product",
+	Reviews:      100,
+	Developer:    "Sample Developer",
+	PricingType:  "One-time purchase",
+	ReleaseType:  "Stable",
+	Version:      "1.0.0",
+	Showcase:     []string{"https://example.com/showcase1.jpg", "https://example.com/showcase2.jpg"},
+	Tags:         []string{"sample", "product", "example"},
     }
   }
   
   return result
 }
 
-func (d *mockDB) CreateMetadata(metadata api.Metadata) error{
-  log.Println(fmt.Sprintf("Created OCI with title: '%s' and endpoint: '%s'", metadata.Title, metadata.RunEndpoint))  
+func (d *mockDB) CreateMetadata(product api.Product) error{
+  log.Println(fmt.Sprintf("Created OCI with title: '%s' and endpoint: '%s'", product.Title, product.RunEndpoint))  
   return nil 
 }
 
@@ -97,24 +102,55 @@ func (d *mockDB) UpdateMetadata(upd api.UpdateParams) error{
   return nil 
 }
 
-func (d *mockDB) GetTrending() []Metadata{
-  log.Println("yooooo")  
-  var item1 = Metadata{}
-  item1.Title = "title1"
+func (d *mockDB) GetTrending() [9]api.Product{
 
-  var item2 = Metadata{}
-  item1.Title = "title2"
+  var products [9]api.Product;
 
-  var item3 = Metadata{}
-  item1.Title = "title3"
+  names := []string{
+	"Task Master",
+	"FitTrack",
+	"PhotoStudio",
+	"MindSpace",
+	"FinanceHub",
+	"LanguagePro",
+	"GameZilla",
+	"Recipe Wizard",
+	"Home Design 3D",
+  }
 
-  var item4 = Metadata{}
-  item1.Title = "title4"
+  descriptions := []string{
+	"Manage and track tasks",
+	"Monitor workouts progress with personalized plans.",
+	"Edit photos pro with filters and editing tools.",
+	"Meditate, relax, and sleep better with guided sessions.",
+	"Track expenses, set budgets",
+	"Language learning app",
+	"Hundreds of casual and competitive games.",
+	"Create delicious recipes tailored to your diet",
+	"Interior designs with easy-to-use 3D modeling",
+  }
 
-  var item5 = Metadata{}
-  item1.Title = "title5"
+  prices := []float64{
+	9.99,
+	4.99,
+	19.99,
+	0.00,  // No price provided for MindSpace, using 0.00
+	2.99,
+	14.99,
+	0.99,
+	5.49,
+	24.99,
+  }
 
-  return []Metadata{item1, item2, item3, item4, item5}
+  for i, _ := range names {
+    product := api.Product{};
+    product.Title = names[i];
+    product.Description = descriptions[i];
+    product.Price = prices[i];
+    products[i] = product;
+  }
+
+  return products;
 }
 
 func (d *mockDB) SetupDatabase() error {

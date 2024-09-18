@@ -30,20 +30,24 @@ type Error struct {
   Message string
 }
 
-// AI generated
-type Metadata struct {
-  Digest      string    `json:"digest"`     // ID of the image associated with the item
-  Created     int 	`json:"created"`      // Creation time of the item
-  Title       string    `json:"title"`        // Title of the item
-  Description string    `json:"description"`  // Description of the item
-  Reviews     int       `json:"reviews"`      // Number of reviews
-  Tag         string    `json:"tag"`          // Tag associated with the item
-  Creator     string    `json:"creator"`      // Creator of the item
-  Requests    int       `json:"requests"`     // Number of requests for the item
-  Pulls       int       `json:"pulls"`        // Number of pulls (e.g., for a Docker image)
-  Price       float64   `json:"price"`        // Price of the item
-  UUID        string    `json:"uuid"`
-  RunEndpoint string    `json:"run_endpoint"`
+type Product struct {
+  UID          string   `json:"uid"`
+  Title        string   `json:"title"`
+  Description  string   `json:"description"`
+  Rating       float64  `json:"rating"`
+  Price        float64  `json:"price"`
+  Thumbnail    string   `json:"thumbnail"`
+  Overview     string   `json:"overview"`
+  CommunityURL string   `json:"communityURL"`
+  Reviews      int      `json:"reviews"`
+  Developer    string   `json:"developer"`
+  PricingType  string   `json:"pricingType"`
+  ReleaseType  string   `json:"releaseType"`
+  Version      string   `json:"version"`
+  Showcase     []string `json:"showcase"`
+  Tags         []string `json:"tags"`
+  RunEndpoint  string   `json:"run_endpoint"`
+  Pulls        int      `json:"pulls"`
 }
 
 type Taskdef struct {
