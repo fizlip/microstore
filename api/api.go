@@ -5,6 +5,7 @@ import (
   "net/http"
 )
 
+// HTTP parameter structs
 type SearchParams struct {
   Query string
 }
@@ -17,15 +18,16 @@ type GetProductParams struct {
   UID string
 }
 
-type UserServiceResponse struct {
-  Code int
-  Balance int64
-}
-
 type UpdateParams struct {
   ID    string `json:"id"`
   Field string `json:"field"`
   Value string `json:"value"`
+}
+
+// HTTP response structs
+type UserServiceResponse struct {
+  Code int
+  Balance int64
 }
 
 type Success struct {
@@ -38,6 +40,7 @@ type Error struct {
   Message string
 }
 
+// F4 object structs
 type Product struct {
   UID          string   `json:"uid"`
   Title        string   `json:"title"`
