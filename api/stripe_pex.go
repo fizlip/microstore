@@ -10,8 +10,9 @@ type StripePaymentExecutor struct {
   PK	string
 }
 
-func (p *StripePaymentExecutor) CreateMeterEvent() {
+func (p *StripePaymentExecutor) CreateMeterEvent() (*PaymentResponse, error){
   log.Println("Create a stripe meter event")
+  return &PaymentResponse{}, nil
 }
 
 func (p *StripePaymentExecutor) GetUpcomingInvoice() {

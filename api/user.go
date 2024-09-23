@@ -29,8 +29,8 @@ func (c *Customer) Logout() {
   fmt.Println("Logout: "  + c.Email)
 }
 
-func (c *Customer) RunProduct() {
-  c.PaymentExecutor.CreateMeterEvent()
+func (c *Customer) RunProduct(ev *F4SubscriptionEvent) (*PaymentResponse, error) {
+  return c.PaymentExecutor.CreateMeterEvent(ev)
 }
 
 func (c *Customer) WriteReview() {
