@@ -2,20 +2,28 @@ package api
 
 import (
   "fmt"
+
   log "github.com/sirupsen/logrus"
   stripe "github.com/stripe/stripe-go/v79"
+
+  "github.com/google/uuid"
   "github.com/stripe/stripe-go/v79/billing/meterevent"
+  "github.com/stripe/stripe-go/v79/invoice"
 )
 
 type mockStripePaymentExecutor struct {
   PK	string
+  SK	string
 }
 
+// CreateMeterEvent registers a new payemtn for a products, it is run using
+// stripe subscription events
 func (p *mockStripePaymentExecutor) CreateMeterEvent(ev *F4SubscriptionEvent) (*PaymentResponse, error) {
 
-  log.Println("Create a stripe test meter event")
+  log.Println("Creating a stripe test meter event")
 
-  stripe.Key = "sk_test_51Q0fHUG9IK8VP5Ow1GeRlhjEG6fQPXEozXyegjNbNTl7QT1uCZGcz6rCKcXBGMWkWNJGDQyR88bfIGjbP53NzGBs00uYLlMnJp"
+  // Secret key stored in pex
+  stripe.Key = p.SK
   params := &stripe.BillingMeterEventParams{
     EventName: stripe.String(ev.ProductID),
     Payload: map[string]string{"value": ev.Value, "stripe_customer_id": ev.CustomerID},
@@ -23,15 +31,34 @@ func (p *mockStripePaymentExecutor) CreateMeterEvent(ev *F4SubscriptionEvent) (*
   result, err := meterevent.New(params);
   if err != nil {
     log.Error(err)
-    return &PaymentResponse{}, err
+    // Generic error message if payment is not sucessful
+    return &PaymentResponse{UID: uuid.New(), Status: "400", Message: "Could process create payment"}, err
   }
 
   log.Println("New event for: " + result.EventName)
-  return &PaymentResponse{UID: "123", Status: "200", ProductID: ev.ProductID, Value: ev.Value, Message: "Payment was successful"}, nil
+  // Success message if no error occured
+  return &PaymentResponse{
+    UID: uuid.New(), 
+    Status: "200",  
+    ProductID: ev.ProductID, 
+    Value: ev.Value, 
+    Message: "Payment was successful"}, nil
 }
 
-func (p *mockStripePaymentExecutor) GetUpcomingInvoice() {
+func (p *mockStripePaymentExecutor) GetUpcomingInvoice(cid string) (*stripe.Invoice, error){
+  stripe.Key = p.SK
+
   fmt.Println("Get an upcoming invoice")
+
+  params := &stripe.InvoiceUpcomingParams{Customer: stripe.String(cid)};
+  result, err := invoice.Upcoming(params);
+  if err != nil {
+    log.Error("Could not get invoice")
+    return result, err
+  }
+  log.Println("Generated invoice for: " + cid)
+  return result, nil
+
 }
 
 func (p *mockStripePaymentExecutor) GetUpcomingPayment(uid string) {

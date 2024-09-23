@@ -1,5 +1,9 @@
 package api 
 
+import (
+  log "github.com/sirupsen/logrus"
+)
+
 // F4 object structs
 type Product struct {
   UID          string   `json:"uid"`
@@ -19,4 +23,13 @@ type Product struct {
   Tags         []string `json:"tags"`
   RunEndpoint  string   `json:"run_endpoint"`
   Pulls        int      `json:"pulls"`
+}
+
+func (p *Product) Execute(cid string) (interface{}, error) {
+  log.Println("Log new execution entry for: " + p.UID)
+  return "Hello world", nil
+}
+
+func NewProduct(uid string) (*Product, error){
+  return &Product{UID: uid}, nil
 }
