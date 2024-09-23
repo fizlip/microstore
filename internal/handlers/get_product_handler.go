@@ -9,8 +9,7 @@ import (
 
   log "github.com/sirupsen/logrus"
 )
-// GetAllImages will return one page of all images available in the f4mhouse OCI repo
-// A correct response will return an array of Image values.
+// GetProduct will return one image with the UID given in the URL param
 func GetProduct (w http.ResponseWriter, r *http.Request) {
   var params = api.GetProductParams{}
   var decoder *schema.Decoder = schema.NewDecoder()

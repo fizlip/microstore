@@ -11,8 +11,10 @@ type User interface {
 }
 
 type Customer struct {
-  UID 	string
-  Email string
+  Email 		string
+  PaymentExecutor 	PaymentExecutor
+  Billed		bool
+  Verified 		bool
 }
 
 func (c *Customer) Login() {
@@ -28,7 +30,7 @@ func (c *Customer) Logout() {
 }
 
 func (c *Customer) RunProduct() {
-  fmt.Println("Logout: "  + c.Email)
+  c.PaymentExecutor.CreateMeterEvent()
 }
 
 func (c *Customer) WriteReview() {
@@ -43,12 +45,21 @@ func (c *Customer) GetUsage() {
   fmt.Println("get usage: "  + c.Email)
 }
 
+func NewCustomer(email string) (*Customer, error){
+  var mockPex PaymentExecutor = &mockStripePaymentExecutor{PK: "123"}
+
+  var customer *Customer = &Customer{Email: email, PaymentExecutor: mockPex}
+
+  return customer, nil
+}
+
 type Vendor struct {
   Email			string
   Rating		float64
   ProductsCreated	int
   RequestHandled	int64
   ProductCatalog	[]Product
+  PaymentExecutor	PaymentExecutor
 }
 
 func (c *Vendor) Login() {
