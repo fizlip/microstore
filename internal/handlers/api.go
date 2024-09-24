@@ -32,7 +32,10 @@ func Handle(r *chi.Mux) {
     router.Post("/oci/taskdef/create", CreateTaskdef) 
     router.Post("/oci/cluster/create", CreateCluster) 
     router.Post("/oci/run", RunProduct)
+    router.Post("/invoice/upcoming", GetInvoice)
+    router.Get("/usage", GetUsage)
   })
+
   r.Route("/store", func(router chi.Router){
     router.Get("/trending", GetTrending)     
   })

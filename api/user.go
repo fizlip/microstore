@@ -35,6 +35,7 @@ func (c *Customer) RunProduct(ev *F4SubscriptionEvent) (*PaymentResponse, error)
 
   product, _ := NewProduct("some_random_id")
   product.Execute(c.Email)
+  c.CreateAnalytic(false, product)
 
   return c.PaymentExecutor.CreateMeterEvent(ev)
 }
@@ -50,6 +51,15 @@ func (c *Customer) RateReview() {
 func (c *Customer) GetUsage() (*stripe.Invoice, error){
   fmt.Println("get usage: "  + c.Email)
   return c.PaymentExecutor.GetUpcomingInvoice("cus_QsQCZFMdRmYIP8")
+}
+
+func (c *Customer) GetAnalytics() ([]UserAnalytics, error) {
+  log.Println("Getting analytics for: " + c.Email)
+  return mockUserAnalytics, nil
+}
+
+func (c *Customer) CreateAnalytic(paid bool, product *Product) {
+  log.Println("Creating new analytic")
 }
 
 func NewCustomer(email string) (*Customer, error){

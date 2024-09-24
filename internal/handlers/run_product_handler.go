@@ -1,9 +1,9 @@
 package handlers
 
 import (
-  //"fmt"
   "encoding/json"
   "net/http"
+  "github.com/google/uuid"
 
   "github.com/fizlip/microstore/api"
   log "github.com/sirupsen/logrus"
@@ -18,6 +18,7 @@ func RunProduct(w http.ResponseWriter, r *http.Request) {
     
   // Create a meter event
   evt := &api.F4SubscriptionEvent{
+    EventID: uuid.New(),
     CustomerID: "cus_QsQCZFMdRmYIP8", 
     Value: "10", 
     ProductID: "f4rmhouse_usage"}
