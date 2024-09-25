@@ -33,7 +33,7 @@ func (c *Customer) Logout() {
 
 func (c *Customer) RunProduct(ev *F4SubscriptionEvent) (*PaymentResponse, error) {
 
-  product, _ := NewProduct("some_random_id")
+  product, _ := NewProduct("some_random_id", 0.01)
   product.Execute(c.Email)
   c.CreateAnalytic(false, product)
 
@@ -59,6 +59,49 @@ func (c *Customer) GetAnalytics() ([]UserAnalytics, error) {
 }
 
 func (c *Customer) CreateAnalytic(paid bool, product *Product) {
+  var _paid int64 = 0
+  var free int64 = 0
+
+  if product.Price > 0.0 {
+    _paid = 1
+  } else {
+    free = 1
+  }
+
+  today := "2024-09-25"
+  userData := mockUserAnalytics
+
+  for i, elem := range userData {
+    if elem.Timestamp == today && elem.CustomerID == c.Email {
+      if free > 0 {
+      	userData[i].FreeRequests += 1 
+      } else {
+        userData[i].PaidRequests += 1 
+      }
+
+      entry, exists := userData[i].Products[product.UID]
+      if exists {
+        entry.NumRequests += 1
+        userData[i].Products[product.UID] = entry
+      } else {
+        userData[i].Products[product.UID] = ProductData{ProductID: product.UID, ProductName: product.Title, Price: product.Price, NumRequests: 1}
+      } 
+
+      mockUserAnalytics = userData
+      return
+    }
+  }
+
+  newAnalytic := UserAnalytics{
+    CustomerID: c.Email,
+    Timestamp: today,
+    PaidRequests: _paid,
+    FreeRequests: free,
+    Products: map[string]ProductData{
+      product.UID: {ProductID: product.UID, ProductName: product.Title, Price: product.Price, NumRequests: 1},
+    },
+  }
+  mockUserAnalytics = append(userData, newAnalytic)
   log.Println("Creating new analytic")
 }
 

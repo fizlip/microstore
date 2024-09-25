@@ -30,6 +30,6 @@ func (p *Product) Execute(cid string) (interface{}, error) {
   return "Hello world", nil
 }
 
-func NewProduct(uid string) (*Product, error){
-  return &Product{UID: uid}, nil
+func NewProduct(uid string, price float64) (*Product, error){
+  return &Product{UID: uid, Price: price}, nil
 }
