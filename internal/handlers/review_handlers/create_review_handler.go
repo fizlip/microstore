@@ -4,6 +4,7 @@ import (
   "encoding/json"
   "net/http"
   "github.com/fizlip/microstore/api"
+  "io/ioutil"
 
   log "github.com/sirupsen/logrus"
 )
@@ -13,10 +14,31 @@ import (
 // data: ...
 func CreateReview(w http.ResponseWriter, r *http.Request) {
   var err error
+  var reviewTable *api.ITable
+  reviewTable, err = api.NewReviewTable("table")
+  if err != nil {
+    panic(err)
+  }
 
-  log.Println("Create a new review")
+  body, err := ioutil.ReadAll(r.Body)
+  if err != nil {
+    panic(err)
+  }
 
-  err = json.NewEncoder(w).Encode("")
+  var review api.Review
+  err = json.Unmarshal(body, &review)
+  if err != nil {
+    panic(err)
+  }
+
+  _, err = (*reviewTable).Insert(review)
+
+  response := api.Success {
+    Code: 200,
+    Message: "Review was successfully created",
+  }
+
+  err = json.NewEncoder(w).Encode(response)
   if err != nil {
     log.Error(err)
     api.InternalErrorHandler(w)

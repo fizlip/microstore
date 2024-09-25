@@ -47,6 +47,6 @@ func Handle(r *chi.Mux) {
 
   r.Route("/store", func(router chi.Router){
     router.Get("/trending", GetTrending)     
-    router.Get("/product/reviews", review_handlers.CreateReview)     
+    router.Get("/product/reviews", review_handlers.GetReviews)     
   })
 }
