@@ -13,6 +13,7 @@ import (
 // ex: <hostname>/user/review/create
 // data: ...
 func CreateReview(w http.ResponseWriter, r *http.Request) {
+  var response api.Success
   var err error
   var reviewTable *api.ITable
   reviewTable, err = api.NewReviewTable("table")
@@ -28,14 +29,17 @@ func CreateReview(w http.ResponseWriter, r *http.Request) {
   var review api.Review
   err = json.Unmarshal(body, &review)
   if err != nil {
-    panic(err)
-  }
+    response = api.Success {
+      Code: 200,
+      Message: "Review was successfully created",
+    }
+  } else {
+    _, err = (*reviewTable).Insert(review)
 
-  _, err = (*reviewTable).Insert(review)
-
-  response := api.Success {
-    Code: 200,
-    Message: "Review was successfully created",
+    response = api.Success {
+      Code: 200,
+      Message: "Review was successfully created",
+    }
   }
 
   err = json.NewEncoder(w).Encode(response)
