@@ -5,6 +5,10 @@ import (
   "net/http"
 )
 
+type UsernameParams struct {
+  Username string
+}
+
 // HTTP parameter structs
 type SearchParams struct {
   Query string
