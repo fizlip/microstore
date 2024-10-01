@@ -31,11 +31,16 @@ func (c *Customer) Logout() {
   fmt.Println("Logout: "  + c.Email)
 }
 
+// RunProduct will execute the product in the request and create 
+// UserAnalytics and ProductAnalytics
 func (c *Customer) RunProduct(ev *F4SubscriptionEvent) (*PaymentResponse, error) {
-
+  // Create product object
   product, _ := NewProduct("some_random_id", 0.01)
+  // Execute product
   product.Execute(c.Email)
-  c.CreateAnalytic(false, product)
+  // If successfull create new analytics (this is used to calculate user invoice)
+  c.CreateUserAnalytic(false, product)
+  // Then create product analytics (this is used as product logs and to calculate vendor pay)
 
   return c.PaymentExecutor.CreateMeterEvent(ev)
 }
@@ -58,7 +63,7 @@ func (c *Customer) GetAnalytics() ([]UserAnalytics, error) {
   return mockUserAnalytics, nil
 }
 
-func (c *Customer) CreateAnalytic(paid bool, product *Product) {
+func (c *Customer) CreateUserAnalytic(paid bool, product *Product) {
   var _paid int64 = 0
   var free int64 = 0
 

@@ -5,6 +5,7 @@ import (
   chimiddle "github.com/go-chi/chi/middleware"
   "github.com/fizlip/microstore/internal/middleware"
   "github.com/fizlip/microstore/internal/handlers/review_handlers"
+  "github.com/fizlip/microstore/internal/handlers/vendor_handlers"
 )
 
 func Handle(r *chi.Mux) {
@@ -48,5 +49,12 @@ func Handle(r *chi.Mux) {
   r.Route("/store", func(router chi.Router){
     router.Get("/trending", GetTrending)     
     router.Get("/product/reviews", review_handlers.GetReviews)     
+  })
+
+  r.Route("/vendor", func(router chi.Router){
+    // Auth
+    router.Use(middleware.Authorization)
+    // Get set of products and their usage for current period
+    router.Get("/get/usage/current", vendor_handlers.GetCurrentUsage)     
   })
 }

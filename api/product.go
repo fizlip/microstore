@@ -27,8 +27,18 @@ type Product struct {
 
 func (p *Product) Execute(cid string) (interface{}, error) {
   log.Println("Log new execution entry for: " + p.UID)
+  p.CreateLog()
   return "Hello world", nil
 }
+
+func (p *Product) CreateLog() (error) {
+  //table, _ := NewProductAnalyticsTable("product_analytics")   
+  //_, err := (*table).Insert()
+  //if err != nil {
+  //  log.Println("error") 
+  //}
+  return nil 
+} 
 
 func NewProduct(uid string, price float64) (*Product, error){
   return &Product{UID: uid, Price: price}, nil

@@ -39,3 +39,4 @@ func NewReviewTable(tableName string) (*ITable, error) {
   var reviewTable ITable = &DynamoDBReviewTable{tableName};
   return &reviewTable, nil
 }
+
