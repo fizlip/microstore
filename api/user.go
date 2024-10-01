@@ -35,7 +35,7 @@ func (c *Customer) Logout() {
 // UserAnalytics and ProductAnalytics
 func (c *Customer) RunProduct(ev *F4SubscriptionEvent) (*PaymentResponse, error) {
   // Create product object
-  product, _ := NewProduct("some_random_id", 0.01)
+  product, _ := NewProduct(ev.ProductID, 0.01)
   // Execute product
   product.Execute(c.Email)
   // If successfull create new analytics (this is used to calculate user invoice)
@@ -148,6 +148,46 @@ func (c *Vendor) CreateProduct(p *Product) {
 func (c *Vendor) ExecuteProduct(cid string) {
   log.Println("Give moeny to vendor")
 } 
+
+func (c *Vendor) GetProducts() ([]Product){
+  return c.ProductCatalog
+}
+
+func (c *Vendor) GetProductUsage() ([]ProductAnalytics, error) {
+  vendorProducts := c.GetProducts()
+  pa, err := NewProductAnalyticsTable("product_analytics")
+  if err != nil {
+    return []ProductAnalytics{}, err
+  }
+
+  res := []ProductAnalytics{}
+
+  for _, product := range vendorProducts {
+    fmt.Println(product.UID)
+    analytics, err := (*pa).Read(product.UID);
+    if err != nil {
+      log.Error("Cuould not read", product.UID)
+    } else {
+      res = append(res, analytics...)
+    }
+  } 
+  return res, nil
+}
+
+func NewVendor(uid string) (*Vendor, error) {
+  var mockPex PaymentExecutor = &mockStripePaymentExecutor{
+    PK: "123", 
+    SK: "sk_test_51Q0fHUG9IK8VP5Ow1GeRlhjEG6fQPXEozXyegjNbNTl7QT1uCZGcz6rCKcXBGMWkWNJGDQyR88bfIGjbP53NzGBs00uYLlMnJp"}
+
+
+  return &Vendor{
+    Email: "vendor@example.com",
+    Rating: 100.0,
+    ProductsCreated: 2,
+    RequestHandled: 10, 
+    ProductCatalog: mockProductCatalog,
+    PaymentExecutor: mockPex}, nil
+}
 
 func VendorFromProductID(productID string) (*Vendor, error) {
   var mockPex PaymentExecutor = &mockStripePaymentExecutor{

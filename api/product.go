@@ -32,11 +32,11 @@ func (p *Product) Execute(cid string) (interface{}, error) {
 }
 
 func (p *Product) CreateLog() (error) {
-  //table, _ := NewProductAnalyticsTable("product_analytics")   
-  //_, err := (*table).Insert()
-  //if err != nil {
-  //  log.Println("error") 
-  //}
+  table, _ := NewProductAnalyticsTable("product_analytics")   
+  err := (*table).Insert(p)
+  if err != nil {
+    log.Println("Could not create new log") 
+  }
   return nil 
 } 
 

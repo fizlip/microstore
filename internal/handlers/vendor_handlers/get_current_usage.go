@@ -13,14 +13,14 @@ import (
 // data: ...
 func GetCurrentUsage(w http.ResponseWriter, r *http.Request) {
   var err error
-  var reviewsTable *api.ITable
-  reviewsTable, err = api.NewReviewTable("reviews")
+  var vendor *api.Vendor
+  vendor, err = api.NewVendor("example@mail.com")
 
   if err != nil {
-    log.Fatalf("failed to get ECR images, %v", err)
+    log.Fatalf("failed to retrieve usage data, %v", err)
   }
 
-  rs, err := (*reviewsTable).Read("123")
+  rs, err := (*vendor).GetProductUsage()
 
   err = json.NewEncoder(w).Encode(rs)
   if err != nil {

@@ -21,7 +21,7 @@ func RunProduct(w http.ResponseWriter, r *http.Request) {
     EventID: uuid.New(),
     CustomerID: "cus_QsQCZFMdRmYIP8", 
     Value: "10", 
-    ProductID: "f4rmhouse_usage"}
+    ProductID: "prod-002"}
 
   // And run the product with it
   res, err := (*user).RunProduct(evt)

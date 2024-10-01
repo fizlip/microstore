@@ -11,9 +11,8 @@ type UserAnalytics struct {
 type ProductAnalytics struct {
   ProductID	string	`json:"product_id"`
   Timestamp	string	`json:"timestamp"`
-  Requests 	uint64 	`json:"requests"`
-  ProductPrice	float64 `json:"product_price"`
-  Status	string	`json:"status"`
+  Status	string 	`json:"status"`
+  Consumer	string 	`json:"consumer"`
 }
 
 type ProductData struct {
