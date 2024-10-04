@@ -45,6 +45,14 @@ This is the directory structure we use for the project
 
 ## testing
 
-## features
+## current sprint
+| feature | status |
+| -------- | ------- |
+| testing |  ❌ |
+| documentation | ✅|
+
+legend: 
+❌ -- not finished
+✅ -- finished
 
 ## license
