@@ -1,10 +1,10 @@
-# Microstore
+# microstore
 
 Microstore is an alternative app store that lets users upload Docker files that 
 will act like tools for AI agents hosted on f4rmhouse.com. Agents
 will use the tools and pay by usage (pay/request) 
 
-## Getting started
+## getting started
 To run microstore locally just clone the repo 
 
 ```
@@ -18,7 +18,26 @@ go run ./cmd/api/main.go
 
 This will start the microstore on port 8000.
 
-## Structure
+## structure
+This is the directory structure we use for the project
+```
+.
+├── api
+│   └── mocks
+├── cmd
+│   └── api
+└── internal
+    ├── handlers
+    │   ├── review_handlers
+    │   └── vendor_handlers
+    ├── middleware
+    └── tools
+```
 
+### api
 
+### cmd
 
+### internal
+
+## license
