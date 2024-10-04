@@ -57,4 +57,6 @@ legend:
 
 ✅ -- finished
 
+View previous sprints and more detailed descriptions in the [projects](https://github.com/fizlip/microstore/projects?query=is%3Aopen) tab.
+
 ## license
