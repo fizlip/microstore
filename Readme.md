@@ -26,7 +26,9 @@ This is the directory structure we use for the project
 ```
 .
 ├── api
-│   └── mocks
+│   ├── mocks
+│   ├── models
+│   └── services
 ├── cmd
 │   └── api
 └── internal
