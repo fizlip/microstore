@@ -1,16 +1,16 @@
 package mocks 
 
 import (
-    "github.com/fizlip/microstore/api/types"
+    "github.com/fizlip/microstore/api/models"
 )
 
-var MockUserAnalytics = []types.UserAnalytics{
+var MockUserAnalytics = []models.UserAnalytics{
 	{
 		CustomerID:   "filip",
 		Timestamp:    "2024-09-24",
 		PaidRequests: 123,
 		FreeRequests: 502,
-		Products: map[string]types.ProductData{
+		Products: map[string]models.ProductData{
 			"p_001": {ProductID: "123", ProductName: "name1", Price: 0.011, NumRequests: 18},
 			"p_002": {ProductID: "124", ProductName: "name2", Price: 0.0011, NumRequests: 21},
 			"p_003": {ProductID: "125", ProductName: "name3", Price: 0.021, NumRequests: 14},
@@ -24,7 +24,7 @@ var MockUserAnalytics = []types.UserAnalytics{
 		Timestamp:    "2024-09-23",
 		PaidRequests: 328,
 		FreeRequests: 1021,
-		Products: map[string]types.ProductData{
+		Products: map[string]models.ProductData{
 			"p_001": {ProductID: "123", ProductName: "name1", Price: 0.011, NumRequests: 81},
 			"p_002": {ProductID: "124", ProductName: "name2", Price: 0.0011, NumRequests: 210},
 			"p_003": {ProductID: "125", ProductName: "name3", Price: 0.021, NumRequests: 121},
@@ -38,7 +38,7 @@ var MockUserAnalytics = []types.UserAnalytics{
 		Timestamp:    "2024-09-23",
 		PaidRequests: 223,
 		FreeRequests: 1092,
-		Products: map[string]types.ProductData{
+		Products: map[string]models.ProductData{
 			"p_001": {ProductID: "123", ProductName: "name1", Price: 0.011, NumRequests: 18},
 			"p_002": {ProductID: "124", ProductName: "name2", Price: 0.0011, NumRequests: 21},
 			"p_003": {ProductID: "125", ProductName: "name3", Price: 0.021, NumRequests: 14},
@@ -52,7 +52,7 @@ var MockUserAnalytics = []types.UserAnalytics{
 		Timestamp:    "2024-09-22",
 		PaidRequests: 291,
 		FreeRequests: 891,
-		Products: map[string]types.ProductData{
+		Products: map[string]models.ProductData{
 			"p_001": {ProductID: "123", ProductName: "name1", Price: 0.011, NumRequests: 10},
 			"p_002": {ProductID: "124", ProductName: "name2", Price: 0.0011, NumRequests: 19},
 			"p_003": {ProductID: "125", ProductName: "name3", Price: 0.021, NumRequests: 14},

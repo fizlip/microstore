@@ -5,7 +5,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stripe/stripe-go/v79"
     "github.com/fizlip/microstore/api/mocks"
-    "github.com/fizlip/microstore/api/types"
+    "github.com/fizlip/microstore/api/models"
+    "github.com/fizlip/microstore/api/services"
 )
 
 type User interface {
@@ -37,11 +38,11 @@ func (c *Customer) Logout() {
 // UserAnalytics and ProductAnalytics
 func (c *Customer) RunProduct(ev *F4SubscriptionEvent) (*PaymentResponse, error) {
 	// Create product object
-	product, _ := NewProduct(ev.ProductID, 0.01)
+	productService , _ := services.NewProduct(ev.ProductID, 0.01)
 	// Execute product
-	product.Execute(c.Email)
+	productService.Execute(c.Email)
 	// If successfull create new analytics (this is used to calculate user invoice)
-	c.CreateUserAnalytic(false, product)
+	c.CreateUserAnalytic(false, &productService.Product)
 	// Then create product analytics (this is used as product logs and to calculate vendor pay)
 
 	return c.PaymentExecutor.CreateMeterEvent(ev)
@@ -60,12 +61,12 @@ func (c *Customer) GetUsage() (*stripe.Invoice, error) {
 	return c.PaymentExecutor.GetUpcomingInvoice("cus_QsQCZFMdRmYIP8")
 }
 
-func (c *Customer) GetAnalytics() ([]types.UserAnalytics, error) {
+func (c *Customer) GetAnalytics() ([]models.UserAnalytics, error) {
 	log.Println("Getting analytics for: " + c.Email)
 	return mocks.MockUserAnalytics, nil
 }
 
-func (c *Customer) CreateUserAnalytic(paid bool, product *Product) {
+func (c *Customer) CreateUserAnalytic(paid bool, product *models.Product) {
 	var _paid int64 = 0
 	var free int64 = 0
 
@@ -91,7 +92,7 @@ func (c *Customer) CreateUserAnalytic(paid bool, product *Product) {
 				entry.NumRequests += 1
 				userData[i].Products[product.UID] = entry
 			} else {
-				userData[i].Products[product.UID] = types.ProductData{ProductID: product.UID, ProductName: product.Title, Price: product.Price, NumRequests: 1}
+				userData[i].Products[product.UID] = models.ProductData{ProductID: product.UID, ProductName: product.Title, Price: product.Price, NumRequests: 1}
 			}
 
 			mocks.MockUserAnalytics = userData
@@ -99,12 +100,12 @@ func (c *Customer) CreateUserAnalytic(paid bool, product *Product) {
 		}
 	}
 
-	newAnalytic := types.UserAnalytics{
+	newAnalytic := models.UserAnalytics{
 		CustomerID:   c.Email,
 		Timestamp:    today,
 		PaidRequests: _paid,
 		FreeRequests: free,
-		Products: map[string]types.ProductData{
+		Products: map[string]models.ProductData{
 			product.UID: {ProductID: product.UID, ProductName: product.Title, Price: product.Price, NumRequests: 1},
 		},
 	}
@@ -127,7 +128,7 @@ type Vendor struct {
 	Rating          float64
 	ProductsCreated int
 	RequestHandled  int64
-	ProductCatalog  []Product
+	ProductCatalog  []models.Product
 	PaymentExecutor PaymentExecutor
 }
 
@@ -143,7 +144,7 @@ func (c *Vendor) Logout() {
 	fmt.Println("Logout: " + c.Email)
 }
 
-func (c *Vendor) CreateProduct(p *Product) {
+func (c *Vendor) CreateProduct(p *models.Product) {
 	fmt.Println("Product created by: " + c.Email)
 }
 
@@ -151,18 +152,18 @@ func (c *Vendor) ExecuteProduct(cid string) {
 	log.Println("Give moeny to vendor")
 }
 
-func (c *Vendor) GetProducts() []Product {
+func (c *Vendor) GetProducts() []models.Product {
 	return c.ProductCatalog
 }
 
-func (c *Vendor) GetProductUsage() ([]ProductAnalytics, error) {
+func (c *Vendor) GetProductUsage() ([]models.ProductAnalytics, error) {
 	vendorProducts := c.GetProducts()
-	pa, err := NewProductAnalyticsTable("product_analytics")
+	pa, err := services.NewProductAnalyticsTable("product_analytics")
 	if err != nil {
-		return []ProductAnalytics{}, err
+		return []models.ProductAnalytics{}, err
 	}
 
-	res := []ProductAnalytics{}
+	res := []models.ProductAnalytics{}
 
 	for _, product := range vendorProducts {
 		fmt.Println(product.UID)
@@ -186,7 +187,7 @@ func NewVendor(uid string) (*Vendor, error) {
 		Rating:          100.0,
 		ProductsCreated: 2,
 		RequestHandled:  10,
-		ProductCatalog:  mockProductCatalog,
+		ProductCatalog:  mocks.MockProductCatalog,
 		PaymentExecutor: mockPex}, nil
 }
 
@@ -200,6 +201,6 @@ func VendorFromProductID(productID string) (*Vendor, error) {
 		Rating:          100.0,
 		ProductsCreated: 120,
 		RequestHandled:  10,
-		ProductCatalog:  []Product{},
+		ProductCatalog:  []models.Product{},
 		PaymentExecutor: mockPex}, nil
 }

@@ -1,10 +1,5 @@
-package api
+package models
 
-import (
-	log "github.com/sirupsen/logrus"
-)
-
-// F4 object structs
 type Product struct {
 	UID          string   `json:"uid"`
 	Title        string   `json:"title"`
@@ -23,23 +18,4 @@ type Product struct {
 	Tags         []string `json:"tags"`
 	RunEndpoint  string   `json:"run_endpoint"`
 	Pulls        int      `json:"pulls"`
-}
-
-func (p *Product) Execute(cid string) (interface{}, error) {
-	log.Println("Log new execution entry for: " + p.UID)
-	p.CreateLog()
-	return "Hello world", nil
-}
-
-func (p *Product) CreateLog() error {
-	table, _ := NewProductAnalyticsTable("product_analytics")
-	err := (*table).Insert(p)
-	if err != nil {
-		log.Println("Could not create new log")
-	}
-	return nil
-}
-
-func NewProduct(uid string, price float64) (*Product, error) {
-	return &Product{UID: uid, Price: price}, nil
 }

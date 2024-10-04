@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fizlip/microstore/api"
+	"github.com/fizlip/microstore/api/models"
 	"github.com/fizlip/microstore/internal/tools"
 	"github.com/google/uuid"
 	"io/ioutil"
@@ -23,7 +24,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	var meta api.Product
+	var meta models.Product
 	err = json.Unmarshal(body, &meta)
 	if err != nil {
 		panic(err)

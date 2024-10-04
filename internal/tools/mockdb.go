@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	"github.com/fizlip/microstore/api"
+	"github.com/fizlip/microstore/api/models"
 	"strconv"
 	"time"
 
@@ -67,9 +68,9 @@ func (d *mockDB) GetUserServices(username string) *ServiceDetails {
 	return &clientData
 }
 
-func (d *mockDB) GetProduct(uid string) api.Product {
+func (d *mockDB) GetProduct(uid string) models.Product {
 
-	return api.Product{
+	return models.Product{
 		UID:          uid,
 		Title:        "Sample Product",
 		Description:  "This is a sample product description.",
@@ -88,11 +89,11 @@ func (d *mockDB) GetProduct(uid string) api.Product {
 	}
 }
 
-func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []api.Product {
-	result := make([]api.Product, len(digests))
+func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []models.Product {
+	result := make([]models.Product, len(digests))
 
 	for i, digest := range digests {
-		result[i] = api.Product{
+		result[i] = models.Product{
 			UID:          *digest.ImageDigest,
 			Title:        "Sample Product",
 			Description:  "This is a sample product description.",
@@ -114,7 +115,7 @@ func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []api.Product {
 	return result
 }
 
-func (d *mockDB) CreateMetadata(product api.Product) error {
+func (d *mockDB) CreateMetadata(product models.Product) error {
 	log.Println(fmt.Sprintf("Created OCI with title: '%s' and endpoint: '%s'", product.Title, product.RunEndpoint))
 	return nil
 }
@@ -124,9 +125,9 @@ func (d *mockDB) UpdateMetadata(upd api.UpdateParams) error {
 	return nil
 }
 
-func (d *mockDB) GetTrending() [9]api.Product {
+func (d *mockDB) GetTrending() [9]models.Product {
 
-	var products [9]api.Product
+	var products [9]models.Product
 
 	names := []string{
 		"Task Master",
@@ -165,7 +166,7 @@ func (d *mockDB) GetTrending() [9]api.Product {
 	}
 
 	for i, _ := range names {
-		product := api.Product{}
+		product := models.Product{}
 		product.UID = strconv.Itoa(i)
 		product.Title = names[i]
 		product.Description = descriptions[i]
@@ -176,8 +177,8 @@ func (d *mockDB) GetTrending() [9]api.Product {
 	return products
 }
 
-func (d *mockDB) SearchProduct(query string) []api.Product {
-	products := []api.Product{
+func (d *mockDB) SearchProduct(query string) []models.Product {
+	products := []models.Product{
 		{
 			UID:          "uuid1", // Replace with actual UUIDs
 			Title:        "Super Productivity App",

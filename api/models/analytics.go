@@ -1,4 +1,4 @@
-package types
+package models 
 
 type UserAnalytics struct {
 	CustomerID   string                 `json:"customer_id"`
@@ -8,9 +8,27 @@ type UserAnalytics struct {
 	Products     map[string]ProductData `json:"products"`
 }
 
+type ProductAnalytics struct {
+	ProductID string `json:"product_id"`
+	Timestamp string `json:"timestamp"`
+	Status    string `json:"status"`
+	Consumer  string `json:"consumer"`
+}
+
 type ProductData struct {
 	ProductID   string  `json:"product_id"`
 	ProductName string  `json:"product_name"`
 	Price       float64 `json:"price"`
 	NumRequests int64   `json:"num_requests"`
+}
+
+type IProductAnalyticsTable interface {
+	Insert(p *Product) error
+	Read(pid string) ([]ProductAnalytics, error)
+	Update(id string) (bool, error)
+	Delete(id string) (bool, error)
+}
+
+type DynamoDBProductAnalyticsTable struct {
+	TableName string
 }

@@ -1,6 +1,9 @@
-package api
+package mocks 
 
-var mockProductCatalog = []Product{
+import (
+    "github.com/fizlip/microstore/api/models"
+)
+var MockProductCatalog = []models.Product{
 	{
 		UID:          "prod-001",
 		Title:        "SaaS CRM",
