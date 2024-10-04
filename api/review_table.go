@@ -1,42 +1,41 @@
 package api
 
 import (
-  log "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type ITable interface {
-  Insert(r Review) (bool, error)
-  Read(pid string) ([]Review, error)
-  Update(id string) (bool, error)
-  Delete(id string) (bool, error)
+	Insert(r Review) (bool, error)
+	Read(pid string) ([]Review, error)
+	Update(id string) (bool, error)
+	Delete(id string) (bool, error)
 }
 
 type DynamoDBReviewTable struct {
-  TableName string
+	TableName string
 }
 
-func (r *DynamoDBReviewTable) Insert(review Review) (bool, error){
-  log.Println("Inserting value into table")
-  return true,nil
-} 
-
-func (r *DynamoDBReviewTable) Read(pid string) ([]Review, error){
-  log.Println("Reading reviews")
-  return mockReviews,nil
+func (r *DynamoDBReviewTable) Insert(review Review) (bool, error) {
+	log.Println("Inserting value into table")
+	return true, nil
 }
 
-func (r *DynamoDBReviewTable) Update(pid string) (bool, error){
-  log.Println("Updating review")
-  return true,nil
+func (r *DynamoDBReviewTable) Read(pid string) ([]Review, error) {
+	log.Println("Reading reviews")
+	return mockReviews, nil
 }
 
-func (r *DynamoDBReviewTable) Delete(pid string) (bool, error){
-  log.Println("Deleting review")
-  return true,nil
+func (r *DynamoDBReviewTable) Update(pid string) (bool, error) {
+	log.Println("Updating review")
+	return true, nil
+}
+
+func (r *DynamoDBReviewTable) Delete(pid string) (bool, error) {
+	log.Println("Deleting review")
+	return true, nil
 }
 
 func NewReviewTable(tableName string) (*ITable, error) {
-  var reviewTable ITable = &DynamoDBReviewTable{tableName};
-  return &reviewTable, nil
+	var reviewTable ITable = &DynamoDBReviewTable{tableName}
+	return &reviewTable, nil
 }
-

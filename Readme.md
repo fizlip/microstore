@@ -1,7 +1,20 @@
 # Microstore
 
-Microstore is an alternative app store that lets users upload SaaS products and
-get paid in a pay-as-you-go fashion with a price that they define themselves.
+Microstore is an alternative app store that lets users upload Docker files that 
+will act like tools for AI agents hosted on f4rmhouse.com. Agents
+will use the tools and pay by usage (pay/request) 
 
 ## Getting started
-...
+To run microstore locally just clone the repo 
+
+```
+git clone git@github.com:fizlip/microstore.git
+```
+
+The cd into microstore and run
+```
+go run ./cmd/api/main.go
+```
+
+This will start the microstore on post 8000.
+

@@ -59,4 +59,3 @@ var mockProductCatalog = []Product{
 		Pulls:        9500,
 	},
 }
-

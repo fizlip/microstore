@@ -1,45 +1,45 @@
-package api 
+package api
 
 import (
-  log "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // F4 object structs
 type Product struct {
-  UID          string   `json:"uid"`
-  Title        string   `json:"title"`
-  Description  string   `json:"description"`
-  Rating       float64  `json:"rating"`
-  Price        float64  `json:"price"`
-  Thumbnail    string   `json:"thumbnail"`
-  Overview     string   `json:"overview"`
-  CommunityURL string   `json:"communityURL"`
-  Reviews      int      `json:"reviews"`
-  Developer    string   `json:"developer"`
-  PricingType  string   `json:"pricingType"`
-  ReleaseType  string   `json:"releaseType"`
-  Version      string   `json:"version"`
-  Showcase     []string `json:"showcase"`
-  Tags         []string `json:"tags"`
-  RunEndpoint  string   `json:"run_endpoint"`
-  Pulls        int      `json:"pulls"`
+	UID          string   `json:"uid"`
+	Title        string   `json:"title"`
+	Description  string   `json:"description"`
+	Rating       float64  `json:"rating"`
+	Price        float64  `json:"price"`
+	Thumbnail    string   `json:"thumbnail"`
+	Overview     string   `json:"overview"`
+	CommunityURL string   `json:"communityURL"`
+	Reviews      int      `json:"reviews"`
+	Developer    string   `json:"developer"`
+	PricingType  string   `json:"pricingType"`
+	ReleaseType  string   `json:"releaseType"`
+	Version      string   `json:"version"`
+	Showcase     []string `json:"showcase"`
+	Tags         []string `json:"tags"`
+	RunEndpoint  string   `json:"run_endpoint"`
+	Pulls        int      `json:"pulls"`
 }
 
 func (p *Product) Execute(cid string) (interface{}, error) {
-  log.Println("Log new execution entry for: " + p.UID)
-  p.CreateLog()
-  return "Hello world", nil
+	log.Println("Log new execution entry for: " + p.UID)
+	p.CreateLog()
+	return "Hello world", nil
 }
 
-func (p *Product) CreateLog() (error) {
-  table, _ := NewProductAnalyticsTable("product_analytics")   
-  err := (*table).Insert(p)
-  if err != nil {
-    log.Println("Could not create new log") 
-  }
-  return nil 
-} 
+func (p *Product) CreateLog() error {
+	table, _ := NewProductAnalyticsTable("product_analytics")
+	err := (*table).Insert(p)
+	if err != nil {
+		log.Println("Could not create new log")
+	}
+	return nil
+}
 
-func NewProduct(uid string, price float64) (*Product, error){
-  return &Product{UID: uid, Price: price}, nil
+func NewProduct(uid string, price float64) (*Product, error) {
+	return &Product{UID: uid, Price: price}, nil
 }

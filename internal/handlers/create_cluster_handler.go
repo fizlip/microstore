@@ -1,45 +1,45 @@
 package handlers
 
 import (
-  //"fmt"
-  "encoding/json"
-  "net/http"
-  "io/ioutil"
-  "github.com/fizlip/microstore/internal/tools"
+	//"fmt"
+	"encoding/json"
+	"github.com/fizlip/microstore/internal/tools"
+	"io/ioutil"
+	"net/http"
 
-  "github.com/fizlip/microstore/api"
-  log "github.com/sirupsen/logrus"
+	"github.com/fizlip/microstore/api"
+	log "github.com/sirupsen/logrus"
 )
 
 func CreateCluster(w http.ResponseWriter, r *http.Request) {
-  var err error
-  var clusterParams api.ClusterParams
-  var computeClient *tools.ComputeClientInterface
+	var err error
+	var clusterParams api.ClusterParams
+	var computeClient *tools.ComputeClientInterface
 
-  body, err := ioutil.ReadAll(r.Body)
-  if err != nil {
-    panic(err)
-  }
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
 
-  err = json.Unmarshal(body, &clusterParams)
-  if err != nil {
-    panic(err)
-  }
+	err = json.Unmarshal(body, &clusterParams)
+	if err != nil {
+		panic(err)
+	}
 
-  computeClient, err = tools.NewComputeClient()
-  _, err = (*computeClient).Connect()
+	computeClient, err = tools.NewComputeClient()
+	_, err = (*computeClient).Connect()
 
-  err = (*computeClient).DeployCluster(clusterParams)
+	err = (*computeClient).DeployCluster(clusterParams)
 
-  response := api.Success {
-    Code: 200,
-    Message: "Cluster deployment has succseded",
-  }
+	response := api.Success{
+		Code:    200,
+		Message: "Cluster deployment has succseded",
+	}
 
-  err = json.NewEncoder(w).Encode(response)
-  if err != nil {
-    log.Error(err)
-    api.InternalErrorHandler(w)
-    return
-  }
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+	}
 }
