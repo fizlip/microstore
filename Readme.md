@@ -11,10 +11,14 @@ To run microstore locally just clone the repo
 git clone git@github.com:fizlip/microstore.git
 ```
 
-The cd into microstore and run
+Then cd into microstore and run
 ```
 go run ./cmd/api/main.go
 ```
 
-This will start the microstore on post 8000.
+This will start the microstore on port 8000.
+
+## Structure
+
+
 
