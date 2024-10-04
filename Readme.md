@@ -1,8 +1,8 @@
 # microstore
 
-Microstore is an alternative app store that lets users upload Docker files that 
-will act like tools for AI agents hosted on f4rmhouse.com. Agents
-will use the tools and pay by usage (pay/request) 
+Microstore is a universal tool store that focuses on being extremely usable and
+reliable. We sell tools for AI agents hosted on f4rmhouse.com. Agents
+use tools and pay by usage (pay/request) 
 
 ## getting started
 If you want to get a deep understanding or what f4rmhouse is you can visit our 
