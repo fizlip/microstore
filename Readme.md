@@ -5,7 +5,10 @@ will act like tools for AI agents hosted on f4rmhouse.com. Agents
 will use the tools and pay by usage (pay/request) 
 
 ## getting started
-To run microstore locally just clone the repo 
+If you want to get a deep understanding or what f4rmhouse is you can visit our 
+documentations page
+
+If you want to run microstore locally just clone the repo 
 
 ```
 git clone git@github.com:fizlip/microstore.git
@@ -39,5 +42,9 @@ This is the directory structure we use for the project
 ### cmd
 
 ### internal
+
+## testing
+
+## features
 
 ## license
