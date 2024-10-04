@@ -52,7 +52,9 @@ This is the directory structure we use for the project
 | documentation | ✅|
 
 legend: 
+
 ❌ -- not finished
+
 ✅ -- finished
 
 ## license
