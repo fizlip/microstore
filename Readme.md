@@ -38,6 +38,16 @@ This is the directory structure we use for the project
 ```
 
 ### api
+The ´api´ directory contains the code for all our entities. The main entities currently 
+are: 
+    * Analytics
+    * Product
+    * User
+    * Review
+    * PaymentExecutor
+
+All of these are located in separate files. There also is an `api.go` file that
+contains some utility structs to handle responses and requests.
 
 ### cmd
 

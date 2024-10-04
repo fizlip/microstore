@@ -4,6 +4,8 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/stripe/stripe-go/v79"
+    "github.com/fizlip/microstore/api/mocks"
+    "github.com/fizlip/microstore/api/types"
 )
 
 type User interface {
@@ -58,9 +60,9 @@ func (c *Customer) GetUsage() (*stripe.Invoice, error) {
 	return c.PaymentExecutor.GetUpcomingInvoice("cus_QsQCZFMdRmYIP8")
 }
 
-func (c *Customer) GetAnalytics() ([]UserAnalytics, error) {
+func (c *Customer) GetAnalytics() ([]types.UserAnalytics, error) {
 	log.Println("Getting analytics for: " + c.Email)
-	return mockUserAnalytics, nil
+	return mocks.MockUserAnalytics, nil
 }
 
 func (c *Customer) CreateUserAnalytic(paid bool, product *Product) {
@@ -74,7 +76,7 @@ func (c *Customer) CreateUserAnalytic(paid bool, product *Product) {
 	}
 
 	today := "2024-09-25"
-	userData := mockUserAnalytics
+	userData := mocks.MockUserAnalytics
 
 	for i, elem := range userData {
 		if elem.Timestamp == today && elem.CustomerID == c.Email {
@@ -89,24 +91,24 @@ func (c *Customer) CreateUserAnalytic(paid bool, product *Product) {
 				entry.NumRequests += 1
 				userData[i].Products[product.UID] = entry
 			} else {
-				userData[i].Products[product.UID] = ProductData{ProductID: product.UID, ProductName: product.Title, Price: product.Price, NumRequests: 1}
+				userData[i].Products[product.UID] = types.ProductData{ProductID: product.UID, ProductName: product.Title, Price: product.Price, NumRequests: 1}
 			}
 
-			mockUserAnalytics = userData
+			mocks.MockUserAnalytics = userData
 			return
 		}
 	}
 
-	newAnalytic := UserAnalytics{
+	newAnalytic := types.UserAnalytics{
 		CustomerID:   c.Email,
 		Timestamp:    today,
 		PaidRequests: _paid,
 		FreeRequests: free,
-		Products: map[string]ProductData{
+		Products: map[string]types.ProductData{
 			product.UID: {ProductID: product.UID, ProductName: product.Title, Price: product.Price, NumRequests: 1},
 		},
 	}
-	mockUserAnalytics = append(userData, newAnalytic)
+	mocks.MockUserAnalytics = append(userData, newAnalytic)
 	log.Println("Creating new analytic")
 }
 
