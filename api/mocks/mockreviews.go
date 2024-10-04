@@ -1,6 +1,10 @@
-package api
+package mocks 
 
-var mockReviews = []Review{
+import (
+    "github.com/fizlip/microstore/api/models"
+)
+
+var MockReviews = []models.Review{
 	{
 		PID:     "123",
 		Title:   "gm",

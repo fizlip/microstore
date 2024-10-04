@@ -2,11 +2,13 @@ package api
 
 import (
 	log "github.com/sirupsen/logrus"
+    "github.com/fizlip/microstore/api/mocks"
+    "github.com/fizlip/microstore/api/models"
 )
 
 type ITable interface {
-	Insert(r Review) (bool, error)
-	Read(pid string) ([]Review, error)
+	Insert(r models.Review) (bool, error)
+	Read(pid string) ([]models.Review, error)
 	Update(id string) (bool, error)
 	Delete(id string) (bool, error)
 }
@@ -15,14 +17,14 @@ type DynamoDBReviewTable struct {
 	TableName string
 }
 
-func (r *DynamoDBReviewTable) Insert(review Review) (bool, error) {
+func (r *DynamoDBReviewTable) Insert(review models.Review) (bool, error) {
 	log.Println("Inserting value into table")
 	return true, nil
 }
 
-func (r *DynamoDBReviewTable) Read(pid string) ([]Review, error) {
+func (r *DynamoDBReviewTable) Read(pid string) ([]models.Review, error) {
 	log.Println("Reading reviews")
-	return mockReviews, nil
+	return mocks.MockReviews, nil
 }
 
 func (r *DynamoDBReviewTable) Update(pid string) (bool, error) {

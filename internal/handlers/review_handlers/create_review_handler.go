@@ -3,6 +3,7 @@ package review_handlers
 import (
 	"encoding/json"
 	"github.com/fizlip/microstore/api"
+	"github.com/fizlip/microstore/api/models"
 	"io/ioutil"
 	"net/http"
 
@@ -26,7 +27,7 @@ func CreateReview(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	var review api.Review
+	var review models.Review
 	err = json.Unmarshal(body, &review)
 	if err != nil {
 		response = api.Success{
