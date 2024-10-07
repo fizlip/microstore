@@ -1,6 +1,6 @@
 # microstore
 
-Microstore is a universal tool store that focuses on being extremely usable and
+Microstore is a universal agentic tool store that focuses on being extremely usable and
 reliable. We sell tools for AI agents hosted on f4rmhouse.com. Agents
 use tools and pay by usage (pay/request) 
 
