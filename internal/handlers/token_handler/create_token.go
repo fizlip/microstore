@@ -8,7 +8,7 @@ import (
     log "github.com/sirupsen/logrus"
     "encoding/json"
     "github.com/joho/godotenv"
-    "os"
+    // "os"
 )
 
 func InsertToken(w http.ResponseWriter, r *http.Request) {
@@ -31,10 +31,11 @@ func InsertToken(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-    log.Println("Authorizartion: ", r.Header.Get("Authorization"))
-
+    accessToken := r.Header.Get("Authorization")
+    err = services.ValidateAccessToken(accessToken, token.Provider)
     // Check if secret_key is correct
-    if r.Header.Get("Authorization") != os.Getenv("SECRET_KEY") {
+    if err != nil {
+        log.Println(err)
         response := api.Success{
             Code:    400,
             Message: "User not authorized",

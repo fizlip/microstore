@@ -8,6 +8,7 @@ type Token struct {
     Username    string
     Token       string
     ValidUntil  int 
+    Provider    string
 }
 
 func (table *Token) Insert() error {
