@@ -5,9 +5,3 @@ type Token struct {
     Token       string
     ValidUntil  int 
 }
-
-type TokenTable interface {
-  Insert(t Token) error
-  Delete(username string) error
-  Read(token string) error
-}

@@ -1,19 +1,26 @@
 package services
 
 import (
-    "fmt"
-
-    "github.com/fizlip/microstore/internal/models"
+    log "github.com/sirupsen/logrus"
 )
 
-func (t *TokenTable) Insert(t models.Token) error {
-    fmt.Println("Insert token") 
+type Token struct {
+    Username    string
+    Token       string
+    ValidUntil  int 
 }
 
-func (t *TokenTable) Delete(username string) error {
-    fmt.Println("delete token") 
+func (table *Token) Insert() error {
+    log.Println("Insert token") 
+    return nil
 }
 
-func (t *TokenTable) Read(token string) error {
-    fmt.Println("read token")
+func (table *Token) Delete() error {
+    log.Println("delete token") 
+    return nil
+}
+
+func (table *Token) Read() error {
+    log.Println("read token")
+    return nil
 }
