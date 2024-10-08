@@ -7,33 +7,39 @@ import (
     "net/http"
     log "github.com/sirupsen/logrus"
     "encoding/json"
+    "github.com/joho/godotenv"
+    "os"
 )
 
 func InsertToken(w http.ResponseWriter, r *http.Request) {
     var err error
     var token services.Token
 
-    body, err := ioutil.ReadAll(r.Body)
+    err = godotenv.Load(".env")
+    if err != nil {
+        panic(err)
+    }
 
+    // Read body which contains oauth token to be inserted
+    body, err := ioutil.ReadAll(r.Body)
     if err != nil {
 		panic(err)
 	}
-
+    // Get token
 	err = json.Unmarshal(body, &token)
 	if err != nil {
 		panic(err)
 	}
-    log.Println("Origin: ", r.Header.Get("Origin"))
-    err = token.Insert()
-    if err != nil {
-        panic(err)
-    }
-    if r.Header.Get("Origin") != "http://localhost:3000" {
+
+    log.Println("Authorizartion: ", r.Header.Get("Authorization"))
+
+    // Check if secret_key is correct
+    if r.Header.Get("Authorization") != os.Getenv("SECRET_KEY") {
         response := api.Success{
             Code:    400,
             Message: "User not authorized",
         }
-
+        log.Error("Failed authorization attempt")
         err = json.NewEncoder(w).Encode(response)
         if err != nil {
             log.Error(err)
@@ -41,6 +47,10 @@ func InsertToken(w http.ResponseWriter, r *http.Request) {
             return
         }
     } else {
+        err = token.Insert()
+        if err != nil {
+            panic(err)
+        }
         response := api.Success{
             Code:    200,
             Message: "New token created",
