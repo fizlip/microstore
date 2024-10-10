@@ -40,20 +40,14 @@ This is the directory structure we use for the project
 ```
 
 ### api
-The ´api´ directory contains the code for all our entities. The main entities currently 
-are: 
-    * Analytics
-    * Product
-    * User
-    * Review
-    * PaymentExecutor
-
-All of these are located in separate files. There also is an `api.go` file that
-contains some utility structs to handle responses and requests.
+JSON schema files, protocol definition files.
 
 ### cmd
+Contains main.go file and also used for binaries.
 
 ### internal
+Contains private code that should not be used by outside packages. Contains subdirectories
+for models, services and handlers.
 
 ## testing
 
@@ -62,6 +56,9 @@ contains some utility structs to handle responses and requests.
 | -------- | ------- |
 | testing |  ❌ |
 | documentation | ✅|
+| auth | ✅|
+| payments | ❌ |
+| docker deployments | ❌ |
 
 legend: 
 
