@@ -20,6 +20,7 @@ type RemoteTokenData struct {
     header string
     headerValue string
     token string
+    requestInstigator string
 }
 
 func (v *RemoteTokenData) fetch() (*http.Response, error){
@@ -52,7 +53,9 @@ func validateGoogleAccessToken(remote RemoteTokenData) error {
         fmt.Errorf("Error decoding JSON: %v", errr)
     }
     email, _ := result["email"].(string)
-    fmt.Println(email)
+    if email != remote.requestInstigator {
+        return fmt.Errorf("The instigator of the request does not match the token owner.")
+    }
 
     return err
 }
@@ -65,13 +68,14 @@ func validateGithubAccessToken(remote RemoteTokenData) error {
     return err
 }
 
-func ValidateAccessToken(token string, provider string) error {
+func ValidateAccessToken(token string, provider string, instigator string) error {
 
     githubTokenData := RemoteTokenData{
         "https://api.github.com/user/emails", 
         "Authorization",
         fmt.Sprintf("token %s", token),
         token,
+        instigator,
     }
 
     googleTokenData := RemoteTokenData{
@@ -79,6 +83,7 @@ func ValidateAccessToken(token string, provider string) error {
         "",
         "",
         token,
+        instigator,
     }
 
     switch {

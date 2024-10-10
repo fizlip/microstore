@@ -9,25 +9,26 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var UnAuthorizedError = errors.New("Invalid username or token.")
+var UnAuthorizedError = errors.New("Forbidden resource")
+var AuthenticationError = errors.New("Missing credentials")
 
 func Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var provider string = r.URL.Query().Get("provider")
 		var token = r.Header.Get("Authorization")
+        var provider = r.Header.Get("X-Provider")
+		var instigator = r.Header.Get("X-Username")
 		var err error
 
-		if provider == "" || token == "" {
-			log.Error(UnAuthorizedError)
-			api.RequestErrorHandler(w, UnAuthorizedError)
+		if provider == "" || token == "" || instigator == ""{
+			log.Error(AuthenticationError)
+			api.AuthenticationErrorHandler(w, AuthenticationError)
 			return
 		}
-
-		err = services.ValidateAccessToken(token, provider)
+		err = services.ValidateAccessToken(token, provider, instigator)
 
 		if err != nil {
 			log.Error(UnAuthorizedError)
-			api.RequestErrorHandler(w, UnAuthorizedError)
+			api.AuthorizationErrorHandler(w, UnAuthorizedError)
 			return
 		}
         log.Println("User is authenticated")

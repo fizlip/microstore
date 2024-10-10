@@ -22,7 +22,14 @@ func main() {
 		AllowedOrigins: []string{"http://localhost:3000"},
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{
+            "Accept", 
+            "Authorization", 
+            "Content-Type", 
+            "X-CSRF-Token", 
+            "X-Username",
+            "X-Provider",
+        },
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers

@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/fizlip/microstore/internal/handlers/review_handlers"
 	"github.com/fizlip/microstore/internal/handlers/vendor_handlers"
-	"github.com/fizlip/microstore/internal/handlers/token_handler"
 	"github.com/fizlip/microstore/internal/middleware"
 	"github.com/go-chi/chi"
 	chimiddle "github.com/go-chi/chi/middleware"
@@ -27,14 +26,11 @@ func Handle(r *chi.Mux) {
 		router.Post("/search", Search)
 	})
 
-    r.Route("/login", func(router chi.Router) {
-        router.Post("/insert/token", token_handler.InsertToken)
-    })
-
 	r.Route("/user", func(router chi.Router) {
 		// Auth
 		router.Use(middleware.Authorization)
 		// OCI creation & reading & updating
+		router.Get("/valid", CheckValidSession)
 		router.Post("/oci/create", CreateImage)
 		router.Patch("/oci/update", UpdateImage)
 		router.Post("/oci/deploy", DeployImage)
