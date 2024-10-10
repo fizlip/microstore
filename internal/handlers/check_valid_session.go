@@ -8,8 +8,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// GetAllImages will return one page of all images available in the f4mhouse OCI repo
-// A correct response will return an array of Image values.
+// CheckValidSession is a simple endpoint that lets a client see whether they
+// have valid credentials it returns an error iff the user is unauthorized
+// otherwise it returns a simple message. 
 func CheckValidSession(w http.ResponseWriter, r *http.Request) {
 
 	var err error

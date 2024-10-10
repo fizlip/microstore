@@ -5,16 +5,11 @@ import (
     "net/http"
     "time"
     "encoding/json"
-    "io"
 )
 
-type TokenValidator interface {
-    getTokenInfo(token string) (*http.Response, error)
-    getTokenOwner(token string) (string, error)
-    validateAccessToken(token string) error
-}
-
-
+// RemoteTokenData is used to access tokens from OAuth providers.
+// The structs and its functions provide a simple way to get the 
+// raw token from OAuth providers 
 type RemoteTokenData struct {
     url string 
     header string
@@ -23,6 +18,8 @@ type RemoteTokenData struct {
     requestInstigator string
 }
 
+// fetch will send an http request to an OAuth provider and return
+// the session object
 func (v *RemoteTokenData) fetch() (*http.Response, error){
     client := &http.Client{
         Timeout: 10 * time.Second,
@@ -41,35 +38,49 @@ func (v *RemoteTokenData) fetch() (*http.Response, error){
         return res, fmt.Errorf("token verification failed with status: %d", res.StatusCode)
     }
     return res, nil
-
 }
 
-func validateGoogleAccessToken(remote RemoteTokenData) error {
-    resp, err := remote.fetch()
+// validateAccessToken ensures 
+// 1. The given token exists 
+// 2. The owner of the token is the same as the intigator 
+func validateAccessToken(remote RemoteTokenData, unwrapperFunc func(resp *http.Response) (string, error)) error {
+    resp, err := remote.fetch() 
     defer resp.Body.Close()
-
-    var result map[string]interface{}
-    if errr := json.NewDecoder(resp.Body).Decode(&result); errr != nil {
-        fmt.Errorf("Error decoding JSON: %v", errr)
+    // If token does not exists unwrapper will return an err
+    email, err := unwrapperFunc(resp)
+    if err != nil {
+        return fmt.Errorf("Token does not exist")
     }
-    email, _ := result["email"].(string)
     if email != remote.requestInstigator {
         return fmt.Errorf("The instigator of the request does not match the token owner.")
     }
-
     return err
 }
 
-func validateGithubAccessToken(remote RemoteTokenData) error {
-    resp, err := remote.fetch() 
-    defer resp.Body.Close()
-    r, _ := io.ReadAll(resp.Body) 
-    fmt.Println(string(r))
-    return err
+// unwrapGoogleResponse returns the userid from the response
+// returned by Google OAuth provider
+func unwrapGoogleResponse(resp *http.Response) (string, error) {
+    var result map[string]interface{}
+    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+        return "", fmt.Errorf("Error decoding Google response JSON: %v", err)
+    }
+    return result["email"].(string), nil
 }
 
+// unwrapGithubResponse returns userid from the response 
+// returned by GitHub OAuth provider
+func unwrapGithubResponse(resp *http.Response) (string, error) {
+    var result []map[string]interface{}
+    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+        return "", fmt.Errorf("Error decoding Github response JSON: %v", err)
+    }
+    return result[0]["email"].(string), nil
+}
+
+// ValidateAccesstoken will return an error is a token is invalid or nil otherwise
 func ValidateAccessToken(token string, provider string, instigator string) error {
-
+    // Currently Github & Google are supported as OAuth providers
+    // each OAuth has different ways to validate the token
     githubTokenData := RemoteTokenData{
         "https://api.github.com/user/emails", 
         "Authorization",
@@ -86,11 +97,12 @@ func ValidateAccessToken(token string, provider string, instigator string) error
         instigator,
     }
 
+    // Determine strategy based on OAuth provider
     switch {
         case provider == "google":
-            return validateGoogleAccessToken(googleTokenData)
+            return validateAccessToken(googleTokenData, unwrapGoogleResponse)
         case provider == "github":
-            return validateGithubAccessToken(githubTokenData)
+            return validateAccessToken(githubTokenData, unwrapGithubResponse)
         default:
             return fmt.Errorf("%s is not recognized as a provider", provider)
     }
