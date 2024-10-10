@@ -30,7 +30,7 @@ func Authorization(next http.Handler) http.Handler {
 			api.RequestErrorHandler(w, UnAuthorizedError)
 			return
 		}
-
+        log.Println("User is authenticated")
 		next.ServeHTTP(w, r)
 	})
 }
