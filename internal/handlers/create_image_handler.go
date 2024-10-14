@@ -55,6 +55,11 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
     }
     defer services.CleanupTempFile(fname)
 
+    //if err := services.LoadDockerImage(tempFilePath); err != nil {
+    //    http.Error(w, "Failed to load image into Docker: "+err.Error(), http.StatusInternalServerError)
+    //    return
+    //}
+
 	// UUID is used to create a unique identifier just in case
 	// two recrods are created with the same title at the same time.
 	meta.UID = uuid.New().String()

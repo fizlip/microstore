@@ -4,15 +4,17 @@ import (
     "context"
     "fmt"
     "os/exec"
+    "os"
     "strings"
 
+    "github.com/docker/docker/client"
     "github.com/aws/aws-sdk-go-v2/config"
     "github.com/aws/aws-sdk-go-v2/service/ecr"
 )
 
 func pushToECR(imageName string) error {
     // Load AWS configuration
-    cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-west-2"))
+    cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
     if err != nil {
         return fmt.Errorf("unable to load SDK config: %v", err)
     }
@@ -48,6 +50,25 @@ func pushToECR(imageName string) error {
     }
 
     return nil
+}
+
+func DockerLoad(dockerCli *client.Client, pathToImage string) error {
+    imageTar, err := os.Open(pathToImage)
+    if err != nil {
+        return err
+    }
+
+    defer imageTar.Close()
+
+    // Load the image
+    ctx := context.Background()
+    loadResponse, err := dockerCli.ImageLoad(ctx, imageTar, true)
+    if err != nil {
+        return err
+    }
+
+    defer loadResponse.Body.Close()
+    return nil 
 }
 
 func dockerLogin(registryURL, authToken string) error {
