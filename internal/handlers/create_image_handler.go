@@ -49,12 +49,12 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 	//	panic(err)
 	//}
 
-    err = services.CreateTempFile(file, fileHeader.Filename)
+    fname, err := services.CreateTempFile(file, fileHeader.Filename)
     if err != nil {
         api.AuthenticationErrorHandler(w, ImageNotFound)
         return
     }
-
+    defer services.CleanupTempFile(fname)
 	// UUID is used to create a unique identifier just in case
 	// two recrods are created with the same title at the same time.
 	meta.UID = uuid.New().String()
