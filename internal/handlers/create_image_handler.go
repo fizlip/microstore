@@ -3,6 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+
+    "github.com/docker/docker/client"
 	"github.com/fizlip/microstore/api"
     "github.com/fizlip/microstore/internal/services"
 	"github.com/fizlip/microstore/api/models"
@@ -21,6 +23,12 @@ var ImageNotFound = errors.New("Form does not contain image")
 func CreateImage(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// var database *tools.DatabaseInterface
+
+    // create a docker client object to communicate w/ docker daemon
+    dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+    if err != nil {
+        panic(err)
+    }
 
     err = r.ParseMultipartForm(32 << 20) // 32MB max memory
     if err != nil {
@@ -53,12 +61,17 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         api.AuthenticationErrorHandler(w, ImageNotFound)
         return
     }
+
     defer services.CleanupTempFile(fname)
 
-    //if err := services.LoadDockerImage(tempFilePath); err != nil {
-    //    http.Error(w, "Failed to load image into Docker: "+err.Error(), http.StatusInternalServerError)
-    //    return
-    //}
+    if err := services.DockerLoad(dockerClient, fname); err != nil {
+        api.AuthenticationErrorHandler(w, ImageNotFound)
+        return
+    }
+    if err := services.DockerList(dockerClient); err != nil {
+        api.AuthenticationErrorHandler(w, ImageNotFound)
+        return
+    }
 
 	// UUID is used to create a unique identifier just in case
 	// two recrods are created with the same title at the same time.

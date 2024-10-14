@@ -8,8 +8,12 @@ import (
     "strings"
 
     "github.com/docker/docker/client"
+    "github.com/docker/docker/api/types/image"
+
     "github.com/aws/aws-sdk-go-v2/config"
     "github.com/aws/aws-sdk-go-v2/service/ecr"
+
+    log "github.com/sirupsen/logrus"
 )
 
 func pushToECR(imageName string) error {
@@ -68,7 +72,27 @@ func DockerLoad(dockerCli *client.Client, pathToImage string) error {
     }
 
     defer loadResponse.Body.Close()
+
+    log.Println("Loaded docker image ", pathToImage)
     return nil 
+}
+
+func DockerList(dockerCli *client.Client) error {
+    images, err := dockerCli.ImageList(context.Background(), image.ListOptions{}) 
+    if err != nil {
+        return err
+    }
+
+    for _, image := range images {
+        log.Printf("ID: %s\n", image.ID)
+        if len(image.RepoTags) > 0 {
+            log.Printf("Tags: %v\n", image.RepoTags)
+        }
+        log.Printf("Size: %d bytes\n", image.Size)
+        log.Printf("Created: %d\n\n", image.Created)
+    }
+
+    return nil
 }
 
 func dockerLogin(registryURL, authToken string) error {
