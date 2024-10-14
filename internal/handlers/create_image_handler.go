@@ -4,39 +4,64 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fizlip/microstore/api"
+    "github.com/fizlip/microstore/internal/services"
 	"github.com/fizlip/microstore/api/models"
-	"github.com/fizlip/microstore/internal/tools"
 	"github.com/google/uuid"
-	"io/ioutil"
+	// "io/ioutil"
 	"net/http"
+    "errors"
 
 	log "github.com/sirupsen/logrus"
 )
 
+var ToLargeError = errors.New("Form data to large")
+var ImageNotFound = errors.New("Form does not contain image")
+
 // CreateImage will create the metadata for a given image.
 func CreateImage(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var database *tools.DatabaseInterface
+	// var database *tools.DatabaseInterface
 
-	database, err = tools.NewDatabase()
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		panic(err)
-	}
+    err = r.ParseMultipartForm(32 << 20) // 32MB max memory
+    if err != nil {
+        api.AuthenticationErrorHandler(w, ToLargeError)
+        return
+    }
+
+    file, fileHeader, err := r.FormFile("image")
+    if err != nil {
+        api.AuthenticationErrorHandler(w, ImageNotFound)
+        return
+    }
+    log.Println("Filename: ", file)
+    defer file.Close()
+
+	// database, err = tools.NewDatabase()
+
+	//body, err := ioutil.ReadAll(r.Body)
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	var meta models.Product
-	err = json.Unmarshal(body, &meta)
-	if err != nil {
-		panic(err)
-	}
+	//err = json.Unmarshal(body, &meta)
+	//if err != nil {
+	//	panic(err)
+	//}
+
+    err = services.CreateTempFile(file, fileHeader.Filename)
+    if err != nil {
+        api.AuthenticationErrorHandler(w, ImageNotFound)
+        return
+    }
 
 	// UUID is used to create a unique identifier just in case
 	// two recrods are created with the same title at the same time.
 	meta.UID = uuid.New().String()
-	meta.RunEndpoint = fmt.Sprintf("https://run.botify.com/oci/%s", meta.UID)
+	// meta.RunEndpoint = fmt.Sprintf("https://run.botify.com/oci/%s", meta.UID)
 
 	// Call create method in db interface
-	err = (*database).CreateMetadata(meta)
+	// err = (*database).CreateMetadata(meta)
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -48,7 +73,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 
 	response := api.Success{
 		Code:    200,
-		Message: fmt.Sprintf("New record with ID: '%s' has successfully been created", meta.UID),
+		Message: fmt.Sprintf("New container with ID: '%s' has successfully been created", meta.UID),
 	}
 
 	err = json.NewEncoder(w).Encode(response)

@@ -46,7 +46,7 @@ JSON schema files, protocol definition files.
 Contains main.go file and also used for binaries.
 
 ### internal
-Contains private code that should not be used by outside packages. Contains subdirectories
+Contains private code that should not be used by outside packages. Subdirectories
 for models, services and handlers.
 
 ## testing

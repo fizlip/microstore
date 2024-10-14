@@ -19,7 +19,7 @@ type RemoteTokenData struct {
 }
 
 // fetch will send an http request to an OAuth provider and return
-// the session object
+// the session object, stored as json in the http.Response struct
 func (v *RemoteTokenData) fetch() (*http.Response, error){
     client := &http.Client{
         Timeout: 10 * time.Second,
@@ -42,7 +42,7 @@ func (v *RemoteTokenData) fetch() (*http.Response, error){
 
 // validateAccessToken ensures 
 // 1. The given token exists 
-// 2. The owner of the token is the same as the intigator 
+// 2. The owner of the token is the same as the instigator 
 func validateAccessToken(remote RemoteTokenData, unwrapperFunc func(resp *http.Response) (string, error)) error {
     resp, err := remote.fetch() 
     defer resp.Body.Close()
