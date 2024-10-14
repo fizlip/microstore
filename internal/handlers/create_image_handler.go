@@ -33,7 +33,6 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         api.AuthenticationErrorHandler(w, ImageNotFound)
         return
     }
-    log.Println("Filename: ", file)
     defer file.Close()
 
 	// database, err = tools.NewDatabase()
@@ -55,6 +54,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         return
     }
     defer services.CleanupTempFile(fname)
+
 	// UUID is used to create a unique identifier just in case
 	// two recrods are created with the same title at the same time.
 	meta.UID = uuid.New().String()

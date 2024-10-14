@@ -20,7 +20,6 @@ func CreateTempFile(content io.Reader, id string) (string, error) {
     defer tempFile.Close()
 
     _, err = io.Copy(tempFile, content)
-    log.Println(content)
     if err != nil {
         return "", err
     }
@@ -29,6 +28,5 @@ func CreateTempFile(content io.Reader, id string) (string, error) {
 }
 
 func CleanupTempFile(filePath string) {
-    log.Println("Remove: ", filePath)
     os.Remove(filePath)
 }
