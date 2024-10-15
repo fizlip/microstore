@@ -16,7 +16,7 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
-func pushToECR(imageName string) error {
+func PushToECR(imageName string) error {
     // Load AWS configuration
     cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
     if err != nil {
@@ -38,20 +38,24 @@ func pushToECR(imageName string) error {
     registryURL := *authData.ProxyEndpoint
     authToken := *authData.AuthorizationToken
 
+    log.Println("authData: ", authData)
+    log.Println("registryURL: ", registryURL)
+    log.Println("authToken: ", authToken)
+
     // Authenticate Docker with ECR
-    if err := dockerLogin(registryURL, authToken); err != nil {
-        return err
-    }
+    //if err := dockerLogin(registryURL, authToken); err != nil {
+    //    return err
+    //}
 
-    // Tag the Docker image
-    if err := dockerTag(imageName, registryURL); err != nil {
-        return err
-    }
+    //// Tag the Docker image
+    //if err := dockerTag(imageName, registryURL); err != nil {
+    //    return err
+    //}
 
-    // Push the image to ECR
-    if err := dockerPush(imageName, registryURL); err != nil {
-        return err
-    }
+    //// Push the image to ECR
+    //if err := dockerPush(imageName, registryURL); err != nil {
+    //    return err
+    //}
 
     return nil
 }
