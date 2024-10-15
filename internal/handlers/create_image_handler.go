@@ -22,7 +22,10 @@ var ToLargeError = errors.New("Form data to large")
 var ImageNotFound = errors.New("Form does not contain image")
 var DebugError = errors.New("Cannot list image")
 
-// CreateImage will create the metadata for a given image.
+// CreateImage will upload an image to the docker registry. It also creates the 
+// database record used to identify the image 
+// This endpoints needs a form header which should contain an image (which is a File)
+// a title, descriptions, creator, price.
 func CreateImage(w http.ResponseWriter, r *http.Request) {
 	var err error
 	// var database *tools.DatabaseInterface

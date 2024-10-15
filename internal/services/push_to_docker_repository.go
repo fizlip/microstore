@@ -20,6 +20,7 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
+// PushToECR will push a docker image to the private ECR
 func PushToECR(dockerClient *client.Client, imageName string) error {
     // Load AWS configuration
     cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
@@ -63,6 +64,7 @@ func PushToECR(dockerClient *client.Client, imageName string) error {
     return nil
 }
 
+// DockerLoad will load a docker image from a .tar file. 
 func DockerLoad(dockerCli *client.Client, pathToImage string) error {
     imageTar, err := os.Open(pathToImage)
     if err != nil {
@@ -80,12 +82,12 @@ func DockerLoad(dockerCli *client.Client, pathToImage string) error {
 
     defer loadResponse.Body.Close()
 
-    log.Println("Loaded docker image ", pathToImage)
-    log.Println("Loaded respoonse ", loadResponse)
+    log.Println("Loaded docker image: ", pathToImage)
 
     return nil 
 }
 
+// DockerList is a utility function that will list docker files that are currently loaded
 func DockerList(dockerCli *client.Client) error {
     images, err := dockerCli.ImageList(context.Background(), image.ListOptions{}) 
     if err != nil {
@@ -104,6 +106,8 @@ func DockerList(dockerCli *client.Client) error {
     return nil
 }
 
+// dockerLogin is used to authenticate to a remote registry using an 
+// authToken.
 func dockerLogin(dockerClient *client.Client, registryURL, authToken string) (string, error) {
 
     decodedToken, err := base64.StdEncoding.DecodeString(authToken)
@@ -111,9 +115,9 @@ func dockerLogin(dockerClient *client.Client, registryURL, authToken string) (st
         return "", err
     }
 
-    parts := strings.SplitN(string(decodedToken), ":", 2)
-    username := parts[0]
-    password := parts[1]
+    parts     := strings.SplitN(string(decodedToken), ":", 2)
+    username  := parts[0]
+    password  := parts[1]
 
     auth := registry.AuthConfig{
         Username:      username,
@@ -137,9 +141,11 @@ func dockerLogin(dockerClient *client.Client, registryURL, authToken string) (st
     return authStr, nil
 }
 
+// dockerTag will update the name (or manifest identifier) of a docker image
 func dockerTag(dockerClient *client.Client, imageName, registryURL, tag string) (string, error) {
-    targetImage := fmt.Sprintf("%s/f4rmhouse:%s", strings.TrimPrefix(registryURL, "https://"), imageName)
-    
+    trimmedURL  := strings.TrimPrefix(registryURL, "https://")
+    targetImage := fmt.Sprintf("%s/f4rmhouse:%s", trimmedURL, imageName)
+     
     if err := dockerClient.ImageTag(context.Background(), imageName, targetImage); err != nil {
         return "", err
     }
@@ -148,16 +154,23 @@ func dockerTag(dockerClient *client.Client, imageName, registryURL, tag string) 
     return targetImage, nil
 }
 
+// dockerPush will push an image to a registry. In this case we're pushing
+// to a private registry so we also need to supply an 'authString'.
 func dockerPush(dockerClient *client.Client, authString, targetImage, registryURL string) error {
     pushOpts := image.PushOptions{
         All: true,
         RegistryAuth: authString,
     }
+    
+    // pushResponse will return an io.ReaderCloser struct
     pushResponse, err := dockerClient.ImagePush(context.Background(), targetImage, pushOpts)
     if err != nil {
         return err
     }
+
     defer pushResponse.Close()
+
+    // Wait until push is done until we exit function
     if err = processResponse(pushResponse); err != nil {
         log.Error("Failed to push image")
         return err
@@ -167,6 +180,8 @@ func dockerPush(dockerClient *client.Client, authString, targetImage, registryUR
     return nil
 }
 
+// processResponse is a utility function used to pause execution until 
+// the upload has finished.
 func processResponse(r io.Reader) error {
     decoder := json.NewDecoder(r)
     for {
@@ -177,7 +192,8 @@ func processResponse(r io.Reader) error {
             }
             return err
         }
-        if _, ok := message["error"]; ok {
+        if err, ok := message["error"]; ok {
+            log.Error(err)
             return errors.New("Error when pushing")
         }
         if status, ok := message["statys"]; ok {
