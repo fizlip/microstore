@@ -49,7 +49,7 @@ func PushToECR(dockerClient *client.Client, imageName string) error {
     }
 
     // Tag the Docker image
-    tag, err := dockerTag(dockerClient, imageName, registryURL, "version1.0")
+    tag, err := dockerTag(dockerClient, imageName, registryURL, "")
     if err != nil {
         log.Error("Error creating tag")
         return err
@@ -82,6 +82,7 @@ func DockerLoad(dockerCli *client.Client, pathToImage string) error {
 
     log.Println("Loaded docker image ", pathToImage)
     log.Println("Loaded respoonse ", loadResponse)
+
     return nil 
 }
 

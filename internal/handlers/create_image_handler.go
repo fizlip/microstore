@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+    "strings"
 
     "github.com/docker/docker/client"
 	"github.com/fizlip/microstore/api"
@@ -79,7 +80,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    if err := services.PushToECR(dockerClient, "mongo"); err != nil {
+    if err := services.PushToECR(dockerClient, strings.Split(fileHeader.Filename, ".")[0]); err != nil {
         log.Println(err)
         api.AuthenticationErrorHandler(w, ImageNotFound)
         return
