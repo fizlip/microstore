@@ -79,11 +79,11 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    if err := services.PushToECR("hello-world"); err != nil {
+    if err := services.PushToECR(dockerClient, "hello-world"); err != nil {
         log.Println(err)
         api.AuthenticationErrorHandler(w, ImageNotFound)
         return
-    } 
+    }
 
 	// UUID is used to create a unique identifier just in case
 	// two recrods are created with the same title at the same time.
