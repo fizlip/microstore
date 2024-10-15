@@ -79,7 +79,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    if err := services.PushToECR(dockerClient, "hello-world"); err != nil {
+    if err := services.PushToECR(dockerClient, "mongo"); err != nil {
         log.Println(err)
         api.AuthenticationErrorHandler(w, ImageNotFound)
         return

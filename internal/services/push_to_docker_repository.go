@@ -3,10 +3,12 @@ package services
 import (
     "context"
     "fmt"
-    "os/exec"
     "os"
     "strings"
     "encoding/base64"
+    "encoding/json"
+    "io"
+    "errors"
 
     "github.com/docker/docker/client"
     "github.com/docker/docker/api/types/image"
@@ -41,19 +43,22 @@ func PushToECR(dockerClient *client.Client, imageName string) error {
     authToken := *authData.AuthorizationToken
 
     // Authenticate Docker with ECR
-    if err := dockerLogin(dockerClient, registryURL, authToken); err != nil {
+    authStr, err := dockerLogin(dockerClient, registryURL, authToken)
+    if err != nil {
         return err
     }
 
-    //// Tag the Docker image
-    if err := dockerTag(dockerClient, imageName, registryURL, "version1.0"); err != nil {
+    // Tag the Docker image
+    tag, err := dockerTag(dockerClient, imageName, registryURL, "version1.0")
+    if err != nil {
+        log.Error("Error creating tag")
         return err
     }
 
-    //// Push the image to ECR
-    //if err := dockerPush(imageName, registryURL); err != nil {
-    //    return err
-    //}
+    // Push the image to ECR
+    if err := dockerPush(dockerClient, authStr, tag, registryURL); err != nil {
+        return err
+    }
 
     return nil
 }
@@ -76,6 +81,7 @@ func DockerLoad(dockerCli *client.Client, pathToImage string) error {
     defer loadResponse.Body.Close()
 
     log.Println("Loaded docker image ", pathToImage)
+    log.Println("Loaded respoonse ", loadResponse)
     return nil 
 }
 
@@ -97,11 +103,11 @@ func DockerList(dockerCli *client.Client) error {
     return nil
 }
 
-func dockerLogin(dockerClient *client.Client, registryURL, authToken string) error {
+func dockerLogin(dockerClient *client.Client, registryURL, authToken string) (string, error) {
 
     decodedToken, err := base64.StdEncoding.DecodeString(authToken)
     if err != nil {
-        return err
+        return "", err
     }
 
     parts := strings.SplitN(string(decodedToken), ":", 2)
@@ -114,26 +120,68 @@ func dockerLogin(dockerClient *client.Client, registryURL, authToken string) err
         ServerAddress: registryURL,
     }
 
-    authString, err := dockerClient.RegistryLogin(context.Background(), auth)
+    _, err = dockerClient.RegistryLogin(context.Background(), auth)
     if err != nil {
-        return err
+        return "", err
     }
-    log.Println("Returned from RegistryLogin: ", authString)
-    return nil
+
+    encodedJSON, err := json.Marshal(auth)
+    if err != nil {
+        return "", err
+    }
+
+    authStr := base64.URLEncoding.EncodeToString(encodedJSON)
+
+    log.Println("Login succeeded")
+    return authStr, nil
 }
 
-func dockerTag(dockerClient *client.Client, imageName, registryURL, tag string) error {
-    targetImage := fmt.Sprintf("%s/%s:%s", strings.TrimPrefix(registryURL, "https://"), imageName, tag)
+func dockerTag(dockerClient *client.Client, imageName, registryURL, tag string) (string, error) {
+    targetImage := fmt.Sprintf("%s/f4rmhouse:%s", strings.TrimPrefix(registryURL, "https://"), imageName)
     
     if err := dockerClient.ImageTag(context.Background(), imageName, targetImage); err != nil {
-        return err
+        return "", err
     }
 
     log.Println("Docker tag suceeded. Target: ", targetImage)
+    return targetImage, nil
+}
+
+func dockerPush(dockerClient *client.Client, authString, targetImage, registryURL string) error {
+    pushOpts := image.PushOptions{
+        All: true,
+        RegistryAuth: authString,
+    }
+    pushResponse, err := dockerClient.ImagePush(context.Background(), targetImage, pushOpts)
+    if err != nil {
+        return err
+    }
+    defer pushResponse.Close()
+    if err = processResponse(pushResponse); err != nil {
+        log.Error("Failed to push image")
+        return err
+    }
+
+    log.Println("Docker push suceeded", targetImage)
     return nil
 }
 
-func dockerPush(imageName, registryURL string) error {
-    cmd := exec.Command("docker", "push", fmt.Sprintf("%s/%s", registryURL, imageName))
-    return cmd.Run()
+func processResponse(r io.Reader) error {
+    decoder := json.NewDecoder(r)
+    for {
+        var message map[string]interface{}
+        if err := decoder.Decode(&message); err != nil {
+            if err == io.EOF {
+               break 
+            }
+            return err
+        }
+        if _, ok := message["error"]; ok {
+            return errors.New("Error when pushing")
+        }
+        if status, ok := message["statys"]; ok {
+            log.Println(status)
+        }
+    }
+    return nil
 }
