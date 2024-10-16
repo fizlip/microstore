@@ -43,6 +43,8 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    imageFactory := services.DockerInterface{dockerClient}
+
     err = r.ParseMultipartForm(32 << 20) // 32MB max memory
     if err != nil {
         api.AuthenticationErrorHandler(w, ToLargeError)
@@ -77,13 +79,13 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 
     defer services.CleanupTempFile(fname)
 
-    if err := services.DockerLoad(dockerClient, fname); err != nil {
+    if err := imageFactory.DockerLoad(fname); err != nil {
         log.Println(err)
         api.AuthenticationErrorHandler(w, ImageNotFound)
         return
     }
     
-    if err := services.PushToECR(dockerClient, strings.Split(fileHeader.Filename, ".")[0]); err != nil {
+    if err := imageFactory.PushToECR(strings.Split(fileHeader.Filename, ".")[0]); err != nil {
         log.Println(err)
         api.AuthenticationErrorHandler(w, ImageNotFound)
         return

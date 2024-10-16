@@ -5,6 +5,8 @@ import (
     "net/http"
     "time"
     "encoding/json"
+
+    log "github.com/sirupsen/logrus"
 )
 
 // RemoteTokenData is used to access tokens from OAuth providers.
@@ -49,6 +51,7 @@ func validateAccessToken(remote RemoteTokenData, unwrapperFunc func(resp *http.R
     // If token does not exists unwrapper will return an err
     email, err := unwrapperFunc(resp)
     if err != nil {
+        log.Error("Token does not exist or is invalid")
         return fmt.Errorf("Token does not exist")
     }
     if email != remote.requestInstigator {
@@ -63,6 +66,10 @@ func unwrapGoogleResponse(resp *http.Response) (string, error) {
     var result map[string]interface{}
     if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
         return "", fmt.Errorf("Error decoding Google response JSON: %v", err)
+    }
+    if _, ok := result["error"]; ok {
+        log.Error("Error response from remote server: ", result["error"])
+        return "", fmt.Errorf("Error in remote server response")
     }
     return result["email"].(string), nil
 }

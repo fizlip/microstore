@@ -20,8 +20,12 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
+type DockerInterface struct{
+    Client *client.Client 
+}
+
 // PushToECR will push a docker image to the private ECR
-func PushToECR(dockerClient *client.Client, imageName string) error {
+func (d *DockerInterface) PushToECR(imageName string) error {
     // Load AWS configuration
     cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
     if err != nil {
@@ -44,20 +48,20 @@ func PushToECR(dockerClient *client.Client, imageName string) error {
     authToken := *authData.AuthorizationToken
 
     // Authenticate Docker with ECR
-    authStr, err := dockerLogin(dockerClient, registryURL, authToken)
+    authStr, err := d.dockerLogin(registryURL, authToken)
     if err != nil {
         return err
     }
 
     // Tag the Docker image
-    tag, err := dockerTag(dockerClient, imageName, registryURL, "")
+    tag, err := d.dockerTag(imageName, registryURL, "")
     if err != nil {
         log.Error("Error creating tag")
         return err
     }
 
     // Push the image to ECR
-    if err := dockerPush(dockerClient, authStr, tag, registryURL); err != nil {
+    if err := d.dockerPush(authStr, tag, registryURL); err != nil {
         return err
     }
 
@@ -65,7 +69,7 @@ func PushToECR(dockerClient *client.Client, imageName string) error {
 }
 
 // DockerLoad will load a docker image from a .tar file. 
-func DockerLoad(dockerCli *client.Client, pathToImage string) error {
+func (d *DockerInterface) DockerLoad(pathToImage string) error {
     imageTar, err := os.Open(pathToImage)
     if err != nil {
         return err
@@ -75,7 +79,7 @@ func DockerLoad(dockerCli *client.Client, pathToImage string) error {
 
     // Load the image
     ctx := context.Background()
-    loadResponse, err := dockerCli.ImageLoad(ctx, imageTar, true)
+    loadResponse, err := d.Client.ImageLoad(ctx, imageTar, true)
     if err != nil {
         return err
     }
@@ -88,8 +92,8 @@ func DockerLoad(dockerCli *client.Client, pathToImage string) error {
 }
 
 // DockerList is a utility function that will list docker files that are currently loaded
-func DockerList(dockerCli *client.Client) error {
-    images, err := dockerCli.ImageList(context.Background(), image.ListOptions{}) 
+func (d *DockerInterface) DockerList() error {
+    images, err := d.Client.ImageList(context.Background(), image.ListOptions{}) 
     if err != nil {
         return err
     }
@@ -108,7 +112,7 @@ func DockerList(dockerCli *client.Client) error {
 
 // dockerLogin is used to authenticate to a remote registry using an 
 // authToken.
-func dockerLogin(dockerClient *client.Client, registryURL, authToken string) (string, error) {
+func (d *DockerInterface) dockerLogin(registryURL, authToken string) (string, error) {
 
     decodedToken, err := base64.StdEncoding.DecodeString(authToken)
     if err != nil {
@@ -125,7 +129,7 @@ func dockerLogin(dockerClient *client.Client, registryURL, authToken string) (st
         ServerAddress: registryURL,
     }
 
-    _, err = dockerClient.RegistryLogin(context.Background(), auth)
+    _, err = d.Client.RegistryLogin(context.Background(), auth)
     if err != nil {
         return "", err
     }
@@ -142,11 +146,11 @@ func dockerLogin(dockerClient *client.Client, registryURL, authToken string) (st
 }
 
 // dockerTag will update the name (or manifest identifier) of a docker image
-func dockerTag(dockerClient *client.Client, imageName, registryURL, tag string) (string, error) {
+func (d *DockerInterface) dockerTag(imageName, registryURL, tag string) (string, error) {
     trimmedURL  := strings.TrimPrefix(registryURL, "https://")
     targetImage := fmt.Sprintf("%s/f4rmhouse:%s", trimmedURL, imageName)
      
-    if err := dockerClient.ImageTag(context.Background(), imageName, targetImage); err != nil {
+    if err := d.Client.ImageTag(context.Background(), imageName, targetImage); err != nil {
         return "", err
     }
 
@@ -156,14 +160,14 @@ func dockerTag(dockerClient *client.Client, imageName, registryURL, tag string) 
 
 // dockerPush will push an image to a registry. In this case we're pushing
 // to a private registry so we also need to supply an 'authString'.
-func dockerPush(dockerClient *client.Client, authString, targetImage, registryURL string) error {
+func (d *DockerInterface) dockerPush(authString, targetImage, registryURL string) error {
     pushOpts := image.PushOptions{
         All: true,
         RegistryAuth: authString,
     }
     
     // pushResponse will return an io.ReaderCloser struct
-    pushResponse, err := dockerClient.ImagePush(context.Background(), targetImage, pushOpts)
+    pushResponse, err := d.Client.ImagePush(context.Background(), targetImage, pushOpts)
     if err != nil {
         return err
     }
