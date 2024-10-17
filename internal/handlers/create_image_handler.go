@@ -22,120 +22,119 @@ import (
 var ToLargeError = errors.New("Form data to large")
 var ImageNotFound = errors.New("Form does not contain image")
 var DebugError = errors.New("Cannot list image")
+var ConnectionError = errors.New("Internal connection error. This is an issue on our side. We're working on it.")
 
 // CreateImage will upload an image to the docker registry. It also creates the 
 // database record used to identify the image 
 // This endpoints needs a form header which should contain an image (which is a File)
 // a title, descriptions, creator, price.
 func CreateImage(w http.ResponseWriter, r *http.Request) {
+
 	var err error
-	var table *models.Table[models.Product]
-    // Init tools table
+	var table *models.ToolsTable
+
+    /** Init **/
+
+    // Init tools table this will initialize a connection with the dynamodb table
     table, err = models.CreateToolsTable()
     if err != nil {
         log.Error("Cannot connect to tools database ", err)
         api.AuthenticationErrorHandler(w, ToLargeError)
         return
     }
-    log.Println(table)
-
+    
+    // Extract data from form values and create product struct based on them
     product, err := getProductFromForm(r)
     if err != nil {
         log.Error("Invalid form: ", err)
         api.AuthenticationErrorHandler(w, ToLargeError)
         return
     }
-    log.Println("Creating new product: ", product.UID)
-
-    // create a docker client object to communicate w/ docker daemon
+    // Create a docker client object to communicate w/ docker daemon
     dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
     if err != nil {
-        panic(err)
+        log.Error("Cannot create docker client")
+        api.InternalErrorHandler(w)
+        return
     }
-
+    
+    // Make sure docker daemon is running. Docker is used to push images to AWS ECR
     _, err = dockerClient.Ping(context.Background())
     if err != nil {
         log.Error("Cannot connect to Docker daemon")
-        api.AuthenticationErrorHandler(w, errors.New("Internal server error"))
+        api.InternalErrorHandler(w)
         return
     }
+    
+    /** End init **/
 
+    /** Execution **/
+    // imageFactory is used to interface with the docker client.
+    // DockerInterface exposes some utility functions used to load, tag and push
+    // images
     imageFactory := services.DockerInterface{dockerClient}
 
+    // We don't allow form data to be to large (this is not a restriction on image
+    // size)
     err = r.ParseMultipartForm(32 << 20) // 32MB max memory
     if err != nil {
-        api.AuthenticationErrorHandler(w, ToLargeError)
+        api.PayloadTooLargeHandler(w, ToLargeError)
         return
     }
-
+    
+    // Get image file from form 
     file, fileHeader, err := r.FormFile("image")
     if err != nil {
-        api.AuthenticationErrorHandler(w, ImageNotFound)
+        api.CustomInternalErrorHandler(w, ImageNotFound)
         return
     }
     defer file.Close()
 
-	// database, err = tools.NewDatabase()
-
-	//body, err := ioutil.ReadAll(r.Body)
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	var meta models.Product
-	//err = json.Unmarshal(body, &meta)
-	//if err != nil {
-	//	panic(err)
-	//}
-
+    // Create /tmp file that will be pushed
     fname, err := services.CreateTempFile(file, fileHeader.Filename)
     if err != nil {
-        api.AuthenticationErrorHandler(w, ImageNotFound)
+        api.InternalErrorHandler(w)
         return
     }
-
     defer services.CleanupTempFile(fname)
-
+    
+    // Loads image into docker
     if err := imageFactory.DockerLoad(fname); err != nil {
-        log.Println(err)
-        // TODO: add error for this case in /api
-        api.AuthenticationErrorHandler(w, ImageNotFound)
+        log.Println("Docker image not found ", err)
+        api.CustomInternalErrorHandler(w, ImageNotFound)
         return
     }
     
+    // Tags and pushes image according to AWS ECR specifications 
     if err := imageFactory.PushToECR(strings.Split(fileHeader.Filename, ".")[0]); err != nil {
         log.Println(err)
-        // TODO: add error for this case in /api
-        api.AuthenticationErrorHandler(w, ImageNotFound)
+        api.CustomInternalErrorHandler(w, ConnectionError)
         return
     }
 
+    // Create a tools item in the DB
     if err := (*table).Create(product); err != nil {
         log.Println("Could not create new product ", err)
         // TODO: add error for this case in /api
-        api.AuthenticationErrorHandler(w, ImageNotFound)
+        api.CustomInternalErrorHandler(w, ConnectionError)
         return
     }
-
-	// UUID is used to create a unique identifier just in case
-	// two recrods are created with the same title at the same time.
-	meta.UID = uuid.New().String()
-	// meta.RunEndpoint = fmt.Sprintf("https://run.botify.com/oci/%s", meta.UID)
-
-	// Call create method in db interface
-	// err = (*database).CreateMetadata(meta)
-
+    
+    /** End exeuction **/
+    
+    /** Result **/
 	w.Header().Set("Content-Type", "application/json")
-
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
 		return
 	}
 
+    // Success message
+    sMsg := fmt.Sprintf("New container with ID: '%s' has successfully been created", product.UID)
 	response := api.Success{
 		Code:    200,
-		Message: fmt.Sprintf("New container with ID: '%s' has successfully been created", meta.UID),
+		Message: sMsg,
 	}
 
 	err = json.NewEncoder(w).Encode(response)
@@ -144,8 +143,12 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 		api.InternalErrorHandler(w)
 		return
 	}
+    /** End result **/
+
 }
 
+// getProductFromForm is a utility function used to extract fields from
+// the form in the request and generates a models.Product from them
 func getProductFromForm(r *http.Request) (models.Product, error) {
     // Extract form values
     title           := r.FormValue("title")
@@ -170,6 +173,7 @@ func getProductFromForm(r *http.Request) (models.Product, error) {
         return models.Product{}, err
     }
 
+    // Generate error if required fields are empty
     if len(title) == 0 || 
         len(thumbnail) == 0 || 
         len(developer) == 0 || 

@@ -1,6 +1,6 @@
 package models
 
-type Table[T any] interface {
+type DatabaseReadWriter[T any] interface {
     Read(id string) ([]T, error)
     ReadSpecific(pk , sk string) (T, error)
 

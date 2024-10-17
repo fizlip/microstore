@@ -49,8 +49,11 @@ func (t *ToolsTable) Update(pk, sk string) error {
     return nil
 }
 
+// Create will insert an item into the tools database
 func (t *ToolsTable) Create(p Product) error {
     fmt.Println("Creating: ", p)
+
+    // Is this there a better wat to do this??
     item := map[string]types.AttributeValue{
         "uid": &types.AttributeValueMemberS{Value: p.UID},
         "developer": &types.AttributeValueMemberS{Value: p.Developer},
@@ -87,23 +90,29 @@ func (t *ToolsTable) Create(p Product) error {
     return nil
 }
 
+// Delete shold be used rarely even though pk should be unique in some
+// db implementations it  can delete more than one time
 func (t *ToolsTable) Delete(pk string) (error) {
     return nil
 }
 
+// DelteDetailed will delete the item with the given pk and sk. This method should be
+// prefered over the simpler Delete method
 func (t *ToolsTable) DeleteDetailed(pk, sk string) error {
     return nil
 }
 
-func CreateToolsTable() (*Table[Product], error) {
+// CreateToolsTable will return an implementation of a table for the Tools dynamoDB  
+// table that is used to interact with tools in the f4rmhouse ecosystem.
+func CreateToolsTable() (*ToolsTable, error) {
     cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
-    var table Table[Product] = &ToolsTable{}
+    var table ToolsTable = ToolsTable{}
 
     if err != nil {
         log.Error("unable to load SDK config, %v", err)
         return &table, err
     }
 
-    table = &ToolsTable{svc: dynamodb.NewFromConfig(cfg)}
+    table = ToolsTable{svc: dynamodb.NewFromConfig(cfg)}
     return &table, nil
 }

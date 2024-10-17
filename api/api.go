@@ -93,4 +93,10 @@ var (
 	InternalErrorHandler = func(w http.ResponseWriter) {
 		writeError(w, "An unexpected Error occured", http.StatusInternalServerError)
 	}
+    PayloadTooLargeHandler = func(w http.ResponseWriter, err error) {
+		writeError(w, err.Error(), http.StatusRequestEntityTooLarge)
+	}
+    CustomInternalErrorHandler = func(w http.ResponseWriter, err error) {
+		writeError(w, err.Error(), http.StatusInternalServerError)
+	}
 )
