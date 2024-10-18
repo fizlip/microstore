@@ -19,7 +19,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var ToLargeError = errors.New("Form data to large")
+var ToLargeError = errors.New("Error in form. Form data might be to large or your missing a file to upload.")
 var ImageNotFound = errors.New("Form does not contain image")
 var DebugError = errors.New("Cannot list image")
 var ConnectionError = errors.New("Internal connection error. This is an issue on our side. We're working on it.")
