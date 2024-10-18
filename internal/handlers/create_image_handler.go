@@ -153,20 +153,20 @@ func getProductFromForm(r *http.Request) (models.Product, error) {
     // Extract form values
     title           := r.FormValue("title")
     description     := r.FormValue("description")
-    rating, err     := strconv.ParseFloat(r.FormValue("rating"), 64)
+    rating          := 0.0
     price, err      := strconv.ParseFloat(r.FormValue("price"), 64)
     thumbnail       := r.FormValue("thumbnail")
-    overview        := r.FormValue("overview")
+    overview        := ""
     communityURL    := r.FormValue("communityURL")
-    reviews, err    := strconv.Atoi(r.FormValue("reviews"))
-    developer       := r.FormValue("developer")
-    pricingType     := r.FormValue("pricingType")
+    reviews         := 0
+    developer       := "fillatino@gmail.com"
+    pricingType     := "pay-as-you-go"
     releaseType     := r.FormValue("releaseType")
     version         := r.FormValue("version")
     showcase        := strings.Split(r.FormValue("showcase"), ",") // comma-separated values
     tags            := strings.Split(r.FormValue("tags"), ",") // comma-separated values
-    runEndpoint     := r.FormValue("run_endpoint")
-    pulls, err      := strconv.Atoi(r.FormValue("pulls"))
+    runEndpoint     := ""
+    pulls           := 0
     license         := r.FormValue("license")
 
     if err != nil {
