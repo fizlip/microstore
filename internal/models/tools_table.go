@@ -8,6 +8,7 @@ import (
     "github.com/aws/aws-sdk-go-v2/config"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+    "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 
     log "github.com/sirupsen/logrus"
 )
@@ -17,7 +18,30 @@ type ToolsTable struct{
 }
 
 func (t *ToolsTable) Read(id string) ([]Tool, error) {
-    return []Tool{}, nil
+    input := &dynamodb.QueryInput{
+        TableName: aws.String("f4-tools"),
+        KeyConditionExpression: aws.String(fmt.Sprintf("%s = :v", "developer")),
+        ExpressionAttributeValues: map[string]types.AttributeValue{
+            ":v": &types.AttributeValueMemberS{Value: id},
+        },
+    }
+
+    // Call the Query API
+    result, err := t.svc.Query(context.TODO(), input)
+    if err != nil {
+        log.Fatalf("failed to query id, %v", err)
+        return []Tool{}, err
+    }
+
+    var tools []Tool
+    err = attributevalue.UnmarshalListOfMaps(result.Items, &tools)
+    if err != nil {
+        log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
+        return []Tool{}, err
+    }
+
+
+    return tools, nil
 }
 
 func (t *ToolsTable) ReadSpecific(pk string, sk string) (Tool, error) {
@@ -52,6 +76,7 @@ func (t *ToolsTable) Create(tool Tool) error {
         "runEndpoint": &types.AttributeValueMemberS{Value: tool.RunEndpoint},
         "pulls": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Pulls)},
         "license": &types.AttributeValueMemberS{Value: tool.License},
+        "verified": &types.AttributeValueMemberBOOL{Value: tool.Verified},
     }
 
     input := &dynamodb.PutItemInput{

@@ -168,6 +168,7 @@ func getProductFromForm(r *http.Request) (models.Tool , error) {
     runEndpoint     := ""
     pulls           := 0
     license         := r.FormValue("license")
+    verified        := false
 
     if err != nil {
         return models.Tool{}, err
@@ -206,5 +207,6 @@ func getProductFromForm(r *http.Request) (models.Tool , error) {
         RunEndpoint:  runEndpoint,
         Pulls:        pulls,
         License:      license,
+        Verified:     verified,
     }, nil
 }

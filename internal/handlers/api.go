@@ -58,5 +58,6 @@ func Handle(r *chi.Mux) {
 		router.Use(middleware.Authorization)
 		// Get set of products and their usage for current period
 		router.Get("/get/usage", vendor_handlers.GetCurrentUsage)
+		router.Get("/get/tools", vendor_handlers.GetTools)
 	})
 }
