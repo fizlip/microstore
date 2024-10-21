@@ -45,19 +45,19 @@ func (v *RemoteTokenData) fetch() (*http.Response, error){
 // validateAccessToken ensures 
 // 1. The given token exists 
 // 2. The owner of the token is the same as the instigator 
-func validateAccessToken(remote RemoteTokenData, unwrapperFunc func(resp *http.Response) (string, error)) error {
+func validateAccessToken(remote RemoteTokenData, unwrapperFunc func(resp *http.Response) (string, error)) (string, error) {
     resp, err := remote.fetch() 
     defer resp.Body.Close()
     // If token does not exists unwrapper will return an err
     email, err := unwrapperFunc(resp)
     if err != nil {
         log.Error("Token does not exist or is invalid")
-        return fmt.Errorf("Token does not exist")
+        return "", fmt.Errorf("Token does not exist")
     }
     if email != remote.requestInstigator {
-        return fmt.Errorf("The instigator of the request does not match the token owner.")
+        return "", fmt.Errorf("The instigator of the request does not match the token owner.")
     }
-    return err
+    return email, err
 }
 
 // unwrapGoogleResponse returns the userid from the response
@@ -85,7 +85,7 @@ func unwrapGithubResponse(resp *http.Response) (string, error) {
 }
 
 // ValidateAccesstoken will return an error is a token is invalid or nil otherwise
-func ValidateAccessToken(token string, provider string, instigator string) error {
+func ValidateAccessToken(token string, provider string, instigator string) (string, error) {
     // Currently Github & Google are supported as OAuth providers
     // each OAuth has different ways to validate the token
     githubTokenData := RemoteTokenData{
@@ -111,6 +111,6 @@ func ValidateAccessToken(token string, provider string, instigator string) error
         case provider == "github":
             return validateAccessToken(githubTokenData, unwrapGithubResponse)
         default:
-            return fmt.Errorf("%s is not recognized as a provider", provider)
+            return "", fmt.Errorf("%s is not recognized as a provider", provider)
     }
 }

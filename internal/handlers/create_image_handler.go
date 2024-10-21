@@ -148,8 +148,8 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 }
 
 // getProductFromForm is a utility function used to extract fields from
-// the form in the request and generates a models.Product from them
-func getProductFromForm(r *http.Request) (models.Product, error) {
+// the form in the request and generates a models.Tool from them
+func getProductFromForm(r *http.Request) (models.Tool , error) {
     // Extract form values
     title           := r.FormValue("title")
     description     := r.FormValue("description")
@@ -159,7 +159,7 @@ func getProductFromForm(r *http.Request) (models.Product, error) {
     overview        := ""
     communityURL    := r.FormValue("communityURL")
     reviews         := 0
-    developer       := "fillatino@gmail.com"
+    developer       := r.Header.Get("X-Username")
     pricingType     := "pay-as-you-go"
     releaseType     := r.FormValue("releaseType")
     version         := r.FormValue("version")
@@ -170,7 +170,7 @@ func getProductFromForm(r *http.Request) (models.Product, error) {
     license         := r.FormValue("license")
 
     if err != nil {
-        return models.Product{}, err
+        return models.Tool{}, err
     }
 
     // Generate error if required fields are empty
@@ -184,10 +184,10 @@ func getProductFromForm(r *http.Request) (models.Product, error) {
         len(license) == 0 {
 
         log.Error("Missing value make sure that all product fields are present") 
-        return models.Product{}, errors.New("Missing value in form")
+        return models.Tool{}, errors.New("Missing value in form")
     }
 
-    return models.Product{
+    return models.Tool{
         UID:          uuid.New().String(),
         Title:        title,
         Description:  description,
@@ -206,5 +206,5 @@ func getProductFromForm(r *http.Request) (models.Product, error) {
         RunEndpoint:  runEndpoint,
         Pulls:        pulls,
         License:      license,
-    },nil
+    }, nil
 }

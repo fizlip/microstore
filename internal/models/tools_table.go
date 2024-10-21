@@ -12,37 +12,16 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
-type Product struct {
-	UID          string   `json:"uid"`
-	Title        string   `json:"title"`
-	Description  string   `json:"description"`
-	Rating       float64  `json:"rating"`
-	Price        float64  `json:"price"`
-	Thumbnail    string   `json:"thumbnail"`
-	Overview     string   `json:"overview"`
-	CommunityURL string   `json:"communityURL"`
-	Reviews      int      `json:"reviews"`
-	Developer    string   `json:"developer"`
-	PricingType  string   `json:"pricingType"`
-	ReleaseType  string   `json:"releaseType"`
-	Version      string   `json:"version"`
-	Showcase     []string `json:"showcase"`
-	Tags         []string `json:"tags"`
-	RunEndpoint  string   `json:"run_endpoint"`
-	Pulls        int      `json:"pulls"`
-    License      string   `json:"license"`
-}
-
 type ToolsTable struct{
     svc *dynamodb.Client
 }
 
-func (t *ToolsTable) Read(id string) ([]Product, error) {
-    return []Product{}, nil
+func (t *ToolsTable) Read(id string) ([]Tool, error) {
+    return []Tool{}, nil
 }
 
-func (t *ToolsTable) ReadSpecific(pk string, sk string) (Product, error) {
-    return Product{}, nil
+func (t *ToolsTable) ReadSpecific(pk string, sk string) (Tool, error) {
+    return Tool{}, nil
 }
 
 func (t *ToolsTable) Update(pk, sk string) error {
@@ -50,29 +29,29 @@ func (t *ToolsTable) Update(pk, sk string) error {
 }
 
 // Create will insert an item into the tools database
-func (t *ToolsTable) Create(p Product) error {
-    fmt.Println("Creating: ", p)
+func (t *ToolsTable) Create(tool Tool) error {
+    fmt.Println("Creating: ", tool)
 
     // Is this there a better wat to do this??
     item := map[string]types.AttributeValue{
-        "uid": &types.AttributeValueMemberS{Value: p.UID},
-        "developer": &types.AttributeValueMemberS{Value: p.Developer},
-        "title": &types.AttributeValueMemberS{Value: p.Title},
-        "description": &types.AttributeValueMemberS{Value: p.Description},
-        "rating": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", p.Rating)},
-        "Pricing": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", p.Price)},
-        "thumbnail": &types.AttributeValueMemberS{Value: p.Thumbnail},
-        "overview": &types.AttributeValueMemberS{Value: p.Overview},
-        "communityURL": &types.AttributeValueMemberS{Value: p.CommunityURL},
-        "reviews": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", p.Reviews)},
-        "pricingType": &types.AttributeValueMemberS{Value: p.PricingType},
-        "releaseType": &types.AttributeValueMemberS{Value: p.ReleaseType},
-        "version": &types.AttributeValueMemberS{Value: p.Version},
-        "showcase": &types.AttributeValueMemberSS{Value: p.Showcase},
-        "tags": &types.AttributeValueMemberSS{Value: p.Tags},
-        "runEndpoint": &types.AttributeValueMemberS{Value: p.RunEndpoint},
-        "pulls": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", p.Pulls)},
-        "license": &types.AttributeValueMemberS{Value: p.License},
+        "uid": &types.AttributeValueMemberS{Value: tool.UID},
+        "developer": &types.AttributeValueMemberS{Value: tool.Developer},
+        "title": &types.AttributeValueMemberS{Value: tool.Title},
+        "description": &types.AttributeValueMemberS{Value: tool.Description},
+        "rating": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Rating)},
+        "Pricing": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Price)},
+        "thumbnail": &types.AttributeValueMemberS{Value: tool.Thumbnail},
+        "overview": &types.AttributeValueMemberS{Value: tool.Overview},
+        "communityURL": &types.AttributeValueMemberS{Value: tool.CommunityURL},
+        "reviews": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Reviews)},
+        "pricingType": &types.AttributeValueMemberS{Value: tool.PricingType},
+        "releaseType": &types.AttributeValueMemberS{Value: tool.ReleaseType},
+        "version": &types.AttributeValueMemberS{Value: tool.Version},
+        "showcase": &types.AttributeValueMemberSS{Value: tool.Showcase},
+        "tags": &types.AttributeValueMemberSS{Value: tool.Tags},
+        "runEndpoint": &types.AttributeValueMemberS{Value: tool.RunEndpoint},
+        "pulls": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Pulls)},
+        "license": &types.AttributeValueMemberS{Value: tool.License},
     }
 
     input := &dynamodb.PutItemInput{

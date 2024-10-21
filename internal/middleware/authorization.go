@@ -24,7 +24,7 @@ func Authorization(next http.Handler) http.Handler {
 			api.AuthenticationErrorHandler(w, AuthenticationError)
 			return
 		}
-		err = services.ValidateAccessToken(token, provider, instigator)
+		_, err = services.ValidateAccessToken(token, provider, instigator)
 
 		if err != nil {
 			log.Error(UnAuthorizedError)
