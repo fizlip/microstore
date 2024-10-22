@@ -1,4 +1,4 @@
-package api
+package models 
 
 type Review struct {
 	PID     string `json:"pid"`

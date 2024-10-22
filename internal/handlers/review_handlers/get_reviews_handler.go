@@ -2,6 +2,7 @@ package review_handlers
 
 import (
 	"encoding/json"
+	"github.com/fizlip/microstore/internal/services"
 	"github.com/fizlip/microstore/api"
 	"net/http"
 
@@ -13,8 +14,8 @@ import (
 // data: ...
 func GetReviews(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var reviewsTable *api.ITable
-	reviewsTable, err = api.NewReviewTable("reviews")
+	var reviewsTable *services.ITable
+	reviewsTable, err = services.NewReviewTable("reviews")
 
 	if err != nil {
 		log.Fatalf("failed to get ECR images, %v", err)

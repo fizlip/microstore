@@ -6,8 +6,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	stripe "github.com/stripe/stripe-go/v79"
 
-	"github.com/google/uuid"
-	"github.com/stripe/stripe-go/v79/billing/meterevent"
 	"github.com/stripe/stripe-go/v79/invoice"
 )
 
@@ -18,32 +16,32 @@ type mockStripePaymentExecutor struct {
 
 // CreateMeterEvent registers a new payemtn for a products, it is run using
 // stripe subscription events
-func (p *mockStripePaymentExecutor) CreateMeterEvent(ev *F4SubscriptionEvent) (*PaymentResponse, error) {
-
-	log.Println("Creating a stripe test meter event")
-
-	// Secret key stored in pex
-	stripe.Key = p.SK
-	params := &stripe.BillingMeterEventParams{
-		EventName: stripe.String(ev.ProductID),
-		Payload:   map[string]string{"value": ev.Value, "stripe_customer_id": ev.CustomerID},
-	}
-	result, err := meterevent.New(params)
-	if err != nil {
-		log.Error(err)
-		// Generic error message if payment is not sucessful
-		return &PaymentResponse{UID: uuid.New(), Status: "400", Message: "Could process create payment"}, err
-	}
-
-	log.Println("New event for: " + result.EventName)
-	// Success message if no error occured
-	return &PaymentResponse{
-		UID:       uuid.New(),
-		Status:    "200",
-		ProductID: ev.ProductID,
-		Value:     ev.Value,
-		Message:   "Payment was successful"}, nil
-}
+//func (p *mockStripePaymentExecutor) CreateMeterEvent(ev *F4SubscriptionEvent) (*PaymentResponse, error) {
+//
+//	log.Println("Creating a stripe test meter event")
+//
+//	// Secret key stored in pex
+//	stripe.Key = p.SK
+//	params := &stripe.BillingMeterEventParams{
+//		EventName: stripe.String(ev.ProductID),
+//		Payload:   map[string]string{"value": ev.Value, "stripe_customer_id": ev.CustomerID},
+//	}
+//	result, err := meterevent.New(params)
+//	if err != nil {
+//		log.Error(err)
+//		// Generic error message if payment is not sucessful
+//		return &PaymentResponse{UID: uuid.New(), Status: "400", Message: "Could process create payment"}, err
+//	}
+//
+//	log.Println("New event for: " + result.EventName)
+//	// Success message if no error occured
+//	return &PaymentResponse{
+//		UID:       uuid.New(),
+//		Status:    "200",
+//		ProductID: ev.ProductID,
+//		Value:     ev.Value,
+//		Message:   "Payment was successful"}, nil
+//}
 
 func (p *mockStripePaymentExecutor) GetUpcomingInvoice(cid string) (*stripe.Invoice, error) {
 	stripe.Key = p.SK

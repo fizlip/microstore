@@ -1,0 +1,119 @@
+package models
+
+import (
+    "fmt"
+    "context"
+
+    "github.com/aws/aws-sdk-go-v2/config"
+    "github.com/aws/aws-sdk-go-v2/service/dynamodb"
+
+    log "github.com/sirupsen/logrus"
+)
+
+type ReviewTable struct{
+    svc *dynamodb.Client
+}
+
+func (r *ReviewTable) Read(id string) ([]Review, error) {
+    //input := &dynamodb.QueryInput{
+    //    TableName: aws.String("f4-tools"),
+    //    KeyConditionExpression: aws.String(fmt.Sprintf("%s = :v", "developer")),
+    //    ExpressionAttributeValues: map[string]types.AttributeValue{
+    //        ":v": &types.AttributeValueMemberS{Value: id},
+    //    },
+    //}
+
+    //// Call the Query API
+    //result, err := t.svc.Query(context.TODO(), input)
+    //if err != nil {
+    //    log.Fatalf("failed to query id, %v", err)
+    //    return []Tool{}, err
+    //}
+
+    //var tools []Tool
+    //err = attributevalue.UnmarshalListOfMaps(result.Items, &tools)
+    //if err != nil {
+    //    log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
+    //    return []Tool{}, err
+    //}
+
+
+    return []Review{}, nil
+}
+
+func (r *ReviewTable) ReadSpecific(pk string, sk string) (Review, error) {
+    return Review{}, nil
+}
+
+func (r *ReviewTable) Update(pk, sk string) error {
+    return nil
+}
+
+// Create will insert an item into the tools database
+func (r *ReviewTable) Create(review Review) error {
+    fmt.Println("Creating: ", review)
+
+    // Is this there a better wat to do this??
+    //item := map[string]types.AttributeValue{
+    //    "uid": &types.AttributeValueMemberS{Value: tool.UID},
+    //    "developer": &types.AttributeValueMemberS{Value: tool.Developer},
+    //    "title": &types.AttributeValueMemberS{Value: tool.Title},
+    //    "description": &types.AttributeValueMemberS{Value: tool.Description},
+    //    "rating": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Rating)},
+    //    "Pricing": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Price)},
+    //    "thumbnail": &types.AttributeValueMemberS{Value: tool.Thumbnail},
+    //    "overview": &types.AttributeValueMemberS{Value: tool.Overview},
+    //    "communityURL": &types.AttributeValueMemberS{Value: tool.CommunityURL},
+    //    "reviews": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Reviews)},
+    //    "pricingType": &types.AttributeValueMemberS{Value: tool.PricingType},
+    //    "releaseType": &types.AttributeValueMemberS{Value: tool.ReleaseType},
+    //    "version": &types.AttributeValueMemberS{Value: tool.Version},
+    //    "showcase": &types.AttributeValueMemberSS{Value: tool.Showcase},
+    //    "tags": &types.AttributeValueMemberSS{Value: tool.Tags},
+    //    "runEndpoint": &types.AttributeValueMemberS{Value: tool.RunEndpoint},
+    //    "pulls": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Pulls)},
+    //    "license": &types.AttributeValueMemberS{Value: tool.License},
+    //    "verified": &types.AttributeValueMemberBOOL{Value: tool.Verified},
+    //}
+
+    //input := &dynamodb.PutItemInput{
+    //    TableName: aws.String("f4-tools"),
+    //    Item:      item,
+    //}
+
+    //// Insert the item
+    //_, err := t.svc.PutItem(context.TODO(), input)
+    //if err != nil {
+    //    log.Fatalf("failed to put item in DynamoDB, %v", err)
+    //    return err
+    //}
+
+    return nil
+}
+
+// Delete shold be used rarely even though pk should be unique in some
+// db implementations it  can delete more than one time
+func (r *ReviewTable) Delete(pk string) (error) {
+    return nil
+}
+
+// DelteDetailed will delete the item with the given pk and sk. This method should be
+// prefered over the simpler Delete method
+func (r *ReviewTable) DeleteDetailed(pk, sk string) error {
+    return nil
+}
+
+// CreateToolsTable will return an implementation of a table for the Tools dynamoDB  
+// table that is used to interact with tools in the f4rmhouse ecosystem.
+func CreateReviewTable() (*ReviewTable, error) {
+    cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
+    var table ReviewTable = ReviewTable{}
+
+    if err != nil {
+        log.Error("unable to load SDK config, %v", err)
+        return &table, err
+    }
+
+    table = ReviewTable{svc: dynamodb.NewFromConfig(cfg)}
+    return &table, nil
+}

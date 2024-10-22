@@ -11,7 +11,6 @@ import (
     "github.com/fizlip/microstore/internal/services"
 	"github.com/fizlip/microstore/internal/models"
 	"github.com/google/uuid"
-	// "io/ioutil"
 	"net/http"
     "errors"
     "context"

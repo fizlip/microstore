@@ -2,7 +2,7 @@ package user_handlers
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
+	//"github.com/google/uuid"
 	"net/http"
 
 	"github.com/fizlip/microstore/api"
@@ -13,21 +13,21 @@ import (
 // usage of the tool that has been used
 func RunProduct(w http.ResponseWriter, r *http.Request) {
 	var err error
-	user, err := api.NewCustomer("some_email")
-	if err != nil {
-		panic(err)
-	}
+	//user, err := api.NewCustomer("some_email")
+	//if err != nil {
+	//	panic(err)
+	//}
 
-	// Create a meter event
-	evt := &api.F4SubscriptionEvent{
-		EventID:    uuid.New(),
-		CustomerID: "cus_QsQCZFMdRmYIP8",
-		Value:      "10",
-		ProductID:  "prod-002"}
+	//// Create a meter event
+	//evt := &api.F4SubscriptionEvent{
+	//	EventID:    uuid.New(),
+	//	CustomerID: "cus_QsQCZFMdRmYIP8",
+	//	Value:      "10",
+	//	ProductID:  "prod-002"}
 
-	// And run the product with it
-	res, err := (*user).RunProduct(evt)
-	err = json.NewEncoder(w).Encode(res)
+	//// And run the product with it
+	//res, err := (*user).RunProduct(evt)
+	err = json.NewEncoder(w).Encode("")
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

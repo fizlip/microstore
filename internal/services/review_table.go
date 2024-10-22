@@ -1,9 +1,8 @@
-package api
+package services 
 
 import (
 	log "github.com/sirupsen/logrus"
-    "github.com/fizlip/microstore/api/mocks"
-    "github.com/fizlip/microstore/api/models"
+    "github.com/fizlip/microstore/internal/models"
 )
 
 type ITable interface {
@@ -24,7 +23,7 @@ func (r *DynamoDBReviewTable) Insert(review models.Review) (bool, error) {
 
 func (r *DynamoDBReviewTable) Read(pid string) ([]models.Review, error) {
 	log.Println("Reading reviews")
-	return mocks.MockReviews, nil
+	return []models.Review{}, nil
 }
 
 func (r *DynamoDBReviewTable) Update(pid string) (bool, error) {

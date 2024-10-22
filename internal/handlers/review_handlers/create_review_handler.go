@@ -3,7 +3,7 @@ package review_handlers
 import (
 	"encoding/json"
 	"github.com/fizlip/microstore/api"
-	"github.com/fizlip/microstore/api/models"
+	"github.com/fizlip/microstore/internal/models"
 	"io/ioutil"
 	"net/http"
 
@@ -16,8 +16,8 @@ import (
 func CreateReview(w http.ResponseWriter, r *http.Request) {
 	var response api.Success
 	var err error
-	var reviewTable *api.ITable
-	reviewTable, err = api.NewReviewTable("table")
+	var reviewTable *models.ReviewTable
+	reviewTable, err = models.CreateReviewTable()
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +35,7 @@ func CreateReview(w http.ResponseWriter, r *http.Request) {
 			Message: "Review was successfully created",
 		}
 	} else {
-		_, err = (*reviewTable).Insert(review)
+		err = (*reviewTable).Create(review)
 
 		response = api.Success{
 			Code:    200,

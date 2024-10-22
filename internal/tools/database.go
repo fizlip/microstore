@@ -3,7 +3,7 @@ package tools
 import (
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	"github.com/fizlip/microstore/api"
-	"github.com/fizlip/microstore/api/models"
+	"github.com/fizlip/microstore/internal/models"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,12 +20,12 @@ type ServiceDetails struct {
 type DatabaseInterface interface {
 	GetUserLoginDetails(username string) *LoginDetails
 	GetUserServices(username string) *ServiceDetails
-	GetProduct(uid string) models.Product
-	SearchProduct(query string) []models.Product
-	GetMetadata(imageDigest []types.ImageIdentifier) []models.Product
-	CreateMetadata(metadata models.Product) error
+	GetProduct(uid string) models.Tool
+	SearchProduct(query string) []models.Tool
+	GetMetadata(imageDigest []types.ImageIdentifier) []models.Tool
+	CreateMetadata(metadata models.Tool) error
 	UpdateMetadata(upd api.UpdateParams) error
-	GetTrending() [9]models.Product
+	GetTrending() [9]models.Tool
 	SetupDatabase() error
 }
 

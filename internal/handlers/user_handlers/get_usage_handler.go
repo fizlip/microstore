@@ -12,14 +12,14 @@ import (
 // and how much they have been used
 func GetUsage(w http.ResponseWriter, r *http.Request) {
 	var err error
-	user, err := api.NewCustomer("test")
-	if err != nil {
-		panic(err)
-	}
+	//user, err := api.NewCustomer("test")
+	//if err != nil {
+	//	panic(err)
+	//}
 
-	// And run the product with it
-	result, err := (*user).GetAnalytics()
-	err = json.NewEncoder(w).Encode(result)
+	//// And run the product with it
+	//result, err := (*user).GetAnalytics()
+	err = json.NewEncoder(w).Encode("")
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
