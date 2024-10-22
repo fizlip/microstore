@@ -1,4 +1,4 @@
-package handlers
+package user_handlers
 
 import (
 	"encoding/json"
@@ -8,11 +8,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// GetInvoice returns an invoice object from the payment provider that is used
 func GetInvoice(w http.ResponseWriter, r *http.Request) {
 	var err error
 	user, err := api.NewCustomer("some_email")
 	if err != nil {
-		panic(err)
+        log.Error(err)
+		api.InternalErrorHandler(w)
+		return
 	}
 
 	// And run the product with it

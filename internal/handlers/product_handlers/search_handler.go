@@ -1,27 +1,29 @@
-package handlers
+package product_handlers
 
 import (
 	"encoding/json"
 	"github.com/fizlip/microstore/api"
 	"github.com/fizlip/microstore/internal/tools"
-	"github.com/gorilla/schema"
+	"io/ioutil"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
 )
 
-// GetProduct will return one image with the UID given in the URL param
-func GetProduct(w http.ResponseWriter, r *http.Request) {
-	var params = api.GetProductParams{}
-	var decoder *schema.Decoder = schema.NewDecoder()
+// GetAllImages will return one page of all images available in the f4mhouse OCI repo
+// A correct response will return an array of Image values.
+func Search(w http.ResponseWriter, r *http.Request) {
+	var params = api.SearchParams{}
 	var err error
 
-	err = decoder.Decode(&params, r.URL.Query())
-
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
-		return
+		panic(err)
+	}
+
+	err = json.Unmarshal(body, &params)
+	if err != nil {
+		panic(err)
 	}
 
 	var database *tools.DatabaseInterface
@@ -32,9 +34,9 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response = (*database).GetProduct(params.UID)
+	var response = (*database).SearchProduct(params.Query)
 
-	log.Println("Get product")
+	log.Println("search product")
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)

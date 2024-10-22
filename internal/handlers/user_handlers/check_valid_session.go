@@ -1,4 +1,4 @@
-package handlers
+package user_handlers
 
 import (
     "encoding/json"
@@ -8,9 +8,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// CheckValidSession is a simple endpoint that lets a client see whether they
-// have valid credentials it returns an error iff the user is unauthorized
-// otherwise it returns a simple message. 
+// CheckValidSession lets a client check whether they have valid credentials. Returns an error 
+// iff the user is unauthorized otherwise returns 200. 
 func CheckValidSession(w http.ResponseWriter, r *http.Request) {
 
 	var err error

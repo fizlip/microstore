@@ -1,4 +1,4 @@
-package handlers
+package user_handlers
 
 import (
 	"encoding/json"
@@ -9,6 +9,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// RunProduct will execute a tool using the execution engine and update the
+// usage of the tool that has been used
 func RunProduct(w http.ResponseWriter, r *http.Request) {
 	var err error
 	user, err := api.NewCustomer("some_email")

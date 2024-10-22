@@ -1,4 +1,4 @@
-package handlers
+package vendor_handlers
 
 import (
 	"encoding/json"
