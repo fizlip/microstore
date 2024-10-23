@@ -22,3 +22,9 @@ type Tool struct {
     Verified     bool     `dynamodbav:"verified" json:"verified"`
 }
 
+type ToolData struct {
+    ProductID   string
+    ProductName string
+    Price       float64 
+    NumRequests int 
+}
