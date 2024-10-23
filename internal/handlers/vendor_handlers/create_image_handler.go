@@ -5,15 +5,16 @@ import (
 	"fmt"
     "strings"
     "strconv"
+    "net/http"
+    "errors"
+    "context"
 
     "github.com/docker/docker/client"
 	"github.com/fizlip/microstore/api"
     "github.com/fizlip/microstore/internal/services"
 	"github.com/fizlip/microstore/internal/models"
+    "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
-	"net/http"
-    "errors"
-    "context"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -30,12 +31,12 @@ var ConnectionError = errors.New("Internal connection error. This is an issue on
 func CreateImage(w http.ResponseWriter, r *http.Request) {
 
 	var err error
-	var table *models.ToolsTable
+	var table *models.DynamoTable[models.Tool]
 
     /** Init **/
 
     // Init tools table this will initialize a connection with the dynamodb table
-    table, err = models.CreateToolsTable()
+    table, err = models.NewDynamoTable[models.Tool]("f4-tools", "developer", "uid")
     if err != nil {
         log.Error("Cannot connect to tools database ", err)
         api.AuthenticationErrorHandler(w, ToLargeError)
@@ -112,7 +113,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
     }
 
     // Create a tools item in the DB
-    if err := (*table).Create(product); err != nil {
+    if err := table.Create(product, convertToolToAWSItem); err != nil {
         log.Println("Could not create new product ", err)
         // TODO: add error for this case in /api
         api.CustomInternalErrorHandler(w, ConnectionError)
@@ -144,6 +145,30 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 	}
     /** End result **/
 
+}
+
+func convertToolToAWSItem(tool models.Tool) map[string]types.AttributeValue {
+    return map[string]types.AttributeValue{
+        "uid": &types.AttributeValueMemberS{Value: tool.UID},
+        "developer": &types.AttributeValueMemberS{Value: tool.Developer},
+        "title": &types.AttributeValueMemberS{Value: tool.Title},
+        "description": &types.AttributeValueMemberS{Value: tool.Description},
+        "rating": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Rating)},
+        "Pricing": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Price)},
+        "thumbnail": &types.AttributeValueMemberS{Value: tool.Thumbnail},
+        "overview": &types.AttributeValueMemberS{Value: tool.Overview},
+        "communityURL": &types.AttributeValueMemberS{Value: tool.CommunityURL},
+        "reviews": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Reviews)},
+        "pricingType": &types.AttributeValueMemberS{Value: tool.PricingType},
+        "releaseType": &types.AttributeValueMemberS{Value: tool.ReleaseType},
+        "version": &types.AttributeValueMemberS{Value: tool.Version},
+        "showcase": &types.AttributeValueMemberSS{Value: tool.Showcase},
+        "tags": &types.AttributeValueMemberSS{Value: tool.Tags},
+        "runEndpoint": &types.AttributeValueMemberS{Value: tool.RunEndpoint},
+        "pulls": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Pulls)},
+        "license": &types.AttributeValueMemberS{Value: tool.License},
+        "verified": &types.AttributeValueMemberBOOL{Value: tool.Verified},
+    }
 }
 
 // getProductFromForm is a utility function used to extract fields from

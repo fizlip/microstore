@@ -21,7 +21,6 @@ func Handle(r *chi.Mux) {
 		router.Get("/get", product_handlers.GetProduct)
 		router.Post("/search", product_handlers.Search)
         router.Get("/reviews", review_handlers.GetReviews)
-
 	})
 
     // USER
