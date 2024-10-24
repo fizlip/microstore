@@ -18,7 +18,7 @@ type Vendor struct {
 	ProductCatalog      []models.Tool
 	PaymentExecutor     models.PaymentExecutor
     ToolStorage         models.DatabaseReadWriter[models.Tool]
-    AnalyticStorage    models.DatabaseReadWriter[models.ProductAnalytics]
+    AnalyticStorage     models.DatabaseReadWriter[models.ProductAnalytics]
 }
 
 // VendorController is an interface that all Vendors implement

@@ -22,6 +22,10 @@ func (r *ReviewService) GetReviews(id string) ([]models.Review, error) {
 func (r *ReviewService) Create(review models.Review) error {
     return r.reviewStorage.Create(review, reviewToAttributeMapConverter)
 }
+    
+func (r *ReviewService) Delete(id string) error {
+    return r.reviewStorage.Delete(id)
+}
 
 func NewReviewService() (*ReviewService, error) {
     reviewT, err := models.NewMockDynamoTable[models.Review]("f4-tools", "user", "uid")
