@@ -14,14 +14,14 @@ import (
 // data: ...
 func GetReviews(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var reviewsTable *services.ITable
-	reviewsTable, err = services.NewReviewTable("reviews")
+	var reviews *services.ReviewService
+	reviews, err = services.NewReviewService()
 
 	if err != nil {
 		log.Fatalf("failed to get ECR images, %v", err)
 	}
 
-	rs, err := (*reviewsTable).Read("123")
+	rs, err := (*reviews).GetReviews("123")
 
 	err = json.NewEncoder(w).Encode(rs)
 	if err != nil {

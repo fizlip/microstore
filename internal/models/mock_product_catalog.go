@@ -19,6 +19,7 @@ var MockProductCatalog = []Tool{
 		Tags:         []string{"CRM", "Sales", "Cloud"},
 		RunEndpoint:  "https://api.example.com/run/crm",
 		Pulls:        12000,
+        License:      "MIT",
 	},
 	{
 		UID:          "prod-002",
@@ -38,6 +39,7 @@ var MockProductCatalog = []Tool{
 		Tags:         []string{"Project Management", "Collaboration"},
 		RunEndpoint:  "https://api.example.com/run/pm",
 		Pulls:        9500,
+        License:      "MIT",
 	},
 	{
 		UID:          "p_001",
@@ -57,5 +59,6 @@ var MockProductCatalog = []Tool{
 		Tags:         []string{"Project Management", "Collaboration"},
 		RunEndpoint:  "https://api.example.com/run/pm",
 		Pulls:        9500,
+        License:      "MIT",
 	},
 }
