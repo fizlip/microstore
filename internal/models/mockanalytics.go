@@ -1,4 +1,4 @@
-package mocks 
+package models 
 
 type UserAnalytics struct {
     CustomerID      string

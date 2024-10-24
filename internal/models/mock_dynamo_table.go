@@ -7,8 +7,6 @@ import (
     "github.com/aws/aws-sdk-go-v2/service/dynamodb"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
-    "github.com/fizlip/microstore/api/mocks"
-
     log "github.com/sirupsen/logrus"
 )
 
@@ -56,12 +54,12 @@ func (m *MockDynamoTable[T]) DeleteDetailed(pk, sk string) error {
 func (m *MockDynamoTable[T]) ProduceMockData() {
     var zero T
     switch any(zero).(type) {
-        case mocks.UserAnalytics:
-            m.mock = any(mocks.MockUserAnalytics).([]T)
-        case mocks.ProductAnalytics:
-            m.mock = any(mocks.MockProductAnalytics).([]T)
+        case UserAnalytics:
+            m.mock = any(MockUserAnalytics).([]T)
+        case ProductAnalytics:
+            m.mock = any(MockProductAnalytics).([]T)
         case Tool:
-            m.mock = any(mocks.MockProductCatalog).([]T)
+            m.mock = any(MockProductCatalog).([]T)
         default:
             m.mock = []T{}
     }
@@ -82,8 +80,4 @@ func NewMockDynamoTable[T any](tableName, pk, sk string) (*MockDynamoTable[T], e
     table.ProduceMockData()
 
     return &table, nil
-}
-
-type F4Types interface {
-    ProductAnalytics | mocks.UserAnalytics
 }

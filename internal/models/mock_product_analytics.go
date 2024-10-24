@@ -1,11 +1,4 @@
-package mocks 
-
-type ProductAnalytics struct {
-    ProductID   string
-    Timestamp   string
-    Status      string
-    Consumer    string
-}
+package models 
 
 var MockProductAnalytics = []ProductAnalytics{
 	{
