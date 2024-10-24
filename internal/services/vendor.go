@@ -10,14 +10,15 @@ import (
 )
 
 type Vendor struct {
-    Name            string
-	Email           string
-	Rating          float64
-	ProductsCreated int
-	RequestHandled  int64
-	ProductCatalog  []models.Tool
-	PaymentExecutor models.PaymentExecutor
-    ToolStorage     models.DatabaseReadWriter[models.Tool]
+    Name                string
+	Email               string
+	Rating              float64
+	ProductsCreated     int
+	RequestHandled      int64
+	ProductCatalog      []models.Tool
+	PaymentExecutor     models.PaymentExecutor
+    ToolStorage         models.DatabaseReadWriter[models.Tool]
+    AnalyticStorage    models.DatabaseReadWriter[models.ProductAnalytics]
 }
 
 // VendorController is an interface that all Vendors implement
@@ -57,16 +58,12 @@ func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
     if err != nil {
         return []models.ProductAnalytics{}, err
     }
-	pa, err := NewProductAnalyticsTable("product_analytics")
-	if err != nil {
-		return []models.ProductAnalytics{}, err
-	}
 
 	res := []models.ProductAnalytics{}
 
 	for _, product := range vendorTools {
 		fmt.Println(product.UID)
-		analytics, err := (*pa).Read(product.UID)
+		analytics, err := v.AnalyticStorage.Read(product.UID)
 		if err != nil {
 			log.Error("Cuould not read", product.UID)
 		} else {
@@ -79,13 +76,17 @@ func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 // NewVendorController is a factory method that initialised a data store and
 // returns a Vendor struct. If you need to change the data store for some reason
 // you only need to update this method.
-func NewVendorController(name string) (Vendor, error){
-    table, err := models.NewMockDynamoTable[models.Tool]("f4-tools", "developer", "uid")
+func NewVendorController(name string) (*Vendor, error){
+    toolT, err := models.NewMockDynamoTable[models.Tool]("f4-tools", "developer", "uid")
     if err != nil {
-        return Vendor{}, err 
+        return &Vendor{}, err 
     }
-    vendor      := Vendor{Name: name, ToolStorage: table}
-    return vendor, nil
+    analyticsT, err := models.NewMockDynamoTable[models.ProductAnalytics]("f4-tools", "developer", "uid")
+    if err != nil {
+        return &Vendor{}, err 
+    }
+    vendor := Vendor{Name: name, ToolStorage: toolT, AnalyticStorage: analyticsT}
+    return &vendor, nil
 }
 
 // Utils

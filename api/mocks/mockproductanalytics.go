@@ -1,10 +1,13 @@
 package mocks 
 
-import (
-    "github.com/fizlip/microstore/api/models"
-)
+type ProductAnalytics struct {
+    ProductID   string
+    Timestamp   string
+    Status      string
+    Consumer    string
+}
 
-var MockProductAnalytics = []models.ProductAnalytics{
+var MockProductAnalytics = []ProductAnalytics{
 	{
 		ProductID: "p_001",
 		Timestamp: "2024-10-01",

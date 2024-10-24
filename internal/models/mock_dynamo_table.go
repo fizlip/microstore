@@ -7,6 +7,8 @@ import (
     "github.com/aws/aws-sdk-go-v2/service/dynamodb"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 
+    "github.com/fizlip/microstore/api/mocks"
+
     log "github.com/sirupsen/logrus"
 )
 
@@ -15,11 +17,11 @@ type MockDynamoTable[T any] struct{
     sk          string
     tableName   string
     svc         *dynamodb.Client
+    mock        []T
 }
 
 func (m *MockDynamoTable[T]) Read(id string) ([]T, error) {
-    var ts []T
-    return ts, nil
+    return m.mock, nil
 }
 
 func (m *MockDynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
@@ -48,6 +50,23 @@ func (m *MockDynamoTable[T]) DeleteDetailed(pk, sk string) error {
     return nil
 }
 
+// ProduceMockData will insert fake data into the mock datastore. We do this
+// using a type switch. This function is only used in dev so we don't need to 
+// worry that much about performance issues due to type switches.
+func (m *MockDynamoTable[T]) ProduceMockData() {
+    var zero T
+    switch any(zero).(type) {
+        case mocks.UserAnalytics:
+            m.mock = any(mocks.MockUserAnalytics).([]T)
+        case mocks.ProductAnalytics:
+            m.mock = any(mocks.MockProductAnalytics).([]T)
+        case Tool:
+            m.mock = any(mocks.MockProductCatalog).([]T)
+        default:
+            m.mock = []T{}
+    }
+}
+
 // CreateToolsTable will return an implementation of a table for the Tools dynamoDB  
 // table that is used to interact with tools in the f4rmhouse ecosystem.
 func NewMockDynamoTable[T any](tableName, pk, sk string) (*MockDynamoTable[T], error) {
@@ -60,5 +79,11 @@ func NewMockDynamoTable[T any](tableName, pk, sk string) (*MockDynamoTable[T], e
     }
 
     table.svc = dynamodb.NewFromConfig(cfg)
+    table.ProduceMockData()
+
     return &table, nil
+}
+
+type F4Types interface {
+    ProductAnalytics | mocks.UserAnalytics
 }
