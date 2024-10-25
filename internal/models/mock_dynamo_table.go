@@ -31,6 +31,10 @@ func (m *MockDynamoTable[T]) Update(pk, sk string) error {
     return nil
 }
 
+func (m *MockDynamoTable[T]) UpdateObject(pk, sk, col string, t T) error {
+    return nil
+}
+
 // Create will insert an item into the tools database
 func (m *MockDynamoTable[T]) Create(t T, f func (t T) map[string]types.AttributeValue) error {
     m.mock = append(m.mock, t)
