@@ -1,18 +1,18 @@
 package models 
 
 type UserAnalytics struct {
-    CustomerID      string
-    Timestamp       string
-    PaidRequests    int 
-    FreeRequests    int
-    Products        map[string]ProductData
+    CustomerID      string                  `json:"customer_id"`
+    Timestamp       string                  `json:"timestamp"`
+    PaidRequests    int                     `json:"paid_requests"`
+    FreeRequests    int                     `json:"free_requests"`
+    Products        map[string]ProductData  `json:"products"`
 }
 
 type ProductData struct {
-    ProductID   string
-    ProductName string 
-    Price       float64
-    NumRequests int
+    ProductID   string  `json:"product_id"`
+    ProductName string  `json:"product_name"`
+    Price       float64 `json:"price"`
+    NumRequests int     `json:"num_requests"`
 }
 
 var MockUserAnalytics = []UserAnalytics{

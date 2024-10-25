@@ -5,13 +5,11 @@ import (
     "github.com/fizlip/microstore/internal/models"
 )
 
-type DynamoDBProductAnalyticsTable struct {
-	TableName string
+type ProductAnalyticsService struct {
+    AnalyticStorage     models.DatabaseReadWriter[models.ProductAnalytics]
 }
 
-type T DynamoDBProductAnalyticsTable
-
-func (t *T) Insert(p *models.Tool) error {
+func (p *ProductAnalyticsService) Insert(t *models.Tool) error {
 	log.Println("Inserting analytics into table")
 
 	//pa := models.ProductAnalytics{
@@ -26,7 +24,7 @@ func (t *T) Insert(p *models.Tool) error {
 	return nil
 }
 
-func (r *T) Read(pid string) ([]models.ProductAnalytics, error) {
+func (p *ProductAnalyticsService) Read(pid string) ([]models.ProductAnalytics, error) {
 	log.Println("Reading reviews")
 	//res := []models.ProductAnalytics{}
 	//for _, value := range mocks.MockProductAnalytics {
@@ -37,17 +35,21 @@ func (r *T) Read(pid string) ([]models.ProductAnalytics, error) {
 	return []models.ProductAnalytics{}, nil
 }
 
-func (r *T) Update(pid string) (bool, error) {
+func (p *ProductAnalyticsService) Update(pid string) (bool, error) {
 	log.Println("Updating review")
 	return true, nil
 }
 
-func (r *T) Delete(pid string) (bool, error) {
+func (p *ProductAnalyticsService) Delete(pid string) (bool, error) {
 	log.Println("Deleting review")
 	return true, nil
 }
 
-func NewProductAnalyticsTable(tableName string) (*models.IProductAnalyticsTable, error) {
-	var analyticsTable models.IProductAnalyticsTable = &T{tableName}
-	return &analyticsTable, nil
+func NewProductAnalyticsService(tableName string) (*ProductAnalyticsService, error) {
+    analyticT, err := models.NewMockDynamoTable[models.ProductAnalytics]("f4-analytics", "developer", "uid")
+    if err != nil {
+        return &ProductAnalyticsService{}, err 
+    }
+    productAnalytics := ProductAnalyticsService{AnalyticStorage: analyticT}
+	return &productAnalytics, nil
 }
