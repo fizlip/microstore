@@ -3,6 +3,7 @@ package review_handlers
 import (
 	"encoding/json"
 	"github.com/fizlip/microstore/api"
+	"github.com/fizlip/microstore/internal/services"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -14,8 +15,21 @@ import (
 func UpdateReview(w http.ResponseWriter, r *http.Request) {
 	var err error
 
-	log.Println("Update a review")
+    reviewService, err := services.NewReviewService()
+    if err != nil {
+        log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+    }
 
+    // TODO: need to add read of query param somewhere
+    err = reviewService.Delete("123")
+    if err != nil {
+        log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+    }
+    
 	err = json.NewEncoder(w).Encode("")
 	if err != nil {
 		log.Error(err)

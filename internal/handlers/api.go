@@ -29,7 +29,7 @@ func Handle(r *chi.Mux) {
 		router.Use(middleware.Authorization)
 		router.Get("/valid", user_handlers.CheckValidSession)
         // Execution 
-		router.Post("/oci/run", user_handlers.RunProduct)
+		router.Post("/tool/run", user_handlers.RunProduct)
 		// Invoice & usage
 		router.Post("/invoice/upcoming", user_handlers.GetInvoice)
 		router.Get("/usage", user_handlers.GetUsage)
