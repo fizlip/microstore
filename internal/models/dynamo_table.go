@@ -58,8 +58,6 @@ func (d *DynamoTable[T]) Update(pk, sk string) error {
 
 // Create will insert an item into the tools database
 func (d *DynamoTable[T]) Create(t T, f func (t T) map[string]types.AttributeValue) error {
-    fmt.Println("Creating: ", t)
-
     // Convert T into format understandable by &dynamodb
     item := f(t)
 
@@ -71,7 +69,6 @@ func (d *DynamoTable[T]) Create(t T, f func (t T) map[string]types.AttributeValu
     // Insert the item
     _, err := d.svc.PutItem(context.TODO(), input)
     if err != nil {
-        log.Fatalf("failed to put item in DynamoDB, %v", err)
         return err
     }
 
@@ -87,6 +84,25 @@ func (d *DynamoTable[T]) Delete(pk string) (error) {
 // DelteDetailed will delete the item with the given pk and sk. This method should be
 // prefered over the simpler Delete method
 func (d *DynamoTable[T]) DeleteDetailed(pk, sk string) error {
+    key := map[string]types.AttributeValue{
+        d.pk: &types.AttributeValueMemberS{Value: pk},
+        d.sk: &types.AttributeValueMemberS{Value: sk},
+    }
+    log.Println(pk)
+    log.Println(sk)
+    log.Println(d.tableName)
+    log.Println(key)
+    input := &dynamodb.DeleteItemInput{
+        TableName: aws.String("f4-api-keys"),
+        Key:       key,
+    }
+
+     res, err := d.svc.DeleteItem(context.TODO(), input)
+    if err != nil {
+        log.Error("Could not delete item from table")
+        return err
+    }
+    log.Println(res)
     return nil
 }
 

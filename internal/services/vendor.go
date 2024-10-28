@@ -72,6 +72,7 @@ func (v *Vendor) CreateAPIKey(username string) (string, error) {
 
 // DeleteAPIKey will delete an api key 
 func (v *Vendor) DeleteAPIKey(username, key string) error {
+    log.Println("Deleting key")
     return v.APIKeyStorage.DeleteDetailed(username, key)
 }
 
@@ -124,7 +125,7 @@ func NewVendorController(name string) (*Vendor, error){
         return &Vendor{}, err 
     }
 
-    apiKeyT, err := models.NewMockDynamoTable[models.APIKey]("f4-vendor-keys", "developer", "uid")
+    apiKeyT, err := models.NewDynamoTable[models.APIKey]("f4-api-keys", "username", "key")
     if err != nil {
         return &Vendor{}, err 
     }
@@ -158,7 +159,7 @@ func apiToAttrMap(apikey models.APIKey) map[string]types.AttributeValue {
     return map[string]types.AttributeValue{
         "key": &types.AttributeValueMemberS{Value: apikey.Key},
         "username": &types.AttributeValueMemberS{Value: apikey.Username},
-        "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", apikey.Created)},
+        "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", apikey.Created)},
     }
 }
 

@@ -1,8 +1,8 @@
 package vendor_handlers
 
 import (
-    "fmt"
     "net/http"
+    "fmt"
     "encoding/json"
 
     "github.com/fizlip/microstore/internal/services"
@@ -10,11 +10,11 @@ import (
 
 	log "github.com/sirupsen/logrus"
 )
+
 func CreateAPIKey(w http.ResponseWriter, r *http.Request) {
     var err error
     var vendor *services.Vendor
     vendor, err = services.NewVendorController("fillatino@gmail.com")
-    log.Println(vendor)
 
     apiKey, err := vendor.CreateAPIKey("fillatino@gmail.com")
     if err != nil {
