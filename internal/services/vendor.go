@@ -2,7 +2,6 @@ package services
 
 import (
     "fmt"
-    "time"
     "crypto/rand"
     "encoding/base64"
     
@@ -55,19 +54,14 @@ func (v *Vendor) CreateTool(tool models.Tool) error {
 
 // CreateAPIKey will create an api key by inserting it into the data store
 func (v *Vendor) CreateAPIKey(username string) (string, error) {
-    apiKey, err := generateSecureString(61)
+    var apiKey models.APIKey
+    var err error
+    apiKey, err  =  models.NewAPIKey(username)
     if err != nil {
         return "", err
     }
 
-    apiKey = "sk-" + apiKey
-
-    key := models.APIKey{
-        Key: apiKey,
-        Username: username,
-        Created: time.Now().UnixMilli(),
-    }
-    return apiKey, v.APIKeyStorage.Create(key, apiToAttrMap)
+    return apiKey.Key, v.APIKeyStorage.Create(apiKey, apiToAttrMap)
 }
 
 // DeleteAPIKey will delete an api key 
@@ -84,6 +78,11 @@ func (v *Vendor) ReadAllAPIKeys(username string) ([]models.APIKey, error) {
 // ReadAPIKey will read api key of a username
 func (v *Vendor) ReadAPIKey(username, key string) (models.APIKey, error) {
     return v.APIKeyStorage.ReadSpecific(username, key)
+}
+
+// ReadAPIKey will read api key of a username
+func (v *Vendor) ValidateAPIKey(apiKey, storedKey string) bool {
+    return models.ValidateKey(apiKey, storedKey)
 }
 
 func (v *Vendor) ExecuteTool(cid string) {
@@ -157,9 +156,10 @@ func generateSecureString(length int) (string, error) {
 
 func apiToAttrMap(apikey models.APIKey) map[string]types.AttributeValue {
     return map[string]types.AttributeValue{
-        "key": &types.AttributeValueMemberS{Value: apikey.Key},
+        "key": &types.AttributeValueMemberS{Value: apikey.HashedKey},
         "username": &types.AttributeValueMemberS{Value: apikey.Username},
         "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", apikey.Created)},
+        "raw_key": &types.AttributeValueMemberS{Value: fmt.Sprintf("%d", apikey.Key)},
     }
 }
 

@@ -1,10 +1,13 @@
 package services 
 
 import (
+
     "fmt"
     "net/http"
     "time"
     "encoding/json"
+
+    "github.com/fizlip/microstore/internal/models"
 
     log "github.com/sirupsen/logrus"
 )
@@ -84,6 +87,25 @@ func unwrapGithubResponse(resp *http.Response) (string, error) {
     return result[0]["email"].(string), nil
 }
 
+func ValidateAPIKey(username, key string) (string, error){
+    log.Println("Validating key...")
+    apiKeyT, err := models.NewDynamoTable[models.APIKey]("f4-api-keys", "username", "key")
+    if err != nil {
+        return "", fmt.Errorf("Error connecting to db: ", err)
+    }
+    storedKeys, err := apiKeyT.Read(username)
+    if err != nil {
+        return "", fmt.Errorf("Error getting api key", err)
+    }
+    for _, el := range storedKeys {
+        ok := models.ValidateKey(key, el.Key); 
+        if ok {
+            return username, nil
+        } 
+    }
+    return "", fmt.Errorf("API key is not valid")
+}
+
 // ValidateAccesstoken will return an error is a token is invalid or nil otherwise
 func ValidateAccessToken(token string, provider string, instigator string) (string, error) {
     // Currently Github & Google are supported as OAuth providers
@@ -110,6 +132,8 @@ func ValidateAccessToken(token string, provider string, instigator string) (stri
             return validateAccessToken(googleTokenData, unwrapGoogleResponse)
         case provider == "github":
             return validateAccessToken(githubTokenData, unwrapGithubResponse)
+        case provider == "f4rmhouse":
+            return ValidateAPIKey(instigator, token)
         default:
             return "", fmt.Errorf("%s is not recognized as a provider", provider)
     }
