@@ -88,22 +88,31 @@ func (d *DynamoTable[T]) DeleteDetailed(pk, sk string) error {
         d.pk: &types.AttributeValueMemberS{Value: pk},
         d.sk: &types.AttributeValueMemberS{Value: sk},
     }
-    log.Println(pk)
-    log.Println(sk)
-    log.Println(d.tableName)
-    log.Println(key)
     input := &dynamodb.DeleteItemInput{
-        TableName: aws.String("f4-api-keys"),
+        TableName: aws.String(d.tableName),
         Key:       key,
     }
 
-     res, err := d.svc.DeleteItem(context.TODO(), input)
+    res, err := d.svc.DeleteItem(context.TODO(), input)
     if err != nil {
         log.Error("Could not delete item from table")
         return err
     }
     log.Println(res)
     return nil
+}
+
+func (d *DynamoTable[T]) DeleteWithColumnName(pk, sk string) error {
+    input := &dynamodb.DeleteItemInput{
+        TableName: aws.String(d.tableName),
+        Key: map[string]types.AttributeValue{
+            d.pk: &types.AttributeValueMemberS{Value: pk},
+            d.sk: &types.AttributeValueMemberS{Value: sk},
+        },
+    }
+
+    _, err := d.svc.DeleteItem(context.TODO(), input)
+    return err
 }
 
 // CreateToolsTable will return an implementation of a table for the Tools dynamoDB  

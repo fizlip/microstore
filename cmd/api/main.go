@@ -29,6 +29,7 @@ func main() {
             "X-CSRF-Token", 
             "X-Username",
             "X-Provider",
+            "X-Delete",
         },
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,

@@ -65,14 +65,22 @@ func (v *Vendor) CreateAPIKey(username string) (string, error) {
 }
 
 // DeleteAPIKey will delete an api key 
-func (v *Vendor) DeleteAPIKey(username, key string) error {
+func (v *Vendor) DeleteAPIKey(username, partialKey string) error {
     log.Println("Deleting key")
-    return v.APIKeyStorage.DeleteDetailed(username, key)
+    return v.APIKeyStorage.DeleteDetailed(username, partialKey)
 }
 
-// ReadAllAPIKeys will read all api keys of a username
+// ReadAllAPIKeys will read all api keys of a username, we remove the hashed api key
+// for security
 func (v *Vendor) ReadAllAPIKeys(username string) ([]models.APIKey, error) {
-    return v.APIKeyStorage.Read(username)
+
+    keys, err := v.APIKeyStorage.Read(username)
+
+    // Remove hashed value when reading users api keys, not needed by user
+    for i, _ := range keys {
+        keys[i].Key = ""
+    }
+    return keys, err
 }
 
 // ReadAPIKey will read api key of a username
@@ -159,7 +167,7 @@ func apiToAttrMap(apikey models.APIKey) map[string]types.AttributeValue {
         "key": &types.AttributeValueMemberS{Value: apikey.HashedKey},
         "username": &types.AttributeValueMemberS{Value: apikey.Username},
         "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", apikey.Created)},
-        "raw_key": &types.AttributeValueMemberS{Value: fmt.Sprintf("%d", apikey.Key)},
+        "partial": &types.AttributeValueMemberS{Value: apikey.Key[0:2] + "..." + apikey.Key[39:]},
     }
 }
 

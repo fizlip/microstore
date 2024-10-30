@@ -15,12 +15,26 @@ func DeleteAPIKey(w http.ResponseWriter, r *http.Request) {
     var err error
     var vendor *services.Vendor
     
-    key := r.Header.Get("Authorization") 
-    username := r.Header.Get("X-Username") 
+    username    := r.Header.Get("X-Username") 
+    partial     := r.Header.Get("X-Delete") 
 
     vendor, err = services.NewVendorController(username)
 
-    err = vendor.DeleteAPIKey(username, key)
+    keys, err := vendor.APIKeyStorage.Read(username)
+    var sk string
+    for _, key := range keys {
+        if key.Partial == partial {
+            sk = key.Key
+        }
+    }
+    
+    if sk == "" {
+        log.Error("No such key")
+		api.InternalErrorHandler(w)
+		return
+    }
+
+    err = vendor.DeleteAPIKey(username, sk)
     if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

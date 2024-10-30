@@ -88,7 +88,6 @@ func unwrapGithubResponse(resp *http.Response) (string, error) {
 }
 
 func ValidateAPIKey(username, key string) (string, error){
-    log.Println("Validating key...")
     apiKeyT, err := models.NewDynamoTable[models.APIKey]("f4-api-keys", "username", "key")
     if err != nil {
         return "", fmt.Errorf("Error connecting to db: ", err)
