@@ -35,10 +35,9 @@ func CreateReview(w http.ResponseWriter, r *http.Request) {
 	var review models.Review
 	err = json.Unmarshal(body, &review)
 	if err != nil {
-		response = api.Success{
-			Code:    200,
-			Message: "Review was successfully created",
-		}
+        log.Error(err)
+		api.InternalErrorHandler(w)
+		return
 	} else {
 		err = (*reviews).Create(review)
 

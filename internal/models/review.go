@@ -1,10 +1,11 @@
 package models 
 
 type Review struct {
-	PID     string `json:"pid"`
-	Title   string `json:"title"`
-	Value   string `json:"value"`
-	Content string `json:"content"`
-	Creator string `json:"creator"`
-	Date    string `json:"date"`
+	PID     string `dynamodbav:"tool_id" json:"pid"`
+	UID     string `dynamodbav:"uid" json:"uid"`
+	Title   string `dynamodbav:"title" json:"title"`
+	Value   string `dynamodbav:"value" json:"value"`
+	Content string `dynamodbav:"content" json:"content"`
+	Creator string `dynamodbav:"creator" json:"creator"`
+	Date    string `dynamodbav:"date" json:"date"`
 }

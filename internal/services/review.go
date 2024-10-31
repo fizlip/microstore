@@ -4,12 +4,8 @@ import (
     "github.com/fizlip/microstore/internal/models"
 
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+    "github.com/google/uuid"
 )
-
-// VendorController is an interface that all Vendors implement
-type ReviewController interface {
-    GetReviews(toolID string) ([]models.Tool, error)
-}
 
 type ReviewService struct{
     reviewStorage models.DatabaseReadWriter[models.Review] 
@@ -28,22 +24,23 @@ func (r *ReviewService) Delete(id string) error {
 }
 
 func NewReviewService() (*ReviewService, error) {
-    reviewT, err := models.NewMockDynamoTable[models.Review]("f4-tools", "user", "uid")
+    //reviewT, err := models.NewMockDynamoTable[models.Review]("f4-tools", "user", "uid")
+    //if err != nil {
+    //    return &ReviewService{}, err 
+    //}
+    reviewT, err := models.NewDynamoTable[models.Review]("f4-reviews", "tool_id", "uid")
     if err != nil {
         return &ReviewService{}, err 
     }
-    reviewT, err = models.NewMockDynamoTable[models.Review]("f4-reviews", "user", "uid")
-    if err != nil {
-        return &ReviewService{}, err 
-    }
-    vendor := ReviewService{reviewT}
+    vendor := ReviewService{reviewStorage: reviewT}
     return &vendor, nil
 }
 
 // Utils
 func reviewToAttributeMapConverter(review models.Review) map[string]types.AttributeValue {
     return map[string]types.AttributeValue{
-        "pid": &types.AttributeValueMemberS{Value: review.PID},
+        "tool_id": &types.AttributeValueMemberS{Value: review.PID},
+        "uid": &types.AttributeValueMemberS{Value: uuid.New().String()},
         "title": &types.AttributeValueMemberS{Value: review.Title},
         "value": &types.AttributeValueMemberS{Value: review.Value},
         "content": &types.AttributeValueMemberS{Value: review.Content},
