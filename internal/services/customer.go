@@ -3,6 +3,7 @@ package services
 import (
 
     "time"    
+    "errors"
 
     "github.com/fizlip/microstore/internal/models"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -63,7 +64,6 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
     p, ok := analytics.Products[tid]
     if ok {
         p.NumRequests += 1 
-        log.Println("NEW REQUEST IN EXISTING TOOL!") 
         analytics.Products[tid] = p
     } else {
         analytics.Products[tid] = models.ProductData{
@@ -85,13 +85,18 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
 
 func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{}) (string, error) {
     var err error
+    tool, err := c.toolStore.Read(tid)
+    log.Println("tid", tid)
+    if err != nil {
+        return "", errors.New("The tool you want to run does not exist.")
+    } 
+    log.Println("tool", tool[0])
     evt := models.ProductAnalytics{
 		ProductID: tid,
         Status: "400",
 		Consumer: uid,
     }
-    before, _ := c.analyticsStore.ReadSpecific(uid, "2024-10-31")
-    log.Println("Analytics before run ", before)
+
     evt.Status = "200"
     evt.Timestamp = time.Now().Format("2006-01-02 15:04:05")
     err = c.toolAnalyticsStore.Create(evt, evtToAttributeMapConverter)
@@ -103,9 +108,6 @@ func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{
     if err != nil {
         return "", err
     }
-
-    after, _ := c.analyticsStore.ReadSpecific(uid, "2024-10-25")
-    log.Println("Analytics after run ", after)
 
     return "Hello world!", nil
 }
@@ -123,7 +125,7 @@ func NewCustomer(username string) (*Customer, error) {
         return &Customer{}, err 
     }
 
-    toolT, err := models.NewMockDynamoTable[models.Tool]("f4-tools", "developer", "uid")
+    toolT, err := models.NewDynamoTable[models.Tool]("f4-tools-prod", "uid", "")
     if err != nil {
         return &Customer{}, err 
     }

@@ -122,7 +122,7 @@ func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 // you only need to update this method.
 func NewVendorController(name string) (*Vendor, error){
     // Init tools data store connection
-    toolT, err := models.NewMockDynamoTable[models.Tool]("f4-tools", "developer", "uid")
+    toolT, err := models.NewDynamoTable[models.Tool]("f4-tools-prod", "uid", "")
     if err != nil {
         return &Vendor{}, err 
     }

@@ -3,6 +3,7 @@ package models
 import (
     "fmt"
     "context"
+    "errors"
 
     "github.com/aws/aws-sdk-go-v2/aws"
     "github.com/aws/aws-sdk-go-v2/config"
@@ -21,30 +22,56 @@ type DynamoTable[T any] struct{
 }
 
 func (d *DynamoTable[T]) Read(id string) ([]T, error) {
-    input := &dynamodb.QueryInput{
-        TableName: aws.String(d.tableName),
-        KeyConditionExpression: aws.String(fmt.Sprintf("%s = :v", d.pk)),
-        ExpressionAttributeValues: map[string]types.AttributeValue{
-            ":v": &types.AttributeValueMemberS{Value: id},
-        },
+    if d.sk == "" {
+        var t T
+        key := map[string]types.AttributeValue{
+            d.pk: &types.AttributeValueMemberS{Value: id},
+        }
+
+        input := &dynamodb.GetItemInput{
+            TableName: aws.String(d.tableName),
+            Key:       key,
+        }
+        result, err := d.svc.GetItem(context.TODO(), input)
+        if err != nil {
+            return []T{}, err
+        }
+        
+        if result.Item == nil {
+            return []T{}, errors.New("The requested item does not exist")
+        }
+
+        err = attributevalue.UnmarshalMap(result.Item, &t)
+        if err != nil {
+            return []T{}, err
+        }
+
+        return []T{t}, nil
+    } else {
+        var ts []T
+        input := &dynamodb.QueryInput{
+            TableName: aws.String(d.tableName),
+            KeyConditionExpression: aws.String(fmt.Sprintf("%s = :v", d.pk)),
+            ExpressionAttributeValues: map[string]types.AttributeValue{
+                ":v": &types.AttributeValueMemberS{Value: id},
+            },
+        }
+
+        // Call the Query API
+        result, err := d.svc.Query(context.TODO(), input)
+        if err != nil {
+            log.Fatalf("failed to query id, %v", err)
+            return []T{}, err
+        }
+
+        err = attributevalue.UnmarshalListOfMaps(result.Items, &ts)
+        if err != nil {
+            log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
+            return []T{}, err
+        }
+        return ts, nil
     }
-
-    // Call the Query API
-    result, err := d.svc.Query(context.TODO(), input)
-    if err != nil {
-        log.Fatalf("failed to query id, %v", err)
-        return []T{}, err
-    }
-
-    var ts []T
-    err = attributevalue.UnmarshalListOfMaps(result.Items, &ts)
-    if err != nil {
-        log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
-        return []T{}, err
-    }
-
-
-    return ts, nil
+    return []T{}, errors.New("Something went wrong reading the value")
 }
 
 func (d *DynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
@@ -70,7 +97,6 @@ func (d *DynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
         return t, err
     }
 
-    log.Println("This is your value: ", t)
     return t, nil
 }
 

@@ -42,7 +42,7 @@ func RunProduct(w http.ResponseWriter, r *http.Request) {
 	res, err := user.RunProduct(user_id, tool_id, data)
     if err != nil {
         log.Error("Cannot connect to customer service", err)
-        api.InternalErrorHandler(w)
+        api.CustomInternalErrorHandler(w, err)
         return
     }
 
