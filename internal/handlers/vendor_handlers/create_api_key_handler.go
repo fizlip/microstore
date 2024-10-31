@@ -25,7 +25,7 @@ func CreateAPIKey(w http.ResponseWriter, r *http.Request) {
     
     response := api.Success{
         Code: 200, 
-        Message: fmt.Sprintf("Created api key sucessfully: %s", apiKey),
+        Message: fmt.Sprintf("%s", apiKey),
     }
 
     err = json.NewEncoder(w).Encode(response)

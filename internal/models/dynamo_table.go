@@ -49,6 +49,28 @@ func (d *DynamoTable[T]) Read(id string) ([]T, error) {
 
 func (d *DynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
     var t T
+
+    key := map[string]types.AttributeValue{
+        d.pk: &types.AttributeValueMemberS{Value: pk},    // Replace with your partition key
+        d.sk: &types.AttributeValueMemberS{Value: sk}, // Replace with your sort key
+    }
+
+    input := &dynamodb.GetItemInput{
+        TableName: aws.String(d.tableName), // Replace with your table name
+        Key:       key,
+    }
+
+    result, err := d.svc.GetItem(context.TODO(), input)
+    if err != nil {
+        return t, err
+    }
+
+    err = attributevalue.UnmarshalMap(result.Item, &t)
+    if err != nil {
+        return t, err
+    }
+
+    log.Println("This is your value: ", t)
     return t, nil
 }
 

@@ -127,7 +127,7 @@ func NewVendorController(name string) (*Vendor, error){
         return &Vendor{}, err 
     }
     // Init analytics data store connection
-    analyticsT, err := models.NewMockDynamoTable[models.ProductAnalytics]("f4-tools", "developer", "uid")
+    analyticsT, err := models.NewMockDynamoTable[models.ProductAnalytics]("f4-product-analytics", "product_id", "timestamp")
     if err != nil {
         return &Vendor{}, err 
     }

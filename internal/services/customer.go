@@ -6,6 +6,7 @@ import (
 
     "github.com/fizlip/microstore/internal/models"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+    "github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 
     log "github.com/sirupsen/logrus"
 )
@@ -35,6 +36,7 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
     if err != nil {
         return err
     }
+
     if analytics.CustomerID == "" {
         analytics = models.UserAnalytics{
             CustomerID: uid,
@@ -51,15 +53,18 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
     if err != nil {
         return err
     }
+
     if tools[0].Price == 0.0 {
         analytics.FreeRequests += 1
     } else {
         analytics.PaidRequests += 1
     }
-    
+
     p, ok := analytics.Products[tid]
     if ok {
-       p.NumRequests += 1 
+        p.NumRequests += 1 
+        log.Println("NEW REQUEST IN EXISTING TOOL!") 
+        analytics.Products[tid] = p
     } else {
         analytics.Products[tid] = models.ProductData{
             ProductID: tid, 
@@ -69,43 +74,51 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
         }
     }
     
-    c.analyticsStore.Create(analytics, userAnalyticsToAttributeMapConverter)
+    err = c.analyticsStore.Create(analytics, userAnalyticsToAttributeMapConverter)
+    if err != nil {
+        return err
+    }
+
     return nil
     
 }
 
 func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{}) (string, error) {
+    var err error
     evt := models.ProductAnalytics{
 		ProductID: tid,
         Status: "400",
 		Consumer: uid,
     }
-    log.Println("Execute tool with data = ", data)
-    log.Println("Run tool sucessfully")
-    before, _ := c.analyticsStore.Read("2024-10-25")
+    before, _ := c.analyticsStore.ReadSpecific(uid, "2024-10-31")
     log.Println("Analytics before run ", before)
     evt.Status = "200"
     evt.Timestamp = time.Now().Format("2006-01-02 15:04:05")
-    c.toolAnalyticsStore.Create(evt, evtToAttributeMapConverter)
+    err = c.toolAnalyticsStore.Create(evt, evtToAttributeMapConverter)
+    if err != nil {
+        return "", err
+    }
 
-    c.incrementUsage(uid, tid, time.Now().Format("2006-01-02"))
-    after, _ := c.analyticsStore.Read("2024-10-25")
-    log.Println("Analytics before run ", after)
+    err = c.incrementUsage(uid, tid, time.Now().Format("2006-01-02"))
+    if err != nil {
+        return "", err
+    }
 
-    log.Println("Create payment event")
-    
+    after, _ := c.analyticsStore.ReadSpecific(uid, "2024-10-25")
+    log.Println("Analytics after run ", after)
+
     return "Hello world!", nil
 }
 
 // NewCustomer returns a customer struct with the given username.
 // the datastore can be changed here.
 func NewCustomer(username string) (*Customer, error) {
-    analyticsT, err := models.NewMockDynamoTable[models.UserAnalytics]("f4-product-analytics", "developer", "uid")
+    analyticsT, err := models.NewDynamoTable[models.UserAnalytics]("f4-user-analytics", "customer_id", "timestamp")
     if err != nil {
         return &Customer{}, err 
     }
 
-    toolAnalyticsT, err := models.NewMockDynamoTable[models.ProductAnalytics]("f4-product-analytics", "developer", "uid")
+    toolAnalyticsT, err := models.NewDynamoTable[models.ProductAnalytics]("f4-product-analytics", "product_id", "timestamp")
     if err != nil {
         return &Customer{}, err 
     }
@@ -126,7 +139,7 @@ func NewCustomer(username string) (*Customer, error) {
 // Utils
 func evtToAttributeMapConverter(p models.ProductAnalytics) map[string]types.AttributeValue {
     return map[string]types.AttributeValue{
-        "pid": &types.AttributeValueMemberS{Value: p.ProductID},
+        "product_id": &types.AttributeValueMemberS{Value: p.ProductID},
         "timestamp": &types.AttributeValueMemberS{Value: p.Timestamp},
         "status": &types.AttributeValueMemberS{Value: p.Status},
         "consumer": &types.AttributeValueMemberS{Value: p.Consumer},
@@ -134,8 +147,14 @@ func evtToAttributeMapConverter(p models.ProductAnalytics) map[string]types.Attr
 }
 
 func userAnalyticsToAttributeMapConverter(u models.UserAnalytics) map[string]types.AttributeValue {
-    return map[string]types.AttributeValue{
-        "customer_id": &types.AttributeValueMemberS{Value: u.CustomerID},
-        "timestamp": &types.AttributeValueMemberS{Value: u.Timestamp},
-    }
+    av, _ := attributevalue.MarshalMap(u)
+    return av
+    //return map[string]types.AttributeValue{
+    //    "customer_id": &types.AttributeValueMemberS{Value: u.CustomerID},
+    //    "timestamp": &types.AttributeValueMemberS{Value: u.Timestamp},
+    //    "free_requests": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", u.FreeRequests)},
+    //    "paid_requests": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", u.PaidRequests)},
+    //    "productsl": &types.AttributeValueMemberSS{Value: fmt.Sprintf("%d", u.PaidRequests)},
+
+    //}
 }

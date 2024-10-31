@@ -1,10 +1,10 @@
 package models
 
 type ProductAnalytics struct {
-	ProductID string `json:"product_id"`
-	Timestamp string `json:"timestamp"`
-	Status    string `json:"status"`
-	Consumer  string `json:"consumer"`
+	ProductID string    `json:"product_id"`
+	Timestamp string    `json:"timestamp"`
+	Status    string    `json:"status"`
+	Consumer  string    `json:"consumer"`
 }
 
 type IProductAnalyticsTable interface {
