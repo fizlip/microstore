@@ -21,6 +21,34 @@ type DynamoTable[T any] struct{
     svc         *dynamodb.Client
 }
 
+func (d *DynamoTable[T]) ReadCol(col, val string) ([]T, error) {
+    var ts []T
+    input := &dynamodb.ScanInput{
+        TableName: aws.String(d.tableName),
+        // Optional: Filter results
+        FilterExpression: aws.String("#col = :value"),
+        ExpressionAttributeNames: map[string]string{
+            "#col": col,
+        },
+        ExpressionAttributeValues: map[string]types.AttributeValue{
+            ":value": &types.AttributeValueMemberS{Value: val},
+        },
+    }
+    // Call the Query API
+    result, err := d.svc.Scan(context.TODO(), input)
+    if err != nil {
+        log.Fatalf("failed to query id, %v", err)
+        return []T{}, err
+    }
+
+    err = attributevalue.UnmarshalListOfMaps(result.Items, &ts)
+    if err != nil {
+        log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
+        return []T{}, err
+    }
+    return ts, nil
+}
+
 func (d *DynamoTable[T]) Read(id string) ([]T, error) {
     if d.sk == "" {
         var t T

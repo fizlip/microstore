@@ -44,7 +44,7 @@ func (v *Vendor) Logout() {
 
 // GetTools will return an array of all tools created by vendor
 func (v *Vendor) GetTools() ([]models.Tool, error){
-    return v.ToolStorage.Read(v.Name)
+    return v.ToolStorage.ReadCol("developer", v.Name)
 }
 
 // Create will create a tool by inserting it into the data store
@@ -106,7 +106,6 @@ func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 	res := []models.ProductAnalytics{}
 
 	for _, product := range vendorTools {
-		fmt.Println(product.UID)
 		analytics, err := v.AnalyticStorage.Read(product.UID)
 		if err != nil {
 			log.Error("Cuould not read", product.UID)
@@ -127,7 +126,7 @@ func NewVendorController(name string) (*Vendor, error){
         return &Vendor{}, err 
     }
     // Init analytics data store connection
-    analyticsT, err := models.NewMockDynamoTable[models.ProductAnalytics]("f4-product-analytics", "product_id", "timestamp")
+    analyticsT, err := models.NewDynamoTable[models.ProductAnalytics]("f4-product-analytics", "product_id", "timestamp")
     if err != nil {
         return &Vendor{}, err 
     }

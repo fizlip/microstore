@@ -22,6 +22,10 @@ func (m *MockDynamoTable[T]) Read(id string) ([]T, error) {
     return m.mock, nil
 }
 
+func (m *MockDynamoTable[T]) ReadCol(col, val string) ([]T, error) {
+    return m.mock, nil 
+}
+
 func (m *MockDynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
     var t T
     return t, nil

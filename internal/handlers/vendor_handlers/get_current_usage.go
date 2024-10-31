@@ -14,15 +14,15 @@ import (
 // data: ...
 func GetCurrentUsage(w http.ResponseWriter, r *http.Request) {
 	var err error
-	vendor, err := services.NewVendorController("example@mail.com")
+	vendor, err := services.NewVendorController("fillatino@gmail.com")
 
 	if err != nil {
 		log.Fatalf("failed to retrieve usage data, %v", err)
 	}
 
-	rs, err := vendor.GetToolUsage()
+	tool_usage, err := vendor.GetToolUsage()
 
-	err = json.NewEncoder(w).Encode(rs)
+	err = json.NewEncoder(w).Encode(tool_usage)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
