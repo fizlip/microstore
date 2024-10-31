@@ -8,9 +8,9 @@ type Customer struct {
 }
 
 type CustomerAnalytics struct {
-    CustomerID      string
-    Timestamp       string
-    PaidRequests    int
-    FreeRequests    int
-    Products        map[string]ToolData
+    CustomerID      string              `json:"customer_id" dynamodbav:"customer_id"`
+    Timestamp       string              `json:"timestamp" dynamodbav:"timestamp"`
+    PaidRequests    int                 `json:"paid_requests" dynamodbav:"paid_requests"`
+    FreeRequests    int                 `json:"free_requests" dynamodbav:"free_requests"`
+    Products        map[string]ToolData `json:"products" dynamodbav:"products"`
 }
