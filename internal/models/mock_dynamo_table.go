@@ -18,6 +18,10 @@ type MockDynamoTable[T any] struct{
     mock        []T
 }
 
+func (d *MockDynamoTable[T]) BatchRead(pks, sks []string) ([]T, error) {
+    return []T{}, nil
+}
+
 func (m *MockDynamoTable[T]) Read(id string) ([]T, error) {
     return m.mock, nil
 }
@@ -31,7 +35,7 @@ func (m *MockDynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
     return t, nil
 }
 
-func (m *MockDynamoTable[T]) Update(pk, sk string) error {
+func (m *MockDynamoTable[T]) Update(pk, sk, col, val string) error {
     return nil
 }
 

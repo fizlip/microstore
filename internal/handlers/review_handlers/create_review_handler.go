@@ -15,42 +15,42 @@ import (
 // ex: <hostname>/user/review/create
 // data: ...
 func CreateReview(w http.ResponseWriter, r *http.Request) {
-	var response api.Success
-	var err error
-	var reviews *services.ReviewService
-	reviews, err = services.NewReviewService()
-	if err != nil {
+var response api.Success
+    var err error
+    var reviews *services.ReviewService
+    reviews, err = services.NewReviewService()
+    if err != nil {
         log.Error(err)
-		api.InternalErrorHandler(w)
+        api.InternalErrorHandler(w)
         return 
-	}
+    }
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
+    body, err := ioutil.ReadAll(r.Body)
+    if err != nil {
         log.Error(err)
-		api.InternalErrorHandler(w)
+        api.InternalErrorHandler(w)
         return 
-	}
+    }
 
-	var review models.Review
-	err = json.Unmarshal(body, &review)
-	if err != nil {
+    var review models.Review
+    err = json.Unmarshal(body, &review)
+    if err != nil {
         log.Error(err)
-		api.InternalErrorHandler(w)
-		return
-	} else {
-		err = (*reviews).Create(review)
+        api.InternalErrorHandler(w)
+        return
+    } else {
+        err = (*reviews).Create(review)
 
-		response = api.Success{
-			Code:    200,
-			Message: "Review was successfully created",
-		}
-	}
+        response = api.Success{
+            Code:    200,
+            Message: "Review was successfully created",
+        }
+    }
 
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
-		return
-	}
+    err = json.NewEncoder(w).Encode(response)
+    if err != nil {
+        log.Error(err)
+        api.InternalErrorHandler(w)
+        return
+    }
 }

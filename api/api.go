@@ -9,6 +9,13 @@ type UsernameParams struct {
 	Username string
 }
 
+type UpdateReviewParams struct {
+    TID     string `json:"tid"`
+    UID     string `json:"uid"`
+    Col     string `json:"col"`
+    Val     string `json:"val"`
+}
+
 // HTTP parameter structs
 type SearchParams struct {
 	Query string

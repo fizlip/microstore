@@ -8,4 +8,7 @@ type Review struct {
 	Content string `dynamodbav:"content" json:"content"`
 	Creator string `dynamodbav:"creator" json:"creator"`
 	Date    string `dynamodbav:"date" json:"date"`
+	Rating  int    `dynamodbav:"rating" json:"rating"`
+    Rated   bool   `json:"rated"`
+
 }

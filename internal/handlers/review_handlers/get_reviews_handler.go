@@ -15,6 +15,7 @@ import (
 func GetReviews(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var reviews *services.ReviewService
+    var username = r.Header.Get("X-Username")
 
     queryParams := r.URL.Query()
     // get product id 
@@ -27,11 +28,38 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rs, err := (*reviews).GetReviews(pid)
-
-	err = json.NewEncoder(w).Encode(rs)
-	if err != nil {
+    var interactionUids []string
+    for _, r := range rs {
+        interactionUids = append(interactionUids, r.UID)
+    }
+    
+    is, err := reviews.GetInteractions(interactionUids, username)   
+    if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
 		return
 	}
+    
+    if len(is) == 0 {
+	    err = json.NewEncoder(w).Encode(rs)
+        if err != nil {
+            log.Error(err)
+            api.InternalErrorHandler(w)
+            return
+        }
+    } else {
+        for i, r := range rs {
+            for _, interaction := range is {
+                if interaction.UID == r.UID {
+                    rs[i].Rated = true
+                }
+            }
+        }
+        err = json.NewEncoder(w).Encode(rs)
+        if err != nil {
+            log.Error(err)
+            api.InternalErrorHandler(w)
+            return
+        }
+    }
 }

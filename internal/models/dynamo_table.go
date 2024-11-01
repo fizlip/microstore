@@ -4,6 +4,7 @@ import (
     "fmt"
     "context"
     "errors"
+    "strings"
 
     "github.com/aws/aws-sdk-go-v2/aws"
     "github.com/aws/aws-sdk-go-v2/config"
@@ -19,6 +20,46 @@ type DynamoTable[T any] struct{
     sk          string
     tableName   string
     svc         *dynamodb.Client
+}
+
+func (d *DynamoTable[T]) BatchRead(pks, sks []string) ([]T, error) {
+    var returnedItems []T
+    var keys []map[string]types.AttributeValue
+    if len(pks) != len(sks) {
+        return []T{}, errors.New("length of partition keys do not match the length of sort keys")
+    }
+    for index, pk := range pks {
+        key := map[string]types.AttributeValue{
+            d.pk: &types.AttributeValueMemberS{Value: pk},
+            d.sk: &types.AttributeValueMemberS{Value: sks[index]},
+        }
+        keys = append(keys, key)
+    } 
+    
+    input := &dynamodb.BatchGetItemInput{
+        RequestItems: map[string]types.KeysAndAttributes{
+            d.tableName: {
+                Keys: keys,
+            },
+        },
+    }
+
+    result, err := d.svc.BatchGetItem(context.TODO(), input)
+    if err != nil {
+        return nil, errors.New(fmt.Sprintf("failed to batch get items: %v", err))
+    }
+
+    for _, responses := range result.Responses {
+        for _, itemMap := range responses {
+            var item T 
+            err := attributevalue.UnmarshalMap(itemMap, &item)
+            if err != nil {
+                return []T{}, errors.New(fmt.Sprintf("failed to unmarshal item: %v", err))
+            }
+            returnedItems = append(returnedItems, item)
+        }
+    }
+    return returnedItems, nil
 }
 
 func (d *DynamoTable[T]) ReadCol(col, val string) ([]T, error) {
@@ -106,8 +147,8 @@ func (d *DynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
     var t T
 
     key := map[string]types.AttributeValue{
-        d.pk: &types.AttributeValueMemberS{Value: pk},    // Replace with your partition key
-        d.sk: &types.AttributeValueMemberS{Value: sk}, // Replace with your sort key
+        d.pk: &types.AttributeValueMemberS{Value: pk},    
+        d.sk: &types.AttributeValueMemberS{Value: sk}, 
     }
 
     input := &dynamodb.GetItemInput{
@@ -128,7 +169,45 @@ func (d *DynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
     return t, nil
 }
 
-func (d *DynamoTable[T]) Update(pk, sk string) error {
+func (d *DynamoTable[T]) Update(pk, sk, col, val string) error {
+    key := map[string]types.AttributeValue{
+        d.pk: &types.AttributeValueMemberS{Value: pk},    
+        d.sk: &types.AttributeValueMemberS{Value: sk}, 
+    }
+    
+    typeColSlice := strings.Split(col, ",")
+    if len(typeColSlice) != 2 {
+        return errors.New("Column is not formatted correctly. For dynamodb to update you also need to add a type to the column name e.g. S,rating")
+    }
+
+    updateType := typeColSlice[0]
+    columnName := typeColSlice[1]
+
+    var expressionValue types.AttributeValue
+    switch updateType {
+        case "S":
+            expressionValue = &types.AttributeValueMemberS{Value: val}
+        case "N":
+            expressionValue = &types.AttributeValueMemberN{Value: val}
+    }
+
+    input := &dynamodb.UpdateItemInput{
+        TableName: aws.String(d.tableName),
+        Key: key,
+        UpdateExpression: aws.String("SET #attr = :val"),
+        ExpressionAttributeNames: map[string]string{
+            "#attr": columnName,
+        },
+        ExpressionAttributeValues: map[string]types.AttributeValue{
+            ":val": expressionValue,
+        },
+    }
+    
+    _, err := d.svc.UpdateItem(context.TODO(), input)
+    if err != nil {
+        return err
+    }
+
     return nil
 }
 

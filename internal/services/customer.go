@@ -86,7 +86,6 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
 func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{}) (string, error) {
     var err error
     tool, err := c.toolStore.Read(tid)
-    log.Println("tid", tid)
     if err != nil {
         return "", errors.New("The tool you want to run does not exist.")
     } 
