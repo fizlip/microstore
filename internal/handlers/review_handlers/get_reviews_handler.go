@@ -22,20 +22,20 @@ import (
 // response: 500 if error, 200 if OK
 func GetReviews(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var reviews *services.ReviewService
+	var reviewService *services.ReviewService
     var username = r.Header.Get("X-Username")
 
     queryParams := r.URL.Query()
     // get product id 
     pid := queryParams.Get("product_id")
 
-	reviews, err = services.NewReviewService()
+	reviewService, err = services.NewReviewService()
 
 	if err != nil {
 		log.Fatalf("failed to get ECR images, %v", err)
 	}
 
-	reviews, err := (*reviews).GetReviews(pid)
+	reviews, err := (*reviewService).GetReviews(pid)
     // Get the UIDs of all reviews so that we can see if user has interacted with them
     var interactionUids []string
     for _, r := range reviews {
@@ -44,7 +44,7 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
     
     // Check whether user has interacted with any review connected to the product
     // interactions will be an array of all interactions user has on this product
-    interactions, err := reviews.GetInteractions(interactionUids, username)   
+    interactions, err := reviewService.GetInteractions(interactionUids, username)   
     if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
@@ -53,7 +53,7 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
     
     // if there are no interactions just return all reviews with rated = false 
     if len(interactions) == 0 {
-	    err = json.NewEncoder(w).Encode(rs)
+	    err = json.NewEncoder(w).Encode(reviews)
         if err != nil {
             log.Error(err)
             api.InternalErrorHandler(w)
@@ -65,11 +65,11 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
         for i, r := range reviews {
             for _, interaction := range interactions {
                 if interaction.UID == r.UID {
-                    rs[i].Rated = true
+                    reviews[i].Rated = true
                 }
             }
         }
-        err = json.NewEncoder(w).Encode(rs)
+        err = json.NewEncoder(w).Encode(reviews)
         if err != nil {
             log.Error(err)
             api.InternalErrorHandler(w)
