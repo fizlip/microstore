@@ -1,3 +1,5 @@
+// Package review_handlers contains the request handlers for all 
+// endpoints that are interact with reviews.
 package review_handlers
 
 import (
@@ -9,9 +11,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// GetReviews ...
-// ex: <hostname>/user/review/create
-// data: ...
+// GetReviews will return a slice of all reviews connected to a given product_id 
+//
+// Since each review has an optional interaction (like/no like) we also check to see whether
+// the instigator of the request has rated the review. If yes the Rated field 
+// in the review is set to true, otherwise it's false. 
+//
+// ex: <hostname>/user/review/get?product_id=<PRODUCT_ID>
+// data: []Review
+// response: 500 if error, 200 if OK
 func GetReviews(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var reviews *services.ReviewService
@@ -27,20 +35,24 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("failed to get ECR images, %v", err)
 	}
 
-	rs, err := (*reviews).GetReviews(pid)
+	reviews, err := (*reviews).GetReviews(pid)
+    // Get the UIDs of all reviews so that we can see if user has interacted with them
     var interactionUids []string
-    for _, r := range rs {
+    for _, r := range reviews {
         interactionUids = append(interactionUids, r.UID)
     }
     
-    is, err := reviews.GetInteractions(interactionUids, username)   
+    // Check whether user has interacted with any review connected to the product
+    // interactions will be an array of all interactions user has on this product
+    interactions, err := reviews.GetInteractions(interactionUids, username)   
     if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
 		return
 	}
     
-    if len(is) == 0 {
+    // if there are no interactions just return all reviews with rated = false 
+    if len(interactions) == 0 {
 	    err = json.NewEncoder(w).Encode(rs)
         if err != nil {
             log.Error(err)
@@ -48,8 +60,10 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
             return
         }
     } else {
-        for i, r := range rs {
-            for _, interaction := range is {
+        // Here we see which reviews user has rated
+        // All reviews that user has rated will set Rated to true 
+        for i, r := range reviews {
+            for _, interaction := range interactions {
                 if interaction.UID == r.UID {
                     rs[i].Rated = true
                 }
