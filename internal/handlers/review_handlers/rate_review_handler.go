@@ -1,3 +1,5 @@
+// Package review_handlers contains the request handlers for all 
+// endpoints that are interact with reviews.
 package review_handlers
 
 import (
@@ -11,9 +13,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// RateReview will ...
-// ex: <hostname>/user/review/create
-// data: ...
+// RateReview will update the rating on the review by +1 or -1
+// ex: <hostname>/user/review/rate
+// body: {tid: string, uid: string}
+// response: 500 or 200
 func RateReview(w http.ResponseWriter, r *http.Request) {
 	var response api.Success
 	var err error

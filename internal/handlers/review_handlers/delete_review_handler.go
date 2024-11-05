@@ -1,3 +1,5 @@
+// Package review_handlers contains the request handlers for all 
+// endpoints that are interact with reviews.
 package review_handlers
 
 import (
@@ -10,8 +12,9 @@ import (
 )
 
 // DeleteReview will remove a row in the Reviews table in the db
-// ex: <hostname>/user/review/create
-// data: ...
+// ex: <hostname>/user/review/delete?uid=<REVIEW_ID>
+//
+// response: 500 if error 200 if OK 
 func DeleteReview(w http.ResponseWriter, r *http.Request) {
 	var err error
     // Create service
@@ -23,9 +26,10 @@ func DeleteReview(w http.ResponseWriter, r *http.Request) {
         return 
 	}
 
-	log.Println("Delete a review")
+    review_id := r.URL.Query().Get("uid")
+
     // Execute function
-    err = (*reviews).Delete("123")
+    err = (*reviews).Delete(review_id)
     if err != nil {
         log.Error(err)
 		api.InternalErrorHandler(w)

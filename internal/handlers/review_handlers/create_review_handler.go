@@ -1,3 +1,5 @@
+// Package review_handlers contains the request handlers for all 
+// endpoints that are interact with reviews.
 package review_handlers
 
 import (
@@ -12,8 +14,18 @@ import (
 )
 
 // CreateReview will insert another row into the Reviews table in the db
+//
 // ex: <hostname>/user/review/create
-// data: ...
+// body: { 
+//  PID: string
+//  Title: string
+//  Value: string
+//  Content: string
+//  Creator: string
+//  Date: string
+// }
+//
+// response: either and internal server error, status = 500, or OK, status = 200
 func CreateReview(w http.ResponseWriter, r *http.Request) {
 var response api.Success
     var err error
@@ -24,7 +36,8 @@ var response api.Success
         api.InternalErrorHandler(w)
         return 
     }
-
+    
+    // Read body
     body, err := ioutil.ReadAll(r.Body)
     if err != nil {
         log.Error(err)
