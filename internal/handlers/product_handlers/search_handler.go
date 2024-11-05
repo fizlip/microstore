@@ -1,3 +1,5 @@
+// package product_handlers provides functions used to interact with 
+// products.
 package product_handlers
 
 import (
@@ -10,8 +12,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// GetAllImages will return one page of all images available in the f4mhouse OCI repo
-// A correct response will return an array of Image values.
+// Search will return the response to a search query as an array of 
+// products.
 func Search(w http.ResponseWriter, r *http.Request) {
 	var params = api.SearchParams{}
 	var err error

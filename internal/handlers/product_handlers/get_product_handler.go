@@ -1,3 +1,5 @@
+// package product_handlers provides functions used to interact with 
+// products.
 package product_handlers
 
 import (
@@ -10,7 +12,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// GetProduct will return one image with the UID given in the URL param
+// GetProduct will return one image with the UID given in the URL param.
+// e.g. /product/get/image?uid=1234 will return image with the UID that is
+// 1234. If it does not exist an empty string is returned.
+// TODO: CHECK IF THIS IS NEEDED
 func GetProduct(w http.ResponseWriter, r *http.Request) {
 	var params = api.GetProductParams{}
 	var decoder *schema.Decoder = schema.NewDecoder()
@@ -33,8 +38,6 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response = (*database).GetProduct(params.UID)
-
-	log.Println("Get product")
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)

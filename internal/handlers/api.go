@@ -1,3 +1,5 @@
+// Package handlers contains methods that route URLs with their
+// correct function handlers 
 package handlers
 
 import (
@@ -7,13 +9,27 @@ import (
 	"github.com/fizlip/microstore/internal/handlers/product_handlers"
 	"github.com/fizlip/microstore/internal/handlers/store_handlers"
 	"github.com/fizlip/microstore/internal/middleware"
+
 	"github.com/go-chi/chi"
 	chimiddle "github.com/go-chi/chi/middleware"
 )
 
+// Handle is the main HTTP router of the f4rmhouse API. 
+// It uses the [chi] router to map incoming requests with their 
+// correct http handler
+//
+// we support and will continue to add many handlers. these handlers 
+// are divided into sub-packages named after the entity they named 
+// after the entity that they handle, e.g. user_handler is the 
+// package that handles all user endpoints etc. 
+//
+// Some endpoints (the majority actually) require authentication
+// this is defined in the middleware package.
+// 
+// [chi]: https://github.com/go-chi/chi
 func Handle(r *chi.Mux) {
 	// Global middleware
-	r.Use(chimiddle.StripSlashes)
+	r.Use(chimiddle.StripSlashes) // this will remove unnecessary characters from the URL
 
     // PRODUCTS
 	r.Route("/products", func(router chi.Router) {

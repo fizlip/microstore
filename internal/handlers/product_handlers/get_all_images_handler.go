@@ -1,3 +1,5 @@
+// package product_handlers provides functions used to interact with 
+// products.
 package product_handlers
 
 import (
@@ -11,7 +13,7 @@ import (
 )
 
 // GetAllImages will return one page of all images available in the f4mhouse OCI repo
-// A correct response will return an array of Image values.
+// A correct response will return an array of Image values in a json object.
 func GetAllImages(w http.ResponseWriter, r *http.Request) {
 
 	var err error
