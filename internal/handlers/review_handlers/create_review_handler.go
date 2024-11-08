@@ -27,7 +27,7 @@ import (
 //
 // response: either and internal server error, status = 500, or OK, status = 200
 func CreateReview(w http.ResponseWriter, r *http.Request) {
-var response api.Success
+    var response api.Success
     var err error
     var reviews *services.ReviewService
     reviews, err = services.NewReviewService()

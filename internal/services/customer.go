@@ -17,6 +17,7 @@ type Customer struct {
     analyticsStore      models.DatabaseReadWriter[models.UserAnalytics]
     toolAnalyticsStore  models.DatabaseReadWriter[models.ProductAnalytics]
     toolStore           models.DatabaseReadWriter[models.Tool]
+    f4rmerStore         models.DatabaseReadWriter[models.F4rmer]
 }
 
 // GetAnalytics returns all product analytics data related to the customer for 
@@ -111,6 +112,26 @@ func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{
     return "Hello world!", nil
 }
 
+func (c *Customer) CreateF4rmer(f4rmer models.F4rmer) (error) {
+    return c.f4rmerStore.Create(f4rmer, f4rmerToAttributeMapConverter)
+}
+
+func (c *Customer) ReadF4rmers() ([]models.F4rmer, error) {
+    return c.f4rmerStore.Read(c.Name)
+}
+
+func (c *Customer) ReadF4rmer(username, uid string) (models.F4rmer, error) {
+    return c.f4rmerStore.ReadSpecific(username, uid)
+}
+
+func (c *Customer) UpdateF4rmer(creator, uid, col, val string) (error) {
+    return c.f4rmerStore.Update(creator, uid, col, val)
+}
+
+func (c *Customer) DeleteF4rmer(creator, uid string) (error) {
+    return c.f4rmerStore.DeleteDetailed(creator, uid)
+}
+
 // NewCustomer returns a customer struct with the given username.
 // the datastore can be changed here.
 func NewCustomer(username string) (*Customer, error) {
@@ -128,12 +149,17 @@ func NewCustomer(username string) (*Customer, error) {
     if err != nil {
         return &Customer{}, err 
     }
+    f4rmerT, err := models.NewDynamoTable[models.F4rmer]("f4-f4rmers", "creator", "uid")
+    if err != nil {
+        return &Customer{}, err 
+    }
 
     return &Customer{
         Name: username, 
         analyticsStore: analyticsT, 
         toolAnalyticsStore: toolAnalyticsT,
         toolStore: toolT,
+        f4rmerStore: f4rmerT,
     }, nil
 }
 
@@ -147,15 +173,12 @@ func evtToAttributeMapConverter(p models.ProductAnalytics) map[string]types.Attr
     }
 }
 
+func f4rmerToAttributeMapConverter(f4 models.F4rmer) map[string]types.AttributeValue {
+    av, _ := attributevalue.MarshalMap(f4)
+    return av
+}
+
 func userAnalyticsToAttributeMapConverter(u models.UserAnalytics) map[string]types.AttributeValue {
     av, _ := attributevalue.MarshalMap(u)
     return av
-    //return map[string]types.AttributeValue{
-    //    "customer_id": &types.AttributeValueMemberS{Value: u.CustomerID},
-    //    "timestamp": &types.AttributeValueMemberS{Value: u.Timestamp},
-    //    "free_requests": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", u.FreeRequests)},
-    //    "paid_requests": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", u.PaidRequests)},
-    //    "productsl": &types.AttributeValueMemberSS{Value: fmt.Sprintf("%d", u.PaidRequests)},
-
-    //}
 }

@@ -8,6 +8,8 @@ import (
 	"github.com/fizlip/microstore/internal/handlers/user_handlers"
 	"github.com/fizlip/microstore/internal/handlers/product_handlers"
 	"github.com/fizlip/microstore/internal/handlers/store_handlers"
+	"github.com/fizlip/microstore/internal/handlers/f4rmer_handlers"
+
 	"github.com/fizlip/microstore/internal/middleware"
 
 	"github.com/go-chi/chi"
@@ -19,12 +21,12 @@ import (
 // correct http handler
 //
 // we support and will continue to add many handlers. these handlers 
-// are divided into sub-packages named after the entity they named 
-// after the entity that they handle, e.g. user_handler is the 
+// are divided into sub-packages named after the entity 
+// that they handle, e.g. user_handler is the 
 // package that handles all user endpoints etc. 
 //
 // Some endpoints (the majority actually) require authentication
-// this is defined in the middleware package.
+// this is defined in the middleware package. (you find the all middleware in internal/middleware)
 // 
 // [chi]: https://github.com/go-chi/chi
 func Handle(r *chi.Mux) {
@@ -55,6 +57,12 @@ func Handle(r *chi.Mux) {
 		router.Post("/review/delete", review_handlers.DeleteReview)
 		router.Patch("/review/update", review_handlers.UpdateReview)
 		router.Post("/review/rate", review_handlers.RateReview)
+        // F4rmers
+        router.Post("/f4rmer/create", f4rmer_handlers.Create)
+        router.Get("/f4rmer/read", f4rmer_handlers.Read)
+        router.Get("/f4rmer/read_specific", f4rmer_handlers.ReadSpecific)
+        router.Patch("/f4rmer/update", f4rmer_handlers.Update)
+		router.Delete("/f4rmer/delete", f4rmer_handlers.Delete)
 	})
 
     // STORE

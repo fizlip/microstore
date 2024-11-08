@@ -75,6 +75,8 @@ func (m *MockDynamoTable[T]) ProduceMockData() {
             m.mock = any(MockProductCatalog).([]T)
         case Review:
             m.mock = any(MockReviews).([]T)
+        case F4rmer:
+            m.mock = any(MockF4rmers).([]T)
         default:
             m.mock = []T{}
     }
