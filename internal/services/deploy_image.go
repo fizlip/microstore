@@ -147,9 +147,64 @@ func (d *DeployService) CreateTaskDef(tool_name, tool_uri string) (error) {
     return err 
 }
 
-func (d *DeployService) CreateService() (error) {
+func (d *DeployService) CreateService(clusterName, serviceName, taskDefinition string) (error) {
     log.Println("Creating Service...")    
-    return nil
+
+    client := ecs.NewFromConfig(d.cfg)
+
+    serviceInput := &ecs.CreateServiceInput{
+        // Cluster and service basic configuration
+        Cluster:        aws.String(clusterName),
+        ServiceName:    aws.String(serviceName),
+        TaskDefinition: aws.String(taskDefinition),
+
+        // Deployment configuration
+        DesiredCount: aws.Int32(2), // Number of task instances to run
+        LaunchType:   types.LaunchTypeFargate,
+
+        // Network configuration (required for Fargate)
+        NetworkConfiguration: &types.NetworkConfiguration{
+            AwsvpcConfiguration: &types.AwsVpcConfiguration{
+                Subnets: []string{
+                    "subnet-fd1bbd97",
+                    "subnet-7d917231",
+                    "subnet-8e001cf3",
+                },
+                SecurityGroups: []string{
+                    "sg-3f2ecd5a", // Replace with your security group IDs
+                    "sg-02e04cfdc02886613",
+                },
+                AssignPublicIp: types.AssignPublicIpEnabled,
+            },
+        },
+
+        // Optional: Deployment strategy
+        DeploymentConfiguration: &types.DeploymentConfiguration{
+            MaximumPercent:        aws.Int32(200),
+            MinimumHealthyPercent: aws.Int32(50),
+        },
+
+        // Optional: Load balancer configuration (if applicable)
+        // LoadBalancers: []types.LoadBalancer{
+        //  {
+        //      TargetGroupArn: aws.String("arn:aws:elasticloadbalancing:region:account:targetgroup/..."),
+        //      ContainerName:  aws.String("your-container-name"),
+        //      ContainerPort:  aws.Int32(80),
+        //  },
+        // },
+
+        // Optional: Service tags
+        Tags: []types.Tag{
+            {
+                Key:   aws.String("Environment"),
+                Value: aws.String("Production"),
+            },
+        },
+    }
+
+    _, err := client.CreateService(context.TODO(), serviceInput)
+
+    return err 
 }
 
 func NewDeployService() (*DeployService, error) {
