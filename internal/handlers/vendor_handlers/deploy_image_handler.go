@@ -22,7 +22,7 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
 		api.InternalErrorHandler(w)
 		return
     }
-    //err = deployer.CreateTaskDef("tool-test-1", "236798077409.dkr.ecr.eu-central-1.amazonaws.com/f4rmhouse:grpc-server")
+    err = deployer.CreateTaskDef("tool-test-1", "236798077409.dkr.ecr.eu-central-1.amazonaws.com/f4rmhouse:grpc-server")
     err = deployer.CreateService("testNewCluster", "testNewServiceForThisCluster", "myNewTestWhichCanBeRemoved")
 
     if err != nil {

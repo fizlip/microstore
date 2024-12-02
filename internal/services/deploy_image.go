@@ -18,6 +18,11 @@ type DeployService struct {
   clusterName   string
 }
 
+func (d *DeployService) GetEndpoint(id string) ([]string, error) {
+    log.Println("Get endpoint")    
+    return []string{}, nil
+}
+
 func (d *DeployService) CreateCluster(clusterName string) (error) {
     log.Println("Creating cluster...")    
 
@@ -183,15 +188,6 @@ func (d *DeployService) CreateService(clusterName, serviceName, taskDefinition s
             MaximumPercent:        aws.Int32(200),
             MinimumHealthyPercent: aws.Int32(50),
         },
-
-        // Optional: Load balancer configuration (if applicable)
-        // LoadBalancers: []types.LoadBalancer{
-        //  {
-        //      TargetGroupArn: aws.String("arn:aws:elasticloadbalancing:region:account:targetgroup/..."),
-        //      ContainerName:  aws.String("your-container-name"),
-        //      ContainerPort:  aws.Int32(80),
-        //  },
-        // },
 
         // Optional: Service tags
         Tags: []types.Tag{

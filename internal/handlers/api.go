@@ -80,6 +80,7 @@ func Handle(r *chi.Mux) {
         router.Post("/oci/create", vendor_handlers.CreateImage)
         router.Patch("/oci/update", vendor_handlers.UpdateImage)
         router.Post("/oci/deploy", vendor_handlers.DeployImage)
+        router.Get("/oci/get/endpoint", vendor_handlers.GetEndpoint)
         // API Keys
         router.Post("/key/create", vendor_handlers.CreateAPIKey)
         router.Delete("/key/delete", vendor_handlers.DeleteAPIKey)
