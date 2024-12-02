@@ -6,6 +6,7 @@ import (
     "errors"
 
     "github.com/aws/aws-sdk-go-v2/aws"
+    "github.com/aws/aws-sdk-go-v2/service/ec2"
     "github.com/aws/aws-sdk-go-v2/config"
     "github.com/aws/aws-sdk-go-v2/service/ecs"
     "github.com/aws/aws-sdk-go-v2/service/ecs/types"
@@ -18,9 +19,99 @@ type DeployService struct {
   clusterName   string
 }
 
-func (d *DeployService) GetEndpoint(id string) ([]string, error) {
+func (d *DeployService) GetEndpoint(clusterName string) ([]string, error) {
     log.Println("Get endpoint")    
-    return []string{}, nil
+    var publicIP []string
+    // Create ECS client
+    ecsClient := ecs.NewFromConfig(d.cfg)
+    ec2Client := ec2.NewFromConfig(d.cfg)
+
+    // List all tasks in the cluster
+    listTasksInput := &ecs.ListTasksInput{
+        Cluster: &clusterName,
+    }
+    tasksResp, err := ecsClient.ListTasks(context.TODO(), listTasksInput)
+    if err != nil {
+        return []string{}, errors.New(fmt.Sprintf("error listing tasks: %v", err))
+    }
+
+    // If no tasks found
+    if len(tasksResp.TaskArns) == 0 {
+        log.Printf("No tasks found in cluster %s\n", clusterName)
+        return nil, errors.New(fmt.Sprintf("No tasks found in cluster %s\n", clusterName))
+    }
+
+    // Describe the tasks to get more details
+    describeTasksInput := &ecs.DescribeTasksInput{
+        Cluster: &clusterName,
+        Tasks:   tasksResp.TaskArns,
+    }
+    tasksDesc, err := ecsClient.DescribeTasks(context.TODO(), describeTasksInput)
+    if err != nil {
+        return nil, errors.New(fmt.Sprintf("error describing tasks: %v", err))
+    }
+
+    // Print task details with network information
+    log.Printf("Tasks in cluster %s:\n", clusterName)
+    for _, task := range tasksDesc.Tasks {
+        log.Printf("Task ARN: %s\n", *task.TaskArn)
+        
+        log.Printf("  Status: %s\n", string(*task.LastStatus))
+        
+        // Print container details
+        for _, container := range task.Containers {
+            log.Printf("  Container Name: %s\n", *container.Name)
+            log.Printf("    Image: %s\n", *container.Image)
+            log.Printf("    Container Status: %s\n", string(*container.LastStatus))
+            if string(*container.LastStatus) != "RUNNING" {
+                publicIP = append(publicIP, string(*container.LastStatus))
+            }
+        }
+        
+        // Retrieve network interfaces to get public IP
+        if task.Attachments != nil {
+            log.Println("Attachements: ")
+            for _, attachment := range task.Attachments {
+                log.Println(*attachment.Type)
+                if *attachment.Type == "ElasticNetworkInterface" {
+                    // Extract the network interface ID from attachments
+                    var networkInterfaceId string
+                    for _, detail := range attachment.Details {
+                        if *detail.Name == "networkInterfaceId" {
+                            networkInterfaceId = *detail.Value
+                            break
+                        }
+                    }
+                    
+                    // Describe network interface to get public IP
+                    if networkInterfaceId != "" {
+                        networkInterfacesInput := &ec2.DescribeNetworkInterfacesInput{
+                            NetworkInterfaceIds: []string{networkInterfaceId},
+                        }
+                        
+                        networkInterfacesResp, err := ec2Client.DescribeNetworkInterfaces(context.TODO(), networkInterfacesInput)
+                        if err != nil {
+                            log.Printf("    Error retrieving network interface: %v\n", err)
+                            continue
+                        }
+                        
+                        // Print public IP if available
+                        if len(networkInterfacesResp.NetworkInterfaces) > 0 {
+                            ni := networkInterfacesResp.NetworkInterfaces[0]
+                            if ni.Association != nil && ni.Association.PublicIp != nil {
+                                log.Printf("    Public IP: %s\n", *ni.Association.PublicIp)
+                                publicIP = append(publicIP, *ni.Association.PublicIp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        log.Println("---")
+    }
+
+    return publicIP, nil
 }
 
 func (d *DeployService) CreateCluster(clusterName string) (error) {
