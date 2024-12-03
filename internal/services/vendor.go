@@ -176,6 +176,7 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
         "uid": &types.AttributeValueMemberS{Value: tool.UID},
         "developer": &types.AttributeValueMemberS{Value: tool.Developer},
         "title": &types.AttributeValueMemberS{Value: tool.Title},
+        "uti": &types.AttributeValueMemberS{Value: tool.UTI},
         "description": &types.AttributeValueMemberS{Value: tool.Description},
         "rating": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Rating)},
         "Pricing": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Price)},

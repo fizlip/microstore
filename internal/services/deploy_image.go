@@ -21,6 +21,7 @@ type DeployService struct {
 
 func (d *DeployService) GetEndpoint(clusterName string) ([]string, error) {
     log.Println("Get endpoint")    
+
     var publicIP []string
     // Create ECS client
     ecsClient := ecs.NewFromConfig(d.cfg)
@@ -54,17 +55,11 @@ func (d *DeployService) GetEndpoint(clusterName string) ([]string, error) {
     // Print task details with network information
     log.Printf("Tasks in cluster %s:\n", clusterName)
     for _, task := range tasksDesc.Tasks {
-        log.Printf("Task ARN: %s\n", *task.TaskArn)
-        
-        log.Printf("  Status: %s\n", string(*task.LastStatus))
-        
         // Print container details
         for _, container := range task.Containers {
-            log.Printf("  Container Name: %s\n", *container.Name)
-            log.Printf("    Image: %s\n", *container.Image)
-            log.Printf("    Container Status: %s\n", string(*container.LastStatus))
             if string(*container.LastStatus) != "RUNNING" {
                 publicIP = append(publicIP, string(*container.LastStatus))
+                return publicIP, nil
             }
         }
         

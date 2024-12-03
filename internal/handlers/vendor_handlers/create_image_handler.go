@@ -151,6 +151,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 func getProductFromForm(r *http.Request) (models.Tool , error) {
     // Extract form values
     title           := r.FormValue("title")
+    uti             := r.FormValue("uti")
     description     := r.FormValue("description")
     rating          := 0.0
     price, err      := strconv.ParseFloat(r.FormValue("price"), 64)
@@ -176,6 +177,7 @@ func getProductFromForm(r *http.Request) (models.Tool , error) {
     // Generate error if required fields are empty
     if len(title) == 0 || 
         len(thumbnail) == 0 || 
+        len(uti) == 0 || 
         len(developer) == 0 || 
         len(pricingType) == 0 || 
         len(releaseType) == 0 || 
@@ -190,6 +192,7 @@ func getProductFromForm(r *http.Request) (models.Tool , error) {
     return models.Tool{
         UID:          uuid.New().String(),
         Title:        title,
+        UTI:          uti,
         Description:  description,
         Rating:       rating,
         Price:        price,

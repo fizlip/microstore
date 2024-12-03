@@ -3,6 +3,7 @@ package models
 type Tool struct {
 	UID          string   `dynamodbav:"uid" json:"uid"`
 	Title        string   `dynamodbav:"title" json:"title"`
+    UTI          string   `dynamodbav:"uti" json:"uti"`
 	Description  string   `dynamodbav:"description" json:"description"`
 	Rating       float64  `dynamodbav:"rating" json:"rating"`
 	Price        float64  `dynamodbav:"price" json:"price"`
