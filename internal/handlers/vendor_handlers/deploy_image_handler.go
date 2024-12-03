@@ -35,11 +35,9 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
 		return
     }
     
-	log.Println("Deploy image?? (I dont know how to do this....)")
-
 	response := api.Success{
 		Code:    200,
-		Message: "Deployment finished without errors.",
+		Message: "Deployment finished without errors. Use f4cli endpoints to get your tool URL. Note that it might take a couple of minutes to deploy hardware for your task.",
 	}
 
 	err = json.NewEncoder(w).Encode(response)
