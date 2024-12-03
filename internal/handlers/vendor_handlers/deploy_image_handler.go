@@ -16,14 +16,18 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
     var deployer *services.DeployService 
     deployer, err = services.NewDeployService()
 
-    err = deployer.CreateCluster("testNewCluster")
+    uti := r.FormValue("tool_uti")
+    taskDef := uti + "-taskdef"
+    serviceName := uti + "-service"
+
+    err = deployer.CreateCluster(uti)
     if err != nil {
         log.Error(err)
 		api.InternalErrorHandler(w)
 		return
     }
-    err = deployer.CreateTaskDef("tool-test-1", "236798077409.dkr.ecr.eu-central-1.amazonaws.com/f4rmhouse:grpc-server")
-    err = deployer.CreateService("testNewCluster", "testNewServiceForThisCluster", "myNewTestWhichCanBeRemoved")
+    err = deployer.CreateTaskDef(taskDef, "tool-test-1", "236798077409.dkr.ecr.eu-central-1.amazonaws.com/f4rmhouse:grpc-server")
+    err = deployer.CreateService(uti, serviceName, taskDef)
 
     if err != nil {
         log.Error(err)

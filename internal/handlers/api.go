@@ -77,10 +77,10 @@ func Handle(r *chi.Mux) {
 		// Get set of products and their usage for current period
 		router.Get("/get/usage", vendor_handlers.GetCurrentUsage)
 		router.Get("/get/tools", vendor_handlers.GetTools)
+        router.Get("/oci/get/endpoint", vendor_handlers.GetEndpoint)
         router.Post("/oci/create", vendor_handlers.CreateImage)
         router.Patch("/oci/update", vendor_handlers.UpdateImage)
         router.Post("/oci/deploy", vendor_handlers.DeployImage)
-        router.Get("/oci/get/endpoint", vendor_handlers.GetEndpoint)
         // API Keys
         router.Post("/key/create", vendor_handlers.CreateAPIKey)
         router.Delete("/key/delete", vendor_handlers.DeleteAPIKey)

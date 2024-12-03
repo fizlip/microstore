@@ -153,7 +153,7 @@ func (d *DeployService) CreateCluster(clusterName string) (error) {
     return err 
 }
 
-func (d *DeployService) CreateTaskDef(tool_name, tool_uri string) (error) {
+func (d *DeployService) CreateTaskDef(taskDef, tool_name, tool_uri string) (error) {
     log.Println("Creating TaskDef...")    
 
     client := ecs.NewFromConfig(d.cfg)
@@ -196,7 +196,7 @@ func (d *DeployService) CreateTaskDef(tool_name, tool_uri string) (error) {
 
     // Prepare task definition input
     input := &ecs.RegisterTaskDefinitionInput{
-        Family: aws.String("myNewTestWhichCanBeRemoved"),
+        Family: aws.String(taskDef),
         
         // Container definitions
         ContainerDefinitions: containerDefinitions,
