@@ -16,8 +16,8 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
     var deployer *services.DeployService 
     deployer, err = services.NewDeployService()
 
-    uti := r.FormValue("tool_uti")
-    taskDef := uti + "-taskdef"
+    uti         := r.FormValue("tool_uti")
+    taskDef     := uti + "-taskdef"
     serviceName := uti + "-service"
 
     err = deployer.CreateCluster(uti)
@@ -39,7 +39,7 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
 
 	response := api.Success{
 		Code:    200,
-		Message: "Deployment finished without errors. UTI: example.tool.com",
+		Message: "Deployment finished without errors.",
 	}
 
 	err = json.NewEncoder(w).Encode(response)
