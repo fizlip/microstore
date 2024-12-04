@@ -24,7 +24,7 @@ func (t *ToolNameService) DeleteRecord(uti string) error {
 }
 
 func (t *ToolNameService) InsertIP(uti string) error {
-    return t.NameServiceStorage.UpdateAll("slither", "SS,ips", "123,456")
+    return t.NameServiceStorage.UpdateAll(uti, "SS,ips", "123,456")
 }
 
 // NewVendorController is a factory method that initialised a data store and
