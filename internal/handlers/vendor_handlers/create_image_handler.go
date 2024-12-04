@@ -134,6 +134,12 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         api.CustomInternalErrorHandler(w, ConnectionError)
         return
     }
+    if err := (*nameService).InsertIP("slither"); err != nil {
+        log.Println("Could not insert tool into TNS", err)
+        // TODO: add error for this case in /api
+        api.CustomInternalErrorHandler(w, ConnectionError)
+        return
+    }
     
     /** End exeuction **/
     

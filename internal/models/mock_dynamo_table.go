@@ -39,6 +39,10 @@ func (m *MockDynamoTable[T]) Update(pk, sk, col, val string) error {
     return nil
 }
 
+func (m *MockDynamoTable[T]) UpdateAll(pk, col, val string) error {
+    return nil
+}
+
 func (m *MockDynamoTable[T]) UpdateObject(pk, sk, col string, t T) error {
     return nil
 }

@@ -19,9 +19,12 @@ func (t *ToolNameService) CreateRecord(tool models.ToolName) error {
     return t.NameServiceStorage.Create(tool, toolToAttributeMapConverter)
 }
 
-func (t *ToolNameService) DeleteRecord(tool models.ToolName) error {
-    return nil
-    //return t.NameServiceStorage.(tool, toolToAttributeMapConverter)
+func (t *ToolNameService) DeleteRecord(uti string) error {
+    return t.NameServiceStorage.Delete(uti)
+}
+
+func (t *ToolNameService) InsertIP(uti string) error {
+    return t.NameServiceStorage.UpdateAll("slither", "SS,ips", "123,456")
 }
 
 // NewVendorController is a factory method that initialised a data store and

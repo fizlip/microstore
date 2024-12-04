@@ -211,6 +211,49 @@ func (d *DynamoTable[T]) Update(pk, sk, col, val string) error {
     return nil
 }
 
+func (d *DynamoTable[T]) UpdateAll(pk, col, val string) error {
+    key := map[string]types.AttributeValue{
+        d.pk: &types.AttributeValueMemberS{Value: pk},    
+    }
+    
+    typeColSlice := strings.Split(col, ",")
+    if len(typeColSlice) != 2 {
+        return errors.New("Column is not formatted correctly. For dynamodb to update you also need to add a type to the column name e.g. S,rating")
+    }
+
+    updateType := typeColSlice[0]
+    columnName := typeColSlice[1]
+
+    var expressionValue types.AttributeValue
+    switch updateType {
+        case "S":
+            expressionValue = &types.AttributeValueMemberS{Value: val}
+        case "SS":
+            expressionValue = &types.AttributeValueMemberSS{Value: strings.Split(val, ",")}
+        case "N":
+            expressionValue = &types.AttributeValueMemberN{Value: val}
+    }
+
+    input := &dynamodb.UpdateItemInput{
+        TableName: aws.String(d.tableName),
+        Key: key,
+        UpdateExpression: aws.String("SET #attr = :val"),
+        ExpressionAttributeNames: map[string]string{
+            "#attr": columnName,
+        },
+        ExpressionAttributeValues: map[string]types.AttributeValue{
+            ":val": expressionValue,
+        },
+    }
+    
+    _, err := d.svc.UpdateItem(context.TODO(), input)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
 // Create will insert an item into the tools database
 func (d *DynamoTable[T]) Create(t T, f func (t T) map[string]types.AttributeValue) error {
     // Convert T into format understandable by &dynamodb

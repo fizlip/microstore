@@ -11,6 +11,7 @@ type DatabaseReadWriter[T any] interface {
     BatchRead(pks, sks []string) ([]T, error)
 
     Update(pk, sk, col, val string) error
+    UpdateAll(pk, col, val string) error
 
     Create(t T, converter func (t T) map[string]types.AttributeValue)error
 
