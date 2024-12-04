@@ -16,14 +16,26 @@ func GetEndpoint(w http.ResponseWriter, r *http.Request) {
     var message string
     
     var deployer *services.DeployService 
-    deployer, err = services.NewDeployService()
+    var ns *services.ToolNameService
 
-    ips, err := deployer.GetEndpoint("testNewCluster")
-    
+    deployer, err = services.NewDeployService()
+    ns, err = services.NewToolNameService()
+
+    uti := r.URL.Query().Get("uti")
+
+    log.Println("UTI", uti)
+
+    ips, err := deployer.GetEndpoint(uti)
     if len(ips) == 0 {
         message = "Cluster has no services associated with it."
     } else {
         message = strings.Join(ips, ",")
+        err = ns.InsertIP(uti, message)
+        if err != nil {
+            log.Error(err)
+            api.InternalErrorHandler(w)
+            return
+        }
     }
 
 	response := api.Success{
