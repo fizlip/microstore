@@ -16,6 +16,9 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
     var deployer *services.DeployService 
     deployer, err = services.NewDeployService()
 
+    var nameService *services.ToolNameService
+    nameService, err = services.NewToolNameService()
+
     uti         := r.FormValue("tool_uti")
     taskDef     := uti + "-taskdef"
     serviceName := uti + "-service"
@@ -33,6 +36,13 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
         log.Error(err)
 		api.InternalErrorHandler(w)
 		return
+    }
+
+    if err := (*nameService).InsertIP(uti, "PENDING"); err != nil {
+        log.Println("Could not insert tool into TNS", err)
+        // TODO: add error for this case in /api
+        api.CustomInternalErrorHandler(w, ConnectionError)
+        return
     }
     
 	response := api.Success{
