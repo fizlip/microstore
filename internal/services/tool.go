@@ -44,6 +44,5 @@ func NewToolNameService() (*ToolNameService, error){
 func toolToAttributeMapConverter(tool models.ToolName) map[string]types.AttributeValue {
     return map[string]types.AttributeValue{
         "uti": &types.AttributeValueMemberS{Value: tool.UTI},
-        "ips": &types.AttributeValueMemberSS{Value: tool.IPs},
     }
 }

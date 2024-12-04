@@ -31,6 +31,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	var vendor *services.Vendor
+    var nameService *services.ToolNameService
 
     /** Init **/
 
@@ -38,6 +39,14 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
     vendor, err = services.NewVendorController("fillatino@gmail.com")
     if err != nil {
         log.Error("Cannot connect to tools database ", err)
+        api.AuthenticationErrorHandler(w, ToLargeError)
+        return
+    }
+
+    // Init tools table this will initialize a connection with the dynamodb table
+    nameService, err = services.NewToolNameService()
+    if err != nil {
+        log.Error("Cannot connect to TNS ", err)
         api.AuthenticationErrorHandler(w, ToLargeError)
         return
     }
@@ -114,6 +123,13 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
     // Create a tools item in the DB
     if err := (*vendor).CreateTool(product); err != nil {
         log.Println("Could not create new product ", err)
+        // TODO: add error for this case in /api
+        api.CustomInternalErrorHandler(w, ConnectionError)
+        return
+    }
+
+    if err := (*nameService).CreateRecord(models.ToolName{UTI: product.UTI, IPs: []string{}}); err != nil {
+        log.Println("Could not insert tool into TNS", err)
         // TODO: add error for this case in /api
         api.CustomInternalErrorHandler(w, ConnectionError)
         return
