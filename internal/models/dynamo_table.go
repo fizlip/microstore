@@ -90,6 +90,7 @@ func (d *DynamoTable[T]) ReadCol(col, val string) ([]T, error) {
     return ts, nil
 }
 
+// Read will return an item by the pk. It returns an error if the item does not exists
 func (d *DynamoTable[T]) Read(id string) ([]T, error) {
     if d.sk == "" {
         var t T

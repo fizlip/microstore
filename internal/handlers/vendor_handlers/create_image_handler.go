@@ -22,6 +22,7 @@ var ToLargeError = errors.New("Error in form. Form data might be to large or you
 var ImageNotFound = errors.New("Form does not contain image")
 var DebugError = errors.New("Cannot list image")
 var ConnectionError = errors.New("Internal connection error. This is an issue on our side. We're working on it.")
+var NameExistsError = errors.New("The name you gave your tool is already in use. Please pick another name")
 
 // CreateImage will upload an image to the docker registry. It also creates the 
 // database record used to identify the image 
@@ -50,7 +51,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         api.AuthenticationErrorHandler(w, ToLargeError)
         return
     }
-    
+
     // Extract data from form values and create product struct based on them
     product, err := getProductFromForm(r)
     if err != nil {
@@ -58,6 +59,14 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         api.AuthenticationErrorHandler(w, ToLargeError)
         return
     }
+
+    _, err = (*nameService).GetTool(product.UTI) 
+    if err == nil {
+        log.Println("Name already exists ", err)
+        api.AuthenticationErrorHandler(w, NameExistsError)
+		return
+    }
+
     // Create a docker client object to communicate w/ docker daemon
     dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
     if err != nil {

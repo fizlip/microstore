@@ -11,8 +11,8 @@ type ToolNameService struct {
     NameServiceStorage  models.DatabaseReadWriter[models.ToolName]
 }
 
-func (t *ToolNameService) GetTool(tool string) (models.ToolName, error){
-    return t.NameServiceStorage.ReadSpecific(tool, "")
+func (t *ToolNameService) GetTool(tool string) ([]models.ToolName, error){
+    return t.NameServiceStorage.Read(tool)
 }
 
 func (t *ToolNameService) CreateRecord(tool models.ToolName) error {
