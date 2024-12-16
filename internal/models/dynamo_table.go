@@ -22,6 +22,43 @@ type DynamoTable[T any] struct{
     svc         *dynamodb.Client
 }
 
+func (d *DynamoTable[T]) BatchReadPks(pks []string) ([]T, error) {
+    var returnedItems []T
+    var keys []map[string]types.AttributeValue
+
+    for _, pk := range pks {
+        key := map[string]types.AttributeValue{
+            d.pk: &types.AttributeValueMemberS{Value: pk},
+        }
+        keys = append(keys, key)
+    } 
+    
+    input := &dynamodb.BatchGetItemInput{
+        RequestItems: map[string]types.KeysAndAttributes{
+            d.tableName: {
+                Keys: keys,
+            },
+        },
+    }
+
+    result, err := d.svc.BatchGetItem(context.TODO(), input)
+    if err != nil {
+        return nil, errors.New(fmt.Sprintf("failed to batch get items: %v", err))
+    }
+
+    for _, responses := range result.Responses {
+        for _, itemMap := range responses {
+            var item T 
+            err := attributevalue.UnmarshalMap(itemMap, &item)
+            if err != nil {
+                return []T{}, errors.New(fmt.Sprintf("failed to unmarshal item: %v", err))
+            }
+            returnedItems = append(returnedItems, item)
+        }
+    }
+    return returnedItems, nil
+}
+
 func (d *DynamoTable[T]) BatchRead(pks, sks []string) ([]T, error) {
     var returnedItems []T
     var keys []map[string]types.AttributeValue
@@ -142,6 +179,26 @@ func (d *DynamoTable[T]) Read(id string) ([]T, error) {
         return ts, nil
     }
     return []T{}, errors.New("Something went wrong reading the value")
+}
+// Read will return an item by the pk. It returns an error if the item does not exists
+func (d *DynamoTable[T]) ReadAll() ([]T, error) {
+    var ts []T
+
+    input := &dynamodb.ScanInput{
+        TableName: aws.String(d.tableName),
+    }
+
+    result, err := d.svc.Scan(context.TODO(), input)
+    if err != nil {
+        return []T{}, err
+    }
+    err = attributevalue.UnmarshalListOfMaps(result.Items, &ts)
+    if err != nil {
+        log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
+        return []T{}, err
+    }
+
+    return ts, nil
 }
 
 func (d *DynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {

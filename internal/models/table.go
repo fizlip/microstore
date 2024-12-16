@@ -6,9 +6,11 @@ import (
 
 type DatabaseReadWriter[T any] interface {
     Read(id string) ([]T, error)
+    ReadAll() ([]T, error)
     ReadSpecific(pk , sk string) (T, error)
     ReadCol(col, val string) ([]T, error)
     BatchRead(pks, sks []string) ([]T, error)
+    BatchReadPks(pks []string) ([]T, error)
 
     Update(pk, sk, col, val string) error
     UpdateAll(pk, col, val string) error

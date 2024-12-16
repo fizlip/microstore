@@ -130,7 +130,7 @@ func (d *mockDB) GetTrending() [9]models.Tool {
 	var products [9]models.Tool
 
 	names := []string{
-		"Task Master",
+		"Tsk Master",
 		"FitTrack",
 		"PhotoStudio",
 		"MindSpace",

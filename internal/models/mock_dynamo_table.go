@@ -18,7 +18,15 @@ type MockDynamoTable[T any] struct{
     mock        []T
 }
 
+func (d *MockDynamoTable[T]) ReadAll() ([]T, error) {
+    return []T{}, nil
+}
+
 func (d *MockDynamoTable[T]) BatchRead(pks, sks []string) ([]T, error) {
+    return []T{}, nil
+}
+
+func (d *MockDynamoTable[T]) BatchReadPks(pks []string) ([]T, error) {
     return []T{}, nil
 }
 

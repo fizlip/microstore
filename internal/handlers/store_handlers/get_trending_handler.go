@@ -3,7 +3,8 @@ package store_handlers
 import (
 	"encoding/json"
 	"github.com/fizlip/microstore/api"
-	"github.com/fizlip/microstore/internal/tools"
+    "github.com/fizlip/microstore/internal/services"
+
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -11,18 +12,22 @@ import (
 
 func GetTrending(w http.ResponseWriter, r *http.Request) {
 	var err error
-	var database *tools.DatabaseInterface
-	database, err = tools.NewDatabase()
+
+    var store *services.Store
+    store, err = services.NewStoreController()
 
 	if err != nil {
 		api.InternalErrorHandler(w)
 		return
 	}
 
-	result := (*database).GetTrending()
+	result, err := (*store).GetTrendingBusiness()
+    if err != nil {
+		api.InternalErrorHandler(w)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
-	log.Println("Get trending")
 
 	err = json.NewEncoder(w).Encode(result)
 	if err != nil {
