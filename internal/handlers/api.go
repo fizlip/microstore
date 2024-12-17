@@ -63,6 +63,7 @@ func Handle(r *chi.Mux) {
         router.Get("/f4rmer/read_specific", f4rmer_handlers.ReadSpecific)
         router.Patch("/f4rmer/update", f4rmer_handlers.Update)
 		router.Delete("/f4rmer/delete", f4rmer_handlers.Delete)
+		router.Post("/f4rmer/add/tool", f4rmer_handlers.AddTool)
 	})
 
     // STORE

@@ -132,6 +132,47 @@ func (c *Customer) DeleteF4rmer(creator, uid string) (error) {
     return c.f4rmerStore.DeleteDetailed(creator, uid)
 }
 
+func (c *Customer) AddTool(username, uid, tid string) (error) {
+
+    f4rmer, err := c.ReadF4rmer("fillatino@gmail.com", uid)
+    if err != nil {
+        log.Println("Cannot read f4rmer")
+        return err
+    }
+
+    tool, err := c.toolStore.Read(tid) 
+    if err != nil {
+        log.Println("Cannot read tool")
+        return err
+    }
+    log.Println(f4rmer.Toolbox)
+    log.Println(tid)
+    if contains(f4rmer.Toolbox, tool[0]) {
+        log.Println("Tool already exists in toolbox. Tool is not added.")
+        return errors.New("Tool already in toolbox") 
+    }
+
+    newToolbox := append(f4rmer.Toolbox, tool[0]) 
+    f4rmer.Toolbox = newToolbox
+    
+    err = c.CreateF4rmer(f4rmer)
+    if err != nil {
+        log.Println("Cannot add tool")
+        return err
+    }
+
+    return nil
+}
+
+func contains(ts []models.Tool, t models.Tool) bool {
+    for _, item := range ts {
+        if item.UID == t.UID {
+            return true
+        }
+    }
+    return false
+}
+
 // NewCustomer returns a customer struct with the given username.
 // the datastore can be changed here.
 func NewCustomer(username string) (*Customer, error) {
