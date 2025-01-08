@@ -1,3 +1,5 @@
+// package vendor_handlers contains request handlers for all endpoints that
+// interact with the vendor
 package vendor_handlers
 
 import (
@@ -11,6 +13,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// DeleteAPIKey will remove an API key from the database.
+// To delete an API you need to be logged in and use the auth headers
+// X-Username and X-Delete. The X-Delete header will contain a partial 
+// part of the key to be deleted.
+
+// example: DELETE https://<hostname>/vendor/key/delete
+// response: 
+//      SUCCESS: 200, Deleted api key sucessfully
+//      FAILURE: 500, An unexpected error occurred 
+//
 func DeleteAPIKey(w http.ResponseWriter, r *http.Request) {
     var err error
     var vendor *services.Vendor

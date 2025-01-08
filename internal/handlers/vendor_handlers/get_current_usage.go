@@ -1,3 +1,5 @@
+// package vendor_handlers contains request handlers for all endpoints that
+// interact with the vendor
 package vendor_handlers
 
 import (
@@ -9,9 +11,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// GetCurrent...
-// ex: <hostname>/user/review/create
-// data: ...
+// GetCurrentUsage returns a struct with the usge of each tool that the vendor has
+// created 
+//
+// example: https://<hostname>/get/usage
+// response: 
+//      SUCCESS: 200, <usage data>
+//      FAILURE: 500, An unexpected error occurred
 func GetCurrentUsage(w http.ResponseWriter, r *http.Request) {
 	var err error
 	vendor, err := services.NewVendorController("fillatino@gmail.com")

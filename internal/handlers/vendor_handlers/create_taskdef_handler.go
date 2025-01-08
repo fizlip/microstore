@@ -1,5 +1,6 @@
 package vendor_handlers
-
+// package vendor_handlers contains request handlers for all endpoints that
+// interact with the vendor
 import (
 	//"fmt"
 	"encoding/json"
@@ -10,6 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// CreateTaskdef will register a new Task Definition in aws ecs.
 func CreateTaskdef(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var taskdef api.Taskdef

@@ -28,6 +28,25 @@ var NameExistsError = errors.New("The name you gave your tool is already in use.
 // database record used to identify the image 
 // This endpoints needs a form header which should contain an image (which is a File)
 // a title, descriptions, creator, price.
+//
+// example: POST https://<hostname>/vendor/oci/create --form 
+//  {
+//      title: string 
+//      uti: string (unique tool identifier) 
+//      description: string 
+//      price: number 
+//      thumbnail: string 
+//      communityURL: string 
+//      releaseType: string
+//      version: string 
+//      showcase: string 
+//      tags: string 
+//      license: string 
+//  }
+// response:
+//      SUCCESS: 200, New container with ID: '%s' has successfully been created
+//      FAILURE: 500, An unexpected error occurred 
+//
 func CreateImage(w http.ResponseWriter, r *http.Request) {
 
 	var err error

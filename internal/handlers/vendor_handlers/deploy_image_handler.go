@@ -1,3 +1,5 @@
+// package vendor_handlers contains request handlers for all endpoints that
+// interact with the vendor
 package vendor_handlers
 
 import (
@@ -10,6 +12,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// DeployImage will create a cluster, taskdef and a new service for the cluster and taskdef.
+// It should result in the image getting the correct hardware and being executable from an
+// IP that has been given to the service by ECS.
+//
+// To deploy an image you need to have the unique tool identifier (UTI) which is the name of
+// the tool as it has been registered in the tns (tool name service). 
+//
+// example: POST https://<hostname>/vendor/oci/deploy --form {
+// {
+//      tool_uti
+// }
+//
+// response: 
+//      SUCCESS: 200, Deployment finished without errors ... 
+//      FAILURE: 500, An unexpected error occurred
 func DeployImage(w http.ResponseWriter, r *http.Request) {
 	var err error
     

@@ -11,6 +11,12 @@ import (
 
 // GetUsage returns a list of tools that have been used by the user 
 // and how much they have been used
+//
+// example: https://<hostname>/user/usage?uid=<username>
+// response: 
+//      SUCCESS: 200, [{customer_id, timestamp, paid_requests, free_requests, products}...]
+//      FAILURE: 500, An unexpected error occurred
+//
 func GetUsage(w http.ResponseWriter, r *http.Request) {
 	var err error
 

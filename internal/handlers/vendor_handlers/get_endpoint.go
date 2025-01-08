@@ -1,3 +1,5 @@
+// package vendor_handlers contains request handlers for all endpoints that
+// interact with the vendor
 package vendor_handlers
 
 import (
@@ -11,6 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// GetEndpoint will get the IP of the a tool given its uti (unique tool identifier)
+//
+// example: https://<hostname>/oci/get/endpoint
+// response: 
+//      SUCCESS: 200, <slice of ips>
+//      FAILURE: 500, An unexpected error occurred
 func GetEndpoint(w http.ResponseWriter, r *http.Request) {
 	var err error
     var message string
@@ -22,8 +30,6 @@ func GetEndpoint(w http.ResponseWriter, r *http.Request) {
     ns, err = services.NewToolNameService()
 
     uti := r.URL.Query().Get("uti")
-
-    log.Println("UTI", uti)
 
     ips, err := deployer.GetEndpoint(uti)
     if len(ips) == 0 {

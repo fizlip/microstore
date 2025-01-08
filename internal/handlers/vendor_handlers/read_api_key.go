@@ -1,3 +1,5 @@
+// package vendor_handlers contains request handlers for all endpoints that
+// interact with the vendor
 package vendor_handlers
 
 import (
@@ -10,6 +12,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// ReadAPIKey returns a slice of all API keys registered to a vendor
+//
+// example: https://<hostname>/key/read
+// response: 200, 500
+//
 func ReadAPIKey(w http.ResponseWriter, r *http.Request) {
     var err error
     var vendor *services.Vendor

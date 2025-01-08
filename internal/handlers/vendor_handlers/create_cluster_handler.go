@@ -1,7 +1,8 @@
+// package vendor_handlers contains request handlers for all endpoints that
+// interact with the vendor
 package vendor_handlers
 
 import (
-	//"fmt"
 	"encoding/json"
 	"github.com/fizlip/microstore/internal/tools"
 	"io/ioutil"
@@ -11,6 +12,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// CreateCluster
+// TODO: this probably is not needed
+//
+//
 func CreateCluster(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var clusterParams api.ClusterParams

@@ -1,3 +1,5 @@
+// package vendor_handlers contains request handlers for all endpoints that
+// interact with the vendor
 package vendor_handlers
 
 import (
@@ -9,9 +11,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// GetCurrent...
-// ex: <hostname>/user/review/create
-// data: ...
+// GetTools will return all tools owned by the given vendor
+// example: https://<hostname>/get/tools
+// response: 
+//      SUCCESS: 200, <slice of tools> 
+//      FAILURE: 500, An unexpected error occured
 func GetTools(w http.ResponseWriter, r *http.Request) {
     vendor, err := services.NewVendorController("fillatino@gmail.com")
 	if err != nil {
