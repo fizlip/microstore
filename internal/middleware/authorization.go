@@ -1,3 +1,5 @@
+// package middleware contains functions that process responses 
+// before they are handled 
 package middleware
 
 import (
@@ -12,6 +14,10 @@ import (
 var UnAuthorizedError = errors.New("Forbidden resource")
 var AuthenticationError = errors.New("Missing credentials")
 
+// Authorization will return an error if the user is not correctly authenticated.
+// A user is correctly authenticated if they have a valid username and a valid 
+// token. Each token needs to be accompanied by a provider. Currently we
+// allow users to authenticat using GitHub and Google.
 func Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var token = r.Header.Get("Authorization")
@@ -24,6 +30,8 @@ func Authorization(next http.Handler) http.Handler {
 			api.AuthenticationErrorHandler(w, AuthenticationError)
 			return
 		}
+        // This function will return an error if the OAuth token given 
+        // by the provider is not valid 
 		_, err = services.ValidateAccessToken(token, provider, instigator)
 
 		if err != nil {
