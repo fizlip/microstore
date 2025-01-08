@@ -14,7 +14,7 @@ import (
 )
 
 // RateReview will update the rating on the review by +1 or -1
-// ex: <hostname>/user/review/rate
+// example: https://<hostname>/user/review/rate
 // body: {tid: string, uid: string}
 // response: 500 or 200
 func RateReview(w http.ResponseWriter, r *http.Request) {

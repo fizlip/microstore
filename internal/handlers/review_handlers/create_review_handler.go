@@ -15,7 +15,7 @@ import (
 
 // CreateReview will insert another row into the Reviews table in the db
 //
-// ex: <hostname>/user/review/create
+// example: https://<hostname>/user/review/create
 // body: { 
 //  PID: string
 //  Title: string
@@ -25,7 +25,9 @@ import (
 //  Date: string
 // }
 //
-// response: either and internal server error, status = 500, or OK, status = 200
+// response: 
+//      SUCCESS: 200, Review was successfully created 
+//      FAILURE: 500, An unexpected error occured
 func CreateReview(w http.ResponseWriter, r *http.Request) {
     var response api.Success
     var err error

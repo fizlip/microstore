@@ -12,9 +12,11 @@ import (
 )
 
 // DeleteReview will remove a row in the Reviews table in the db
-// ex: <hostname>/user/review/delete?uid=<REVIEW_ID>
+// example: https://<hostname>/user/review/delete?uid=<REVIEW_ID>
 //
-// response: 500 if error 200 if OK 
+// response: 
+//      SUCCESS: 200, Review successfully deleted
+//      FAILURE: 500, An unexpected error occurred
 func DeleteReview(w http.ResponseWriter, r *http.Request) {
 	var err error
     // Create service

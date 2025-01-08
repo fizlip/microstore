@@ -14,6 +14,12 @@ import (
 
 // GetAllImages will return one page of all images available in the f4mhouse OCI repo
 // A correct response will return an array of Image values in a json object.
+//
+// example: https://<hostname>/products/all
+// response: 
+//      SUCCESS: 200, <slice of images>
+//      FAILURE: 403, An internal error occured
+//
 func GetAllImages(w http.ResponseWriter, r *http.Request) {
 
 	var err error
