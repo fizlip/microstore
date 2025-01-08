@@ -10,14 +10,3 @@ external requests.
 all API endpoints are defined inside of `handlers/api` and all other code pretty much 
 exists just to implement the logic that these endpoints need.
 
-here is a brief description of all folders and what they are for:
-
-## handlers
-
-## middleware
-
-## models
-
-## services
-
-## tools
