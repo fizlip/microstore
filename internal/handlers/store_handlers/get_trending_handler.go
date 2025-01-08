@@ -10,6 +10,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// GetTrending will return a slice of trending products.
+//
+// example: GET https://<hostname>/store/trending
+// response: 
+//      SUCCESS: 200, <slice of products>
+//      FAILURE: 500, An unexpected error occurred
 func GetTrending(w http.ResponseWriter, r *http.Request) {
 	var err error
 
