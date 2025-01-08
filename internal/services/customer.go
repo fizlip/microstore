@@ -132,6 +132,7 @@ func (c *Customer) DeleteF4rmer(creator, uid string) (error) {
     return c.f4rmerStore.DeleteDetailed(creator, uid)
 }
 
+// AddTool will add a tool to a f4rmer
 func (c *Customer) AddTool(username, uid, tid string) (error) {
 
     f4rmer, err := c.ReadF4rmer("fillatino@gmail.com", uid)
@@ -140,6 +141,7 @@ func (c *Customer) AddTool(username, uid, tid string) (error) {
         return err
     }
 
+    // Make sure tool exists
     tool, err := c.toolStore.Read(tid) 
     if err != nil {
         log.Println("Cannot read tool")

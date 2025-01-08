@@ -43,7 +43,7 @@ func Handle(r *chi.Mux) {
 
     // USER
 	r.Route("/user", func(router chi.Router) {
-		// Auth
+		// Auth + auth utils
 		router.Use(middleware.Authorization)
 		router.Get("/valid", user_handlers.CheckValidSession)
         // Execution 

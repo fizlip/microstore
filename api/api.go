@@ -1,3 +1,6 @@
+/**
+api package contains types that are used in server-client communication
+**/
 package api
 
 import (
@@ -98,7 +101,7 @@ var (
 		writeError(w, err.Error(), http.StatusForbidden)
 	}
 	InternalErrorHandler = func(w http.ResponseWriter) {
-		writeError(w, "An unexpected Error occured", http.StatusInternalServerError)
+		writeError(w, "An unexpected error occured", http.StatusInternalServerError)
 	}
     PayloadTooLargeHandler = func(w http.ResponseWriter, err error) {
 		writeError(w, err.Error(), http.StatusRequestEntityTooLarge)
