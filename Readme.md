@@ -57,8 +57,7 @@ for models, services and handlers.
 | testing |  ❌ |
 | documentation | ✅|
 | auth | ✅|
-| payments | ❌ |
-| docker deployments | ❌ |
+| docker deployments | ✅ |
 
 legend: 
 

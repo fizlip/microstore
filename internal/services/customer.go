@@ -145,8 +145,6 @@ func (c *Customer) AddTool(username, uid, tid string) (error) {
         log.Println("Cannot read tool")
         return err
     }
-    log.Println(f4rmer.Toolbox)
-    log.Println(tid)
     if contains(f4rmer.Toolbox, tool[0]) {
         log.Println("Tool already exists in toolbox. Tool is not added.")
         return errors.New("Tool already in toolbox") 
