@@ -39,6 +39,8 @@ This is the directory structure we use for the project
     └── tools
 ```
 
+Each folder has it's own README that describes what it does
+
 ### api
 JSON schema files, protocol definition files.
 
