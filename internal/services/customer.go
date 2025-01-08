@@ -1,3 +1,5 @@
+// package services contains implementaions of models and interfaces
+// and provides the business logic of the API
 package services
 
 import (
@@ -12,6 +14,7 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
+// Customer
 type Customer struct {
     Name                string
     analyticsStore      models.DatabaseReadWriter[models.UserAnalytics]
@@ -32,6 +35,8 @@ func (c *Customer) GetUsage() ([]models.ProductAnalytics, error) {
     return []models.ProductAnalytics{}, nil
 }
 
+// incrementUsage is a private function that updates the user analytics of
+// a customer that uses a tool.
 func (c *Customer) incrementUsage(uid, tid, time string) error {
     // Gives the current days analytics
     analytics, err := c.analyticsStore.ReadSpecific(uid, time)
@@ -84,6 +89,7 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
     
 }
 
+// RunProduct will execute a tool and also update the user analytics
 func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{}) (string, error) {
     var err error
     tool, err := c.toolStore.Read(tid)
@@ -112,22 +118,27 @@ func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{
     return "Hello world!", nil
 }
 
+// CreateF4rmer will create a new f4rmer
 func (c *Customer) CreateF4rmer(f4rmer models.F4rmer) (error) {
     return c.f4rmerStore.Create(f4rmer, f4rmerToAttributeMapConverter)
 }
 
+// ReadF4rmers will read all f4rmers that have been created by a customer
 func (c *Customer) ReadF4rmers() ([]models.F4rmer, error) {
     return c.f4rmerStore.Read(c.Name)
 }
 
+// ReadF4rmer will read one single f4rmer
 func (c *Customer) ReadF4rmer(username, uid string) (models.F4rmer, error) {
     return c.f4rmerStore.ReadSpecific(username, uid)
 }
 
+// UpdateF4rmer will update a f4rmer
 func (c *Customer) UpdateF4rmer(creator, uid, col, val string) (error) {
     return c.f4rmerStore.Update(creator, uid, col, val)
 }
 
+// DeleteF4rmer will delete a f4rmer
 func (c *Customer) DeleteF4rmer(creator, uid string) (error) {
     return c.f4rmerStore.DeleteDetailed(creator, uid)
 }
@@ -164,6 +175,7 @@ func (c *Customer) AddTool(username, uid, tid string) (error) {
     return nil
 }
 
+// constains is a utility function to check it a slice of tools contains a specific tool
 func contains(ts []models.Tool, t models.Tool) bool {
     for _, item := range ts {
         if item.UID == t.UID {

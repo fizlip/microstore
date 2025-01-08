@@ -1,3 +1,5 @@
+// package services contains implementaions of models and interfaces
+// and provides the business logic of the API
 package services
 
 import (
@@ -14,11 +16,14 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
+// DeployService is used to deploy a service to ecs. This means that 
+// hardware will be allocated to the clust that has been named
 type DeployService struct {
   cfg           aws.Config 
   clusterName   string
 }
 
+// GetEndpoint will return all IP addresses associated with this clusterName 
 func (d *DeployService) GetEndpoint(clusterName string) ([]string, error) {
     log.Println("Get endpoint")    
 
@@ -109,6 +114,7 @@ func (d *DeployService) GetEndpoint(clusterName string) ([]string, error) {
     return publicIP, nil
 }
 
+// CreateCluster will create a new ECS cluster with this clusterName
 func (d *DeployService) CreateCluster(clusterName string) (error) {
     log.Println("Creating cluster...")    
 
@@ -153,6 +159,22 @@ func (d *DeployService) CreateCluster(clusterName string) (error) {
     return err 
 }
 
+// CreateTaskDef creates a ECS task definition. A Task Definition is a bluebrint
+// given to the ECS platform that tells it:
+//
+// * What docker container to use
+// * How much CPU and memory to allocate
+// * Which ports to expose
+// * How containers should be linked together
+// * What environment variables to set
+// * Which storage volumes to mount
+// * The networking mode to use
+//
+// Think of it as a template that defines everything needed to run your application. 
+// A task definition can specify one or more containers that work together. For example, 
+// you might have a task definition that includes both a web application container 
+// and a database container.
+//
 func (d *DeployService) CreateTaskDef(taskDef, tool_name, tool_uri string) (error) {
     log.Println("Creating TaskDef...")    
 

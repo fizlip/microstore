@@ -1,3 +1,5 @@
+// package services contains implementaions of models and interfaces
+// and provides the business logic of the API
 package services
 
 import (
@@ -12,11 +14,13 @@ import (
 
 )
 
+// ReviewService handles all logic related to reviews
 type ReviewService struct{
     reviewStorage models.DatabaseReadWriter[models.Review] 
     interactionStorage models.DatabaseReadWriter[models.Interaction] 
 }
 
+// GetInteractions returns likes that a review has received
 func (r *ReviewService) GetInteractions(uids []string, username string) ([]models.Interaction, error) {
     if username == "" {
         return []models.Interaction{}, nil
@@ -31,22 +35,28 @@ func (r *ReviewService) GetInteractions(uids []string, username string) ([]model
     return r.interactionStorage.BatchRead(uids, unames)   
 }
 
+// GetReviews returns all reviews associated with a product
 func (r *ReviewService) GetReviews(id string) ([]models.Review, error) {
     return r.reviewStorage.Read(id) 
 }
 
+// GetReview returns a specific review
 func (r *ReviewService) GetReview(sk, pk string) (models.Review, error) {
     return r.reviewStorage.ReadSpecific(sk, pk) 
 }
 
+// Create will create a review
 func (r *ReviewService) Create(review models.Review) error {
     return r.reviewStorage.Create(review, reviewToAttributeMapConverter)
 }
     
+// Delete will delete a review
 func (r *ReviewService) Delete(id string) error {
     return r.reviewStorage.Delete(id)
 }
 
+// UpdateRating will increment the rating on a review or decrement it if
+// the user has already liked it
 func (r *ReviewService) UpdateRating(sk, pk, username string) error {
     var err error
     var add = 1
@@ -77,6 +87,7 @@ func (r *ReviewService) UpdateRating(sk, pk, username string) error {
     return r.reviewStorage.Update(sk, pk, "N,rating", fmt.Sprintf("%d", review.Rating + add))
 }
 
+// NewReviewService returns a new ReviewService
 func NewReviewService() (*ReviewService, error) {
     reviewT, err := models.NewDynamoTable[models.Review]("f4-reviews", "tool_id", "uid")
     if err != nil {

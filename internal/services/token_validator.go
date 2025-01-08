@@ -1,3 +1,5 @@
+// package services contains implementaions of models and interfaces
+// and provides the business logic of the API
 package services 
 
 import (

@@ -1,10 +1,10 @@
+// package services contains implementaions of models and interfaces
+// and provides the business logic of the API
 package services
 
 import (
     "github.com/fizlip/microstore/internal/models"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-
-    // log "github.com/sirupsen/logrus"
 )
 
 type ToolNameService struct {

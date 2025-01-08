@@ -1,3 +1,5 @@
+// package services contains implementaions of models and interfaces
+// and provides the business logic of the API
 package services
 
 import (
@@ -11,6 +13,7 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
+// Vendor will handle the business logic related to vendors
 type Vendor struct {
     Name                string
 	Email               string
@@ -93,10 +96,12 @@ func (v *Vendor) ValidateAPIKey(apiKey, storedKey string) bool {
     return models.ValidateKey(apiKey, storedKey)
 }
 
+// ExecuteTool ...
 func (v *Vendor) ExecuteTool(cid string) {
 	log.Println("Give moeny to vendor")
 }
 
+// GetToolUsage will return the analytics for a tool that the vendor has created
 func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 	vendorTools, err := v.GetTools()
     if err != nil {

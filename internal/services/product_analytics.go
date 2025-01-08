@@ -1,3 +1,5 @@
+// package services contains implementaions of models and interfaces
+// and provides the business logic of the API
 package services 
 
 import (
@@ -5,6 +7,8 @@ import (
     "github.com/fizlip/microstore/internal/models"
 )
 
+// ProductAnalyticsService is only used to do CRUD operations on the 
+// f4-analytics table.
 type ProductAnalyticsService struct {
     AnalyticStorage     models.DatabaseReadWriter[models.ProductAnalytics]
 }
