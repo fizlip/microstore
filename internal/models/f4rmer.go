@@ -1,5 +1,7 @@
+// package models contains definitions of common types and models used accross the API.
 package models
 
+// F4rmer is an autonomous LLM controlled agent. It is described by this type.
 type F4rmer struct {
     Creator         string   `dynamodbav:"creator" json:"creator"`
     UID             string   `dynamodbav:"uid" json:"uid"`

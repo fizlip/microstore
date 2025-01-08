@@ -1,5 +1,7 @@
+// package models contains definitions of common types and models used accross the API.
 package models
 
+// Vendor is a user that also creates tools.
 type Vendor struct {
     Name            string
 	Email           string

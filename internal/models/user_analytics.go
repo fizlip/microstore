@@ -1,5 +1,8 @@
+// package models contains definitions of common types and models used accross the API.
 package models 
 
+// UserAnalytics defines a row in a timeseries table that is used to aggregate 
+// the tool usage of a customer.
 type UserAnalytics struct {
     CustomerID      string                  `json:"customer_id" dynamodbav:"customer_id"`
     Timestamp       string                  `json:"timestamp" dynamodbav:"timestamp"`

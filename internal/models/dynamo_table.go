@@ -1,3 +1,4 @@
+// package models contains definitions of common types and models used accross the API.
 package models
 
 import (
@@ -15,6 +16,8 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
+// DynamoTable is a generic type used to represent a dynamodb table
+// All data stores are specific types of this type.
 type DynamoTable[T any] struct{
     pk          string
     sk          string
@@ -22,6 +25,7 @@ type DynamoTable[T any] struct{
     svc         *dynamodb.Client
 }
 
+// BatchReadPks returns all items that have the given parition keys
 func (d *DynamoTable[T]) BatchReadPks(pks []string) ([]T, error) {
     var returnedItems []T
     var keys []map[string]types.AttributeValue
@@ -59,6 +63,9 @@ func (d *DynamoTable[T]) BatchReadPks(pks []string) ([]T, error) {
     return returnedItems, nil
 }
 
+// BatchRead will return all records with the given partition keys and the given sort keys.
+// Use this function when you need fetch more than one item from a table rather than
+// making multiple requests.
 func (d *DynamoTable[T]) BatchRead(pks, sks []string) ([]T, error) {
     var returnedItems []T
     var keys []map[string]types.AttributeValue
@@ -99,6 +106,8 @@ func (d *DynamoTable[T]) BatchRead(pks, sks []string) ([]T, error) {
     return returnedItems, nil
 }
 
+// ReadCol returns all records where the column (field) is the given value
+// i.e. we create the following dynamoDB query: #col = :value
 func (d *DynamoTable[T]) ReadCol(col, val string) ([]T, error) {
     var ts []T
     input := &dynamodb.ScanInput{
@@ -180,7 +189,9 @@ func (d *DynamoTable[T]) Read(id string) ([]T, error) {
     }
     return []T{}, errors.New("Something went wrong reading the value")
 }
-// Read will return an item by the pk. It returns an error if the item does not exists
+// ReadAll will return all elements in a table
+//
+// OBS: only use this when you know this is a small table with <1000 records (to avoid costs) 
 func (d *DynamoTable[T]) ReadAll() ([]T, error) {
     var ts []T
 
@@ -201,6 +212,7 @@ func (d *DynamoTable[T]) ReadAll() ([]T, error) {
     return ts, nil
 }
 
+// ReadSpecific returns a single record with given partition key (pk) and sort key (sk)
 func (d *DynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
     var t T
 
@@ -227,6 +239,7 @@ func (d *DynamoTable[T]) ReadSpecific(pk string, sk string) (T, error) {
     return t, nil
 }
 
+// Update will update the record with the given partition key and sort key
 func (d *DynamoTable[T]) Update(pk, sk, col, val string) error {
     key := map[string]types.AttributeValue{
         d.pk: &types.AttributeValueMemberS{Value: pk},    
@@ -269,6 +282,7 @@ func (d *DynamoTable[T]) Update(pk, sk, col, val string) error {
     return nil
 }
 
+// UpdateAll will update all records with the given private key
 func (d *DynamoTable[T]) UpdateAll(pk, col, val string) error {
     key := map[string]types.AttributeValue{
         d.pk: &types.AttributeValueMemberS{Value: pk},    

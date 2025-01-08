@@ -1,5 +1,8 @@
+// package models contains definitions of common types and models used accross the API.
 package models 
 
+// Review are used to give users due diligence before commiting to 
+// using a tool.
 type Review struct {
 	PID     string `dynamodbav:"tool_id" json:"pid"`
 	UID     string `dynamodbav:"uid" json:"uid"`

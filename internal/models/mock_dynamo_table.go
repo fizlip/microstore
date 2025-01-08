@@ -1,3 +1,4 @@
+// package models contains definitions of common types and models used accross the API.
 package models
 
 import (
@@ -10,6 +11,8 @@ import (
     log "github.com/sirupsen/logrus"
 )
 
+// MockDynamoTable is the same as DynamoTable but all functions are just stubs.
+// Useful to mock a table without having to create one in AWS.
 type MockDynamoTable[T any] struct{
     pk          string
     sk          string

@@ -1,5 +1,7 @@
+// package models contains definitions of common types and models used accross the API.
 package models
 
+// Tool is a type that describes a tool available to a f4rmer. 
 type Tool struct {
 	UID          string   `dynamodbav:"uid" json:"uid"`
 	Title        string   `dynamodbav:"title" json:"title"`

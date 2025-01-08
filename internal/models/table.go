@@ -1,9 +1,12 @@
+/// package models contains definitions of common types and models used accross the API.
 package models
 
 import (
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+// DatabaseReadWriter is an interface that defines all functions 
+// that a database read writer has to implement
 type DatabaseReadWriter[T any] interface {
     Read(id string) ([]T, error)
     ReadAll() ([]T, error)

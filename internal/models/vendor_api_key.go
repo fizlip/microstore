@@ -1,3 +1,4 @@
+// package models contains definitions of common types and models used accross the API.
 package models
 
 import (
@@ -9,6 +10,7 @@ import (
     "crypto/rand"
 )
 
+// APIKey allows a user to use the API without the web api.
 type APIKey struct {
     Key         string
     HashedKey   string
