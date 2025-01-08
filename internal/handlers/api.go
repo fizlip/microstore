@@ -3,12 +3,12 @@
 package handlers
 
 import (
-	"github.com/fizlip/microstore/internal/handlers/review_handlers"
-	"github.com/fizlip/microstore/internal/handlers/vendor_handlers"
-	"github.com/fizlip/microstore/internal/handlers/user_handlers"
-	"github.com/fizlip/microstore/internal/handlers/product_handlers"
-	"github.com/fizlip/microstore/internal/handlers/store_handlers"
-	"github.com/fizlip/microstore/internal/handlers/f4rmer_handlers"
+	"github.com/fizlip/microstore/internal/handlers/reviewhandlers"
+	"github.com/fizlip/microstore/internal/handlers/vendorhandlers"
+	"github.com/fizlip/microstore/internal/handlers/userhandlers"
+	"github.com/fizlip/microstore/internal/handlers/producthandlers"
+	"github.com/fizlip/microstore/internal/handlers/storehandlers"
+	"github.com/fizlip/microstore/internal/handlers/f4rmerhandlers"
 
 	"github.com/fizlip/microstore/internal/middleware"
 
@@ -35,40 +35,40 @@ func Handle(r *chi.Mux) {
 
     // PRODUCTS
 	r.Route("/products", func(router chi.Router) {
-		router.Get("/all", product_handlers.GetAllImages)
-		router.Get("/get", product_handlers.GetProduct)
-		router.Post("/search", product_handlers.Search)
-        router.Get("/reviews", review_handlers.GetReviews)
+		router.Get("/all", producthandlers.GetAllImages)
+		router.Get("/get", producthandlers.GetProduct)
+		router.Post("/search", producthandlers.Search)
+        router.Get("/reviews", reviewhandlers.GetReviews)
 	})
 
     // USER
 	r.Route("/user", func(router chi.Router) {
 		// Auth + auth utils
 		router.Use(middleware.Authorization)
-		router.Get("/valid", user_handlers.CheckValidSession)
+		router.Get("/valid", userhandlers.CheckValidSession)
         // Execution 
-		router.Post("/tool/run", user_handlers.RunProduct)
+		router.Post("/tool/run", userhandlers.RunProduct)
 		// Invoice & usage
-		router.Post("/invoice/upcoming", user_handlers.GetInvoice)
-		router.Get("/usage", user_handlers.GetUsage)
-		router.Post("/activate/billing", user_handlers.ActivateBilling)
+		router.Post("/invoice/upcoming", userhandlers.GetInvoice)
+		router.Get("/usage", userhandlers.GetUsage)
+		router.Post("/activate/billing", userhandlers.ActivateBilling)
 		// Reviews
-		router.Post("/review/create", review_handlers.CreateReview)
-		router.Post("/review/delete", review_handlers.DeleteReview)
-		router.Patch("/review/update", review_handlers.UpdateReview)
-		router.Post("/review/rate", review_handlers.RateReview)
+		router.Post("/review/create", reviewhandlers.CreateReview)
+		router.Post("/review/delete", reviewhandlers.DeleteReview)
+		router.Patch("/review/update", reviewhandlers.UpdateReview)
+		router.Post("/review/rate", reviewhandlers.RateReview)
         // F4rmers
-        router.Post("/f4rmer/create", f4rmer_handlers.Create)
-        router.Get("/f4rmer/read", f4rmer_handlers.Read)
-        router.Get("/f4rmer/read_specific", f4rmer_handlers.ReadSpecific)
-        router.Patch("/f4rmer/update", f4rmer_handlers.Update)
-		router.Delete("/f4rmer/delete", f4rmer_handlers.Delete)
-		router.Post("/f4rmer/add/tool", f4rmer_handlers.AddTool)
+        router.Post("/f4rmer/create", f4rmerhandlers.Create)
+        router.Get("/f4rmer/read", f4rmerhandlers.Read)
+        router.Get("/f4rmer/read_specific", f4rmerhandlers.ReadSpecific)
+        router.Patch("/f4rmer/update", f4rmerhandlers.Update)
+		router.Delete("/f4rmer/delete", f4rmerhandlers.Delete)
+		router.Post("/f4rmer/add/tool", f4rmerhandlers.AddTool)
 	})
 
     // STORE
 	r.Route("/store", func(router chi.Router) {
-		router.Get("/trending", store_handlers.GetTrending)
+		router.Get("/trending", storehandlers.GetTrending)
 	})
 
     // VENDOR
@@ -76,15 +76,15 @@ func Handle(r *chi.Mux) {
 		// Auth
 		router.Use(middleware.Authorization)
 		// Get set of products and their usage for current period
-		router.Get("/get/usage", vendor_handlers.GetCurrentUsage)
-		router.Get("/get/tools", vendor_handlers.GetTools)
-        router.Get("/oci/get/endpoint", vendor_handlers.GetEndpoint)
-        router.Post("/oci/create", vendor_handlers.CreateImage)
-        router.Patch("/oci/update", vendor_handlers.UpdateImage)
-        router.Post("/oci/deploy", vendor_handlers.DeployImage)
+		router.Get("/get/usage", vendorhandlers.GetCurrentUsage)
+		router.Get("/get/tools", vendorhandlers.GetTools)
+        router.Get("/oci/get/endpoint", vendorhandlers.GetEndpoint)
+        router.Post("/oci/create", vendorhandlers.CreateImage)
+        router.Patch("/oci/update", vendorhandlers.UpdateImage)
+        router.Post("/oci/deploy", vendorhandlers.DeployImage)
         // API Keys
-        router.Post("/key/create", vendor_handlers.CreateAPIKey)
-        router.Delete("/key/delete", vendor_handlers.DeleteAPIKey)
-        router.Get("/key/read", vendor_handlers.ReadAPIKey)
+        router.Post("/key/create", vendorhandlers.CreateAPIKey)
+        router.Delete("/key/delete", vendorhandlers.DeleteAPIKey)
+        router.Get("/key/read", vendorhandlers.ReadAPIKey)
 	})
 }
