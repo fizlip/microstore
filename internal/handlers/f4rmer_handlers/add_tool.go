@@ -16,8 +16,8 @@ import (
 //
 // example: POST https://<hostname>/user/f4rmer/add/tool?usr=<username>&uid=<f4rmer_id>&tid=<tool_id>
 // response: 
-//      SUCCESS: 200 "tool was added", 
-//      FAILURE: 403 An unexpected error occured 
+//      SUCCESS: 200, "tool was added", 
+//      FAILURE: 403, An unexpected error occured 
 //
 func AddTool(w http.ResponseWriter, r *http.Request) {
     var err error
