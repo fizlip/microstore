@@ -3,12 +3,17 @@
 package services
 
 import (
+    "os"
+    "context"
     "fmt"
     "crypto/rand"
     "encoding/base64"
     
     "github.com/fizlip/microstore/internal/models"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+
+    "github.com/aws/aws-sdk-go-v2/config"
+    "github.com/aws/aws-sdk-go-v2/service/s3"
 
     log "github.com/sirupsen/logrus"
 )
@@ -99,6 +104,51 @@ func (v *Vendor) ValidateAPIKey(apiKey, storedKey string) bool {
 // ExecuteTool ...
 func (v *Vendor) ExecuteTool(cid string) {
 	log.Println("Give moeny to vendor")
+}
+
+// UploadShowcaseImage will upload a file to an S3 bucket 
+func (v *Vendor) UploadShowcaseImage() error {
+    cfg, err := config.LoadDefaultConfig(context.TODO())
+    bucketName := "f4-public"
+    objectKeys := []string{
+        "showcases/1234/testImage-from-f4cli-3.jpg",
+        "showcases/1234/cool-3.png",
+        "showcases/1234/uwu-3.webp",
+    }
+    fileNames := []string{
+        "/Users/filipzlatoidsky/Documents/f4cli/showcase/peakpx.jpg",
+        "/Users/filipzlatoidsky/Documents/f4cli/showcase/sofie.png",
+        "/Users/filipzlatoidsky/Documents/f4cli/showcase/test.webp",
+    }
+
+    if err != nil {
+        return fmt.Errorf("unable to load SDK config: %v", err)
+    }
+
+    // Create an S3 client
+    client := s3.NewFromConfig(cfg)
+    bucket := NewBucketManager(client, bucketName)
+    bucket.ClearFolder(context.TODO(), "showcases/1234/")
+
+    for i, n := range fileNames {
+        file, err := os.Open(n)
+        if err != nil {
+            log.Error("Unable to upload file: ", err)
+            return err
+        }
+        defer file.Close()
+        err = bucket.PutObject(context.TODO(), objectKeys[i], file)
+
+        if err != nil {
+            log.Error("Failed to upload image: ", err)
+            return err
+        } else {
+            log.Println("Uploaded: ", n)
+        }
+    }
+
+    log.Println("Showcase updated")
+	return nil
 }
 
 // GetToolUsage will return the analytics for a tool that the vendor has created
