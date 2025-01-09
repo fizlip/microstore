@@ -1,7 +1,7 @@
 package services
 
 import (
-    "os"
+    "mime/multipart"
     "context"
     "fmt"
     "strings"
@@ -28,7 +28,7 @@ func NewBucketManager(client *s3.Client, bucketName string) *BucketManager {
 }
 
 // PutObject uploads an object to the specified path in the bucket
-func (bm *BucketManager) PutObject(ctx context.Context, objectPath string, file *os.File) error {
+func (bm *BucketManager) PutObject(ctx context.Context, objectPath string, file multipart.File) error {
     _, err := bm.client.PutObject(ctx, &s3.PutObjectInput{
         Bucket: aws.String(bm.bucketName),
         Key:    aws.String(objectPath),

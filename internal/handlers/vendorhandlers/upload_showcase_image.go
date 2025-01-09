@@ -23,8 +23,24 @@ func UploadShowcaseImage(w http.ResponseWriter, r *http.Request) {
     var vendor *services.Vendor
 
     vendor, err = services.NewVendorController("fillatino@gmail.com")
+    
+    // filename := r.FormValue("filename")
 
-    err = vendor.UploadShowcaseImage()
+    err = r.ParseMultipartForm(32 << 20) // 32MB max memory
+    if err != nil {
+        api.PayloadTooLargeHandler(w, ToLargeError)
+        return
+    }
+    
+    // Get image file from form 
+    file, header, err := r.FormFile("image_file")
+    if err != nil {
+        api.CustomInternalErrorHandler(w, ImageNotFound)
+        return
+    }
+    defer file.Close()
+
+    err = vendor.UploadShowcaseImage("net-tool-what-2", header.Filename, file)
     
     if err != nil {
         log.Error(err)
