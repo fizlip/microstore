@@ -6,7 +6,6 @@ import (
 	"github.com/fizlip/microstore/internal/handlers/reviewhandlers"
 	"github.com/fizlip/microstore/internal/handlers/vendorhandlers"
 	"github.com/fizlip/microstore/internal/handlers/userhandlers"
-	"github.com/fizlip/microstore/internal/handlers/producthandlers"
 	"github.com/fizlip/microstore/internal/handlers/storehandlers"
 	"github.com/fizlip/microstore/internal/handlers/f4rmerhandlers"
 
@@ -35,9 +34,6 @@ func Handle(r *chi.Mux) {
 
     // PRODUCTS
 	r.Route("/products", func(router chi.Router) {
-		router.Get("/all", producthandlers.GetAllImages)
-		router.Get("/get", producthandlers.GetProduct)
-		router.Post("/search", producthandlers.Search)
         router.Get("/reviews", reviewhandlers.GetReviews)
 	})
 
@@ -55,7 +51,6 @@ func Handle(r *chi.Mux) {
 		// Reviews
 		router.Post("/review/create", reviewhandlers.CreateReview)
 		router.Post("/review/delete", reviewhandlers.DeleteReview)
-		router.Patch("/review/update", reviewhandlers.UpdateReview)
 		router.Post("/review/rate", reviewhandlers.RateReview)
         // F4rmers
         router.Post("/f4rmer/create", f4rmerhandlers.Create)
