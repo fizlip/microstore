@@ -1,6 +1,7 @@
 package services
 
 import (
+    "errors"
     "mime/multipart"
     "context"
     "fmt"
@@ -41,6 +42,44 @@ func (bm *BucketManager) PutObject(ctx context.Context, objectPath string, file 
     }
 
     return nil
+}
+
+// PutObject uploads an object to the specified path in the bucket
+func (bm *BucketManager) ListFolder(ctx context.Context, folderPath string) ([]string, error) {
+    var items []string
+    // Ensure folder path ends with "/"
+    if !strings.HasSuffix(folderPath, "/") {
+        folderPath = folderPath + "/"
+    }
+
+    // List all objects in the folder
+    input := &s3.ListObjectsV2Input{
+        Bucket: aws.String(bm.bucketName),
+        Prefix: aws.String(folderPath),
+    }
+
+    paginator := s3.NewListObjectsV2Paginator(bm.client, input)
+
+    for paginator.HasMorePages() {
+        page, err := paginator.NextPage(ctx)
+        if err != nil {
+            return []string{}, errors.New("Could not open folder")
+        }
+
+        // If there are no objects, we're done
+        if len(page.Contents) == 0 {
+            return []string{}, nil
+        }
+
+        // Create delete objects input
+        for _, object := range page.Contents {
+            log.Println("Object: ", *object.Key)
+            log.Println("Length: ", len(page.Contents))
+            items = append(items, *object.Key)
+        }
+    }
+
+    return items, nil 
 }
 
 // ClearFolder deletes all objects within the specified folder path

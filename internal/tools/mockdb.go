@@ -245,6 +245,7 @@ func (d *mockDB) SearchProduct(query string) []models.Tool {
 		{
 			UID:          "uuid4", // Replace with actual UUIDs
 			Title:        "Photo Editor Pro",
+            UTI:          "net-tool",
 			Description:  "Edit your photos like a pro with our powerful tools!",
 			Rating:       4.8,
 			Price:        79.99,

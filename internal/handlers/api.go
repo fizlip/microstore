@@ -69,6 +69,8 @@ func Handle(r *chi.Mux) {
     // STORE
 	r.Route("/store", func(router chi.Router) {
 		router.Get("/trending", storehandlers.GetTrending)
+		router.Get("/get/product", storehandlers.GetProduct)
+		router.Get("/get/product/showcase", storehandlers.GetShowcase)
 	})
 
     // VENDOR

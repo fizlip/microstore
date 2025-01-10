@@ -19,6 +19,11 @@ type Store struct {
     TrendingBusinessStorage models.DatabaseReadWriter[DBItem]
 }
 
+func (s *Store) GetProduct(uuid string) (models.Tool, error) {
+    product, err := s.StoreStorage.Read(uuid)
+    return product[0], err
+}
+
 
 func (s *Store) GetTrendingBusiness() ([]models.Tool, error){
     log.Println("Get trending")

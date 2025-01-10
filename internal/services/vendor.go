@@ -107,7 +107,7 @@ func (v *Vendor) ExecuteTool(cid string) {
 }
 
 // UploadShowcaseImage will upload a file to an S3 bucket 
-func (v *Vendor) UploadShowcaseImage(tid string, filename string, image multipart.File) error {
+func (v *Vendor) UploadShowcaseImage(tid string, filename string, replace string, image multipart.File) error {
     cfg, err := config.LoadDefaultConfig(context.TODO())
     if err != nil {
         return fmt.Errorf("unable to load SDK config: %v", err)
@@ -119,7 +119,9 @@ func (v *Vendor) UploadShowcaseImage(tid string, filename string, image multipar
     // Create an S3 client
     client := s3.NewFromConfig(cfg)
     bucket := NewBucketManager(client, bucketName)
-    // bucket.ClearFolder(context.TODO(), "showcases/" + tid)
+    if replace == "true" {
+        bucket.ClearFolder(context.TODO(), "showcases/" + tid)
+    }
 
     err = bucket.PutObject(context.TODO(), "showcases/" + tid + "/" + objectKey, image)
 
