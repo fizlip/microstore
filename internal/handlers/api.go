@@ -79,6 +79,7 @@ func Handle(r *chi.Mux) {
         router.Post("/oci/create", vendorhandlers.CreateImage)
         router.Patch("/oci/update", vendorhandlers.UpdateImage)
         router.Post("/oci/deploy", vendorhandlers.DeployImage)
+        router.Delete("/delete/deployment", vendorhandlers.DeleteDeployment)
 
         router.Post("/upload/image", vendorhandlers.UploadShowcaseImage)
 

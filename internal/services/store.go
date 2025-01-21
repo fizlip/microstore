@@ -7,7 +7,7 @@ import (
 
     "github.com/fizlip/microstore/internal/models"
 
-    log "github.com/sirupsen/logrus"
+    // log "github.com/sirupsen/logrus"
 )
 
 type DBItem struct {

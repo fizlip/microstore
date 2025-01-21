@@ -311,6 +311,22 @@ func (d *DeployService) CreateService(clusterName, serviceName, taskDefinition s
     return err 
 }
 
+func (d *DeployService) DeleteCluster(uti string) error {
+    log.Println("deleting cluster: ", uti)
+    return nil
+}
+
+func (d *DeployService) DeleteTaskDef(uti string) error {
+    log.Println("deleting task def: ", uti)
+    return nil
+
+}
+
+func (d *DeployService) DeleteService(uti string) error {
+    log.Println("deleting service: ", uti)
+    return nil
+}
+
 func NewDeployService() (*DeployService, error) {
     cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
     if err != nil {
