@@ -46,7 +46,7 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
 		api.InternalErrorHandler(w)
 		return
     }
-    err = deployer.CreateTaskDef(taskDef, "tool-test-1", "236798077409.dkr.ecr.eu-central-1.amazonaws.com/f4rmhouse:net-tool")
+    err = deployer.CreateTaskDef(taskDef, "tool-test-1", "236798077409.dkr.ecr.eu-central-1.amazonaws.com/f4rmhouse:" + uti)
     err = deployer.CreateService(uti, serviceName, taskDef)
 
     if err != nil {

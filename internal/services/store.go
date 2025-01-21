@@ -26,7 +26,6 @@ func (s *Store) GetProduct(uuid string) (models.Tool, error) {
 
 
 func (s *Store) GetTrendingBusiness() ([]models.Tool, error){
-    log.Println("Get trending")
     var ids []string
 
     businessTrending, err := s.TrendingBusinessStorage.ReadAll()
