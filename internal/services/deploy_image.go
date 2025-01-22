@@ -338,7 +338,7 @@ func (d *DeployService) DeleteCluster(clusterName string) error {
 
     _, err = client.DeleteCluster(context.TODO(), input)
     if err != nil {
-        log.Error("Error delting cluster")
+        log.Error("Error deleting cluster")
         return errors.New(fmt.Sprintf("error deleting cluster: %v", err))
     }
 
@@ -478,13 +478,16 @@ func deleteService(client *ecs.Client, clusterName, serviceArn string) error {
 
         log.Println("services", output.Services)
 
+        log.Printf("services %v", *output.Services[0].Status)
+
         // If no services returned or service is inactive, consider it deleted
-        if len(output.Services) == 0 { 
+        if len(output.Services) == 0 || 
+           (len(output.Services) == 1 && *output.Services[0].Status == "INACTIVE") {
             break
         }
 
         // Wait before next check
-        time.Sleep(10 * time.Second)
+        time.Sleep(5 * time.Second)
         log.Println("Waiting to finish deletion of service...")
     }
 
