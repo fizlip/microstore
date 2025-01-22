@@ -25,8 +25,8 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
     log.Println("Deleting: ", uti)
 
     err = deployer.DeleteService(uti)
-    err = deployer.DeleteTaskDef(uti)
     err = deployer.DeleteCluster(uti)
+    err = deployer.DeleteTaskDef(uti)
 
     err = json.NewEncoder(w).Encode(fmt.Sprintf("Deployment has been deleted: ", uti))
 	if err != nil {

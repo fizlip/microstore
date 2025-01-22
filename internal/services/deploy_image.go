@@ -3,6 +3,7 @@
 package services
 
 import (
+    "time"
     "fmt"
     "context"
     "errors"
@@ -311,19 +312,96 @@ func (d *DeployService) CreateService(clusterName, serviceName, taskDefinition s
     return err 
 }
 
-func (d *DeployService) DeleteCluster(uti string) error {
-    log.Println("deleting cluster: ", uti)
+func (d *DeployService) DeleteCluster(clusterName string) error {
+    client := ecs.NewFromConfig(d.cfg)
+
+    listServicesInput := &ecs.ListServicesInput{
+        Cluster: &clusterName,
+    }
+    
+    services, err := client.ListServices(context.TODO(), listServicesInput)
+    if err != nil {
+        log.Error("Error listing services")
+        return errors.New(fmt.Sprintf("error listing services: %v.", err))
+    }
+
+    if len(services.ServiceArns) > 0 {
+        log.Error("Cluster still has active services")
+        return errors.New(fmt.Sprintf("cluster %v still has active services.", err))
+
+    }
+
+    // Delete the cluster
+    input := &ecs.DeleteClusterInput{
+        Cluster: &clusterName,
+    }
+
+    _, err = client.DeleteCluster(context.TODO(), input)
+    if err != nil {
+        log.Error("Error delting cluster")
+        return errors.New(fmt.Sprintf("error deleting cluster: %v", err))
+    }
+
+    log.Println("cluster deleted: ", clusterName)
+
     return nil
 }
 
-func (d *DeployService) DeleteTaskDef(uti string) error {
-    log.Println("deleting task def: ", uti)
+func (d *DeployService) DeleteTaskDef(clusterName string) error {
+
+    client := ecs.NewFromConfig(d.cfg)
+
+    taskDefinitions, err := listTaskDefinitions(context.TODO(), client, clusterName+"-taskdef")
+    if err != nil {
+        return err
+    }
+
+    if len(taskDefinitions) == 0 {
+        log.Println("No task definitions found")
+        return nil
+    }
+
+    // Deregister each task definition
+    for _, taskDef := range taskDefinitions {
+        input := &ecs.DeregisterTaskDefinitionInput{
+            TaskDefinition: &taskDef,
+        }
+
+        _, err := client.DeregisterTaskDefinition(context.TODO(), input)
+        if err != nil {
+            log.Printf("Warning: Failed to deregister task definition %s: %v\n", taskDef, err)
+            continue
+        }
+        log.Printf("Successfully deregistered task definition: %s\n", taskDef)
+    }
+
     return nil
 
 }
 
-func (d *DeployService) DeleteService(uti string) error {
-    log.Println("deleting service: ", uti)
+func (d *DeployService) DeleteService(clusterName string) error {
+    client := ecs.NewFromConfig(d.cfg)
+
+    services, err := listServices(client, clusterName)
+    if err != nil {
+        log.Error("Error listing services")
+        return errors.New(fmt.Sprintf("error listing services: %v.", err))
+    }
+
+    if len(services) == 0 {
+        log.Println("No services to delete")
+        return nil
+
+    }
+
+    for _, service := range services {
+        if err := deleteService(client, clusterName, service); err != nil {
+            log.Error("Error deleting service %s: %v", service, err)
+        } else {
+            log.Printf("Successfully initiated deletion of service: %s", service)
+        }
+    }
+
     return nil
 }
 
@@ -333,4 +411,111 @@ func NewDeployService() (*DeployService, error) {
         return &DeployService{}, err
     } 
     return &DeployService{cfg: cfg}, nil
+}
+
+func listServices(client *ecs.Client, clusterName string) ([]string, error) {
+    var services []string
+    var nextToken *string
+
+    for {
+        input := &ecs.ListServicesInput{
+            Cluster:    &clusterName,
+            MaxResults: aws.Int32(100),
+            NextToken:  nextToken,
+        }
+
+        result, err := client.ListServices(context.TODO(), input)
+        if err != nil {
+            return nil, fmt.Errorf("failed to list services: %w", err)
+        }
+
+        services = append(services, result.ServiceArns...)
+
+        if result.NextToken == nil {
+            break
+        }
+        nextToken = result.NextToken
+    }
+
+    return services, nil
+}
+
+func deleteService(client *ecs.Client, clusterName, serviceArn string) error {
+    // First, update the service to have 0 desired count
+    _, err := client.UpdateService(context.TODO(), &ecs.UpdateServiceInput{
+        Cluster:      &clusterName,
+        Service:      &serviceArn,
+        DesiredCount: aws.Int32(0),
+    })
+    if err != nil {
+        log.Error("failed to delete service")
+        return errors.New(fmt.Sprintf("failed to delete service: %v.", err))
+    }
+
+    // Then delete the service
+    _, err = client.DeleteService(context.TODO(), &ecs.DeleteServiceInput{
+        Cluster: &clusterName,
+        Service: &serviceArn,
+        Force:   aws.Bool(true), // Use force deletion if needed
+    })
+    if err != nil {
+        log.Error("failed to delete service")
+        return errors.New(fmt.Sprintf("failed to delete service: %v.", err))
+    }
+
+    // Create a custom waiter for service deletion
+    for {
+        // Check if service still exists
+        output, err := client.DescribeServices(context.TODO(), &ecs.DescribeServicesInput{
+            Cluster:  &clusterName,
+            Services: []string{serviceArn},
+        })
+        
+        if err != nil {
+            log.Error("error checking service status")
+            return errors.New(fmt.Sprintf("error checking service status: %v.", err))
+        }
+
+        log.Println("services", output.Services)
+
+        // If no services returned or service is inactive, consider it deleted
+        if len(output.Services) == 0 { 
+            break
+        }
+
+        // Wait before next check
+        time.Sleep(10 * time.Second)
+        log.Println("Waiting to finish deletion of service...")
+    }
+
+    return nil
+}
+
+func listTaskDefinitions(ctx context.Context, client *ecs.Client, clusterName string) ([]string, error) {
+    var taskDefinitions []string
+    var nextToken *string
+
+    for {
+        input := &ecs.ListTaskDefinitionsInput{
+            NextToken: nextToken,
+            // Optional: Add filters if you want to delete specific families
+            FamilyPrefix: aws.String(clusterName),
+        }
+
+        output, err := client.ListTaskDefinitions(ctx, input)
+        if err != nil {
+            log.Error("failed to list task definitions")
+            return nil, errors.New(fmt.Sprintf("failed to list task definitions: %v.", err))
+        }
+
+        taskDefinitions = append(taskDefinitions, output.TaskDefinitionArns...)
+
+        // Break if no more pages
+        if output.NextToken == nil {
+            break
+        }
+        nextToken = output.NextToken
+    }
+
+    return taskDefinitions, nil
 }
