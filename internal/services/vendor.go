@@ -72,6 +72,12 @@ func (v *Vendor) CreateAPIKey(username string) (string, error) {
     return apiKey.Key, v.APIKeyStorage.Create(apiKey, apiToAttrMap)
 }
 
+// DeleteTool will delete a tool
+func (v *Vendor) DeleteTool(uti string) error {
+    log.Println("Deleting tool")
+    return v.ToolStorage.DeleteGSIItem("uti-index", "uti", uti)
+}
+
 // DeleteAPIKey will delete an api key 
 func (v *Vendor) DeleteAPIKey(username, partialKey string) error {
     log.Println("Deleting key")

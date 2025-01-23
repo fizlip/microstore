@@ -18,6 +18,7 @@ import (
 
     "github.com/aws/aws-sdk-go-v2/config"
     "github.com/aws/aws-sdk-go-v2/service/ecr"
+    "github.com/aws/aws-sdk-go-v2/service/ecr/types"
 
     log "github.com/sirupsen/logrus"
 )
@@ -91,6 +92,43 @@ func (d *DockerInterface) DockerLoad(pathToImage string) error {
     log.Println("Loaded docker image: ", pathToImage)
 
     return nil 
+}
+
+func (d *DockerInterface) DeleteImageFromRepository(repositoryName, imageTag string) error {
+    // Load AWS configuration
+    cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("eu-central-1"))
+    if err != nil {
+        return err
+    }
+
+    // Create ECR client
+    client := ecr.NewFromConfig(cfg)
+
+    // Create the delete request
+    input := &ecr.BatchDeleteImageInput{
+        RepositoryName: &repositoryName,
+        ImageIds: []types.ImageIdentifier{
+            {
+                ImageTag: &imageTag,
+            },
+        },
+    }
+
+    // Delete the image
+    result, err := client.BatchDeleteImage(context.TODO(), input)
+    if err != nil {
+        return err
+    }
+
+    // Check for failures
+    if len(result.Failures) > 0 {
+        log.Printf("Failed to delete some images: %v", result.Failures)
+        return err
+    }
+
+    log.Printf("Successfully deleted image %s:%s", repositoryName, imageTag)
+
+    return nil
 }
 
 // DockerList is a utility function that will list docker files that are currently loaded

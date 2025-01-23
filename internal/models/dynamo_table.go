@@ -348,6 +348,19 @@ func (d *DynamoTable[T]) Create(t T, f func (t T) map[string]types.AttributeValu
 // Delete shold be used rarely even though pk should be unique in some
 // db implementations it  can delete more than one time
 func (d *DynamoTable[T]) Delete(pk string) (error) {
+    _, err := d.svc.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
+        TableName: aws.String(d.tableName),
+        Key: map[string]types.AttributeValue{
+            d.pk: &types.AttributeValueMemberS{Value: pk},
+        },
+    })
+
+    if err != nil {
+        log.Error("Could not delete item from table")
+        return err
+    }
+
+    fmt.Println("Item deleted successfully")
     return nil
 }
 
@@ -383,6 +396,54 @@ func (d *DynamoTable[T]) DeleteWithColumnName(pk, sk string) error {
 
     _, err := d.svc.DeleteItem(context.TODO(), input)
     return err
+}
+
+func (d *DynamoTable[T]) DeleteGSIItem(gsiName, gsiPartitionKey, gsiPartitionValue  string) error {
+
+    // Query GSI to get primary key
+    queryOut, err := d.svc.Query(context.TODO(), &dynamodb.QueryInput{
+        TableName:              aws.String(d.tableName),
+        IndexName:              aws.String(gsiName), // Specify the GSI name
+        KeyConditionExpression: aws.String(fmt.Sprintf("%s = :v", gsiPartitionKey)),
+        ExpressionAttributeValues: map[string]types.AttributeValue{
+            ":v": &types.AttributeValueMemberS{Value: gsiPartitionValue},
+        },
+    })
+    if err != nil {
+        log.Fatalf("Failed to query GSI: %v", err)
+        return err
+    }
+
+    // Check if we found any items
+    if len(queryOut.Items) == 0 {
+        log.Println("No matching item found in GSI.")
+        return nil
+    }
+
+    // Extract the primary key (assumes simple partition key and sort key structure)
+    primaryKey := d.pk
+
+    for _, item := range queryOut.Items {
+        // Extract primary key values
+        primaryKeyValue := item[primaryKey].(*types.AttributeValueMemberS).Value
+
+        // Delete the item using primary key
+        deleteInput := &dynamodb.DeleteItemInput{
+            TableName: aws.String(d.tableName),
+            Key: map[string]types.AttributeValue{
+                primaryKey: &types.AttributeValueMemberS{Value: primaryKeyValue},
+            },
+        }
+
+        _, err := d.svc.DeleteItem(context.TODO(), deleteInput)
+        if err != nil {
+            log.Fatalf("Failed to delete item: %v", err)
+        }
+
+        log.Printf("Deleted item with primary key: %s", primaryKeyValue)
+    }
+
+    return nil
 }
 
 // CreateToolsTable will return an implementation of a table for the Tools dynamoDB  

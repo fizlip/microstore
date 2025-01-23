@@ -22,4 +22,5 @@ type DatabaseReadWriter[T any] interface {
 
     Delete(pk string) error
     DeleteDetailed(pk , sk string) error
+    DeleteGSIItem(gsiName, gsiPartitionKey, gsiPartitionValue  string) error
 }
