@@ -218,9 +218,9 @@ func getProductFromForm(r *http.Request) (models.Tool , error) {
     pulls           := 0
     license         := r.FormValue("license")
     verified        := false
-    endpoint_names  := r.FormValue("endpoints_names")
-    endpoint_desc   := r.FormValue("endpoints_descriptions")
-    endpoint_ps     := r.FormValue("endpoints_parameters")
+    endpoint_names  := strings.Split(r.FormValue("endpoints_names"), ",")
+    endpoint_desc   := strings.Split(r.FormValue("endpoints_descriptions"), ",")
+    endpoint_ps     := strings.Split(r.FormValue("endpoints_parameters"), ",")
 
     if err != nil {
         return models.Tool{}, err
@@ -262,5 +262,8 @@ func getProductFromForm(r *http.Request) (models.Tool , error) {
         Pulls:        pulls,
         License:      license,
         Verified:     verified,
+        EndpointNames: endpoint_names,
+        EndpointDescriptions: endpoint_desc,
+        EndpointParameters: endpoint_ps,
     }, nil
 }
