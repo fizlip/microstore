@@ -239,5 +239,8 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
         "pulls": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Pulls)},
         "license": &types.AttributeValueMemberS{Value: tool.License},
         "verified": &types.AttributeValueMemberBOOL{Value: tool.Verified},
+        "endpoint_names": &types.AttributeValueMemberSS{Value: tool.EndpointNames},
+        "endpoint_descriptions": &types.AttributeValueMemberSS{Value: tool.EndpointDescriptions},
+        "endpoint_parameters": &types.AttributeValueMemberSS{Value: tool.EndpointParameters},
     }
 }

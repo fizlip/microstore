@@ -50,5 +50,8 @@ func NewToolNameService() (*ToolNameService, error){
 func toolToAttributeMapConverter(tool models.ToolName) map[string]types.AttributeValue {
     return map[string]types.AttributeValue{
         "uti": &types.AttributeValueMemberS{Value: tool.UTI},
+        "endpoints": &types.AttributeValueMemberSS{Value: tool.Endpoints},
+        "descriptions": &types.AttributeValueMemberSS{Value: tool.Descriptions},
+        "parameters": &types.AttributeValueMemberSS{Value: tool.Parameters},
     }
 }

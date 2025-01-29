@@ -53,18 +53,18 @@ var NameExistsError = errors.New("The name you gave your tool is already in use.
 func CreateImage(w http.ResponseWriter, r *http.Request) {
 
 	var err error
-	// var vendor *services.Vendor
+	var vendor *services.Vendor
     var nameService *services.ToolNameService
 
     /** Init **/
 
     // Init tools table this will initialize a connection with the dynamodb table
-    //vendor, err = services.NewVendorController("fillatino@gmail.com")
-    //if err != nil {
-    //    log.Error("Cannot connect to tools database ", err)
-    //    api.AuthenticationErrorHandler(w, ToLargeError)
-    //    return
-    //}
+    vendor, err = services.NewVendorController("fillatino@gmail.com")
+    if err != nil {
+        log.Error("Cannot connect to tools database ", err)
+        api.AuthenticationErrorHandler(w, ToLargeError)
+        return
+    }
 
     // Init tools table this will initialize a connection with the dynamodb table
     nameService, err = services.NewToolNameService()
@@ -81,8 +81,6 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         api.AuthenticationErrorHandler(w, ToLargeError)
         return
     }
-
-    log.Println("PRODUCT: ", product)
 
     _, err = (*nameService).GetTool(product.UTI) 
     if err == nil {
@@ -113,60 +111,60 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
     // imageFactory is used to interface with the docker client.
     // DockerInterface exposes some utility functions used to load, tag and push
     // images
-    //imageFactory := services.DockerInterface{dockerClient}
+    imageFactory := services.DockerInterface{dockerClient}
 
     // We don't allow form data to be to large (this is not a restriction on image
     // size)
-    //err = r.ParseMultipartForm(32 << 20) // 32MB max memory
-    //if err != nil {
-    //    api.PayloadTooLargeHandler(w, ToLargeError)
-    //    return
-    //}
+    err = r.ParseMultipartForm(32 << 20) // 32MB max memory
+    if err != nil {
+        api.PayloadTooLargeHandler(w, ToLargeError)
+        return
+    }
     
     // Get image file from form 
-    //file, fileHeader, err := r.FormFile("image")
-    //if err != nil {
-    //    api.CustomInternalErrorHandler(w, ImageNotFound)
-    //    return
-    //}
-    //defer file.Close()
+    file, fileHeader, err := r.FormFile("image")
+    if err != nil {
+        api.CustomInternalErrorHandler(w, ImageNotFound)
+        return
+    }
+    defer file.Close()
 
     // Create /tmp file that will be pushed
-    //fname, err := services.CreateTempFile(file, fileHeader.Filename)
-    //if err != nil {
-    //    api.InternalErrorHandler(w)
-    //    return
-    //}
-    //defer services.CleanupTempFile(fname)
-    //
-    //// Loads image into docker
-    //if err := imageFactory.DockerLoad(fname); err != nil {
-    //    log.Println("Docker image not found ", err)
-    //    api.CustomInternalErrorHandler(w, ImageNotFound)
-    //    return
-    //}
-    //
-    //// Tags and pushes image according to AWS ECR specifications 
-    //if err := imageFactory.PushToECR(strings.Split(fileHeader.Filename, ".")[0]); err != nil {
-    //    log.Println(err)
-    //    api.CustomInternalErrorHandler(w, ConnectionError)
-    //    return
-    //}
+    fname, err := services.CreateTempFile(file, fileHeader.Filename)
+    if err != nil {
+        api.InternalErrorHandler(w)
+        return
+    }
+    defer services.CleanupTempFile(fname)
+    
+    // Loads image into docker
+    if err := imageFactory.DockerLoad(fname); err != nil {
+        log.Println("Docker image not found ", err)
+        api.CustomInternalErrorHandler(w, ImageNotFound)
+        return
+    }
+    
+    // Tags and pushes image according to AWS ECR specifications 
+    if err := imageFactory.PushToECR(strings.Split(fileHeader.Filename, ".")[0]); err != nil {
+        log.Println(err)
+        api.CustomInternalErrorHandler(w, ConnectionError)
+        return
+    }
 
     //// Create a tools item in the DB
-    //if err := (*vendor).CreateTool(product); err != nil {
-    //    log.Println("Could not create new product ", err)
-    //    // TODO: add error for this case in /api
-    //    api.CustomInternalErrorHandler(w, ConnectionError)
-    //    return
-    //}
+    if err := (*vendor).CreateTool(product); err != nil {
+        log.Println("Could not create new product ", err)
+        // TODO: add error for this case in /api
+        api.CustomInternalErrorHandler(w, ConnectionError)
+        return
+    }
 
-    //if err := (*nameService).CreateRecord(models.ToolName{UTI: product.UTI, IPs: []string{}}); err != nil {
-    //    log.Println("Could not insert tool into TNS", err)
-    //    // TODO: add error for this case in /api
-    //    api.CustomInternalErrorHandler(w, ConnectionError)
-    //    return
-    //}
+    if err := (*nameService).CreateRecord(models.ToolName{UTI: product.UTI, IPs: []string{}, Endpoints: product.EndpointNames, Descriptions: product.EndpointDescriptions, Parameters: product.EndpointParameters}); err != nil {
+        log.Println("Could not insert tool into TNS", err)
+        // TODO: add error for this case in /api
+        api.CustomInternalErrorHandler(w, ConnectionError)
+        return
+    }
     
     /** End exeuction **/
     
