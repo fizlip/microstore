@@ -193,11 +193,6 @@ func (d *DeployService) CreateTaskDef(taskDef, tool_name, tool_uri string) (erro
             // Port mappings (optional)
             PortMappings: []types.PortMapping{
                 {
-                    ContainerPort: aws.Int32(80),
-                    HostPort:      aws.Int32(80),
-                    Protocol:      types.TransportProtocolTcp,
-                },
-                {
                     ContainerPort: aws.Int32(8080),
                     HostPort:      aws.Int32(8080),
                     Protocol:      types.TransportProtocolTcp,
@@ -257,6 +252,10 @@ func (d *DeployService) CreateTaskDef(taskDef, tool_name, tool_uri string) (erro
     }
 
     _, err := client.RegisterTaskDefinition(context.TODO(), input)
+    if err != nil {
+        log.Error(err)
+        return errors.New(fmt.Sprintf("error creating taskdef: %v.", err))
+    }
 
     return err 
 }

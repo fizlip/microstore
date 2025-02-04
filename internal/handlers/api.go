@@ -8,6 +8,7 @@ import (
 	"github.com/fizlip/microstore/internal/handlers/userhandlers"
 	"github.com/fizlip/microstore/internal/handlers/storehandlers"
 	"github.com/fizlip/microstore/internal/handlers/f4rmerhandlers"
+	"github.com/fizlip/microstore/internal/handlers/apihealth"
 
 	"github.com/fizlip/microstore/internal/middleware"
 
@@ -31,6 +32,10 @@ import (
 func Handle(r *chi.Mux) {
 	// Global middleware
 	r.Use(chimiddle.StripSlashes) // this will remove unnecessary characters from the URL
+    // Health 
+    r.Route("/health", func(router chi.Router) {
+        router.Get("/", apihealth.IsLive)  
+    })
 
     // PRODUCTS
 	r.Route("/products", func(router chi.Router) {
