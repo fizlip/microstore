@@ -40,6 +40,7 @@ func Handle(r *chi.Mux) {
     // PRODUCTS
 	r.Route("/products", func(router chi.Router) {
         router.Get("/reviews", reviewhandlers.GetReviews)
+        router.Post("/run", f4rmerhandlers.Run)
 	})
 
     // USER

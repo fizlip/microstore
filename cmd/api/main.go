@@ -19,7 +19,7 @@ func main() {
 	// for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
 	r.Use(cors.Handler(cors.Options{
 		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
-		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowedOrigins: []string{"*"},
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"PATCH", "GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{
@@ -38,7 +38,7 @@ func main() {
 
 	handlers.Handle(r)
 
-	fmt.Println("Starting GO API service on localhost:8000...")
+	fmt.Println("Starting API v0.0.1 service on localhost:8000...")
 	fmt.Println(`
       _____  _____                .__                                
     _/ ____\/  |  |_______  _____ |  |__   ____  __ __  ______ ____  

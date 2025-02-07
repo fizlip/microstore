@@ -8,6 +8,12 @@ import (
 	"net/http"
 )
 
+type RunBody struct {
+    UTI string      `json:uti`
+    Endpoint string `json:endpoint`
+    Params string   `json:params`
+}
+
 type UsernameParams struct {
 	Username string
 }

@@ -6,6 +6,8 @@ import (
 
     "time"    
     "errors"
+    "net/http"
+    "io/ioutil"
 
     "github.com/fizlip/microstore/internal/models"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -23,11 +25,37 @@ type Customer struct {
     f4rmerStore         models.DatabaseReadWriter[models.F4rmer]
 }
 
+// Run ...
+func (c *Customer) Run(uti, endpoint, params string) (string, error) {
+    log.Println("UTI: ", uti)
+    log.Println("Endpoint: ", endpoint)
+    log.Println("params: ", params)
+
+    resp, err := http.Get("http://" + uti + ":8080/" + endpoint + "?" + params)
+    if err != nil {
+        log.Printf("Error making GET request: %v\n", err)
+        return "", err
+    }
+    defer resp.Body.Close()
+
+    // Read response body
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        log.Printf("Error reading response: %v\n", err)
+        return "", err
+    }
+
+    log.Println(string(body))
+
+    return string(body), nil
+}
+
 // GetAnalytics returns all product analytics data related to the customer for 
 // the current month
 func (c *Customer) GetAnalytics() ([]models.UserAnalytics, error) {
     return c.analyticsStore.Read(c.Name) 
 }
+
 
 // GetUsage returns all products that user has used for the past month
 // and how many times they have been used.
