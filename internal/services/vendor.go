@@ -8,6 +8,7 @@ import (
     "fmt"
     "crypto/rand"
     "encoding/base64"
+    "time"
     
     "github.com/fizlip/microstore/internal/models"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -218,6 +219,10 @@ func apiToAttrMap(apikey models.APIKey) map[string]types.AttributeValue {
 
 // Utils
 func productToAttributeMapConverter(tool models.Tool) map[string]types.AttributeValue {
+
+    currentTime := time.Now()
+    createdMs := currentTime.UnixNano() / int64(time.Millisecond)
+
     return map[string]types.AttributeValue{
         "uid": &types.AttributeValueMemberS{Value: tool.UID},
         "developer": &types.AttributeValueMemberS{Value: tool.Developer},
@@ -242,5 +247,6 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
         "endpoint_names": &types.AttributeValueMemberSS{Value: tool.EndpointNames},
         "endpoint_descriptions": &types.AttributeValueMemberSS{Value: tool.EndpointDescriptions},
         "endpoint_parameters": &types.AttributeValueMemberSS{Value: tool.EndpointParameters},
+        "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", createdMs)},
     }
 }

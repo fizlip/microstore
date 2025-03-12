@@ -3,7 +3,7 @@
 package services
 
 import (
-    log "github.com/sirupsen/logrus"
+    // log "github.com/sirupsen/logrus"
 
     "github.com/fizlip/microstore/internal/models"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -22,7 +22,6 @@ func (t *ToolNameService) CreateRecord(tool models.ToolName) error {
 }
 
 func (t *ToolNameService) DeleteRecord(uti string) error {
-    log.Println("DELETING: ", uti)
     return t.NameServiceStorage.Delete(uti)
 }
 
