@@ -36,6 +36,13 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
     var nameService *services.ToolNameService
     nameService, err = services.NewToolNameService()
 
+    var store *services.Store
+    store, err = services.NewStoreController()
+    if err != nil {
+		api.InternalErrorHandler(w)
+		return
+	}
+
     uti         := r.FormValue("tool_uti")
     taskDef     := uti + "-taskdef"
     serviceName := uti + "-service"
@@ -66,6 +73,13 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
 		Code:    200,
 		Message: "Deployment finished without errors. Use f4cli endpoints to get your tool URL. Note that it might take a couple of minutes to deploy hardware for your task.",
 	}
+
+    err = store.VerifyProduct(uti)
+    if err != nil {
+        log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+    }
 
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {

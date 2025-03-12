@@ -14,6 +14,7 @@ type DatabaseReadWriter[T any] interface {
     ReadCol(col, val string) ([]T, error)
     BatchRead(pks, sks []string) ([]T, error)
     BatchReadPks(pks []string) ([]T, error)
+    GetGSIItem(gsiName, gsiPartitionKey, gsiPartitionValue  string) (T, error)
 
     Update(pk, sk, col, val string) error
     UpdateAll(pk, col, val string) error

@@ -29,6 +29,11 @@ func (d *MockDynamoTable[T]) DeleteGSIItem(gsiName, gsiPartitionKey, gsiPartitio
     return nil
 }
 
+func (d *MockDynamoTable[T]) GetGSIItem(gsiName, gsiPartitionKey, gsiPartitionValue  string) (T, error) {
+    var t T
+    return t, nil
+}
+
 func (d *MockDynamoTable[T]) BatchRead(pks, sks []string) ([]T, error) {
     return []T{}, nil
 }

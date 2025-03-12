@@ -304,6 +304,13 @@ func (d *DynamoTable[T]) UpdateAll(pk, col, val string) error {
             expressionValue = &types.AttributeValueMemberSS{Value: strings.Split(val, ",")}
         case "N":
             expressionValue = &types.AttributeValueMemberN{Value: val}
+        case "B":
+            b, err := stringToBool(val)
+            if err != nil {
+                return err
+            }
+            expressionValue = &types.AttributeValueMemberBOOL{Value: b}
+
     }
 
     input := &dynamodb.UpdateItemInput{
@@ -400,10 +407,6 @@ func (d *DynamoTable[T]) DeleteWithColumnName(pk, sk string) error {
 
 func (d *DynamoTable[T]) DeleteGSIItem(gsiName, gsiPartitionKey, gsiPartitionValue  string) error {
 
-    log.Println("gsiName: ", gsiName)
-    log.Println("gsiPartitionKey: ", gsiPartitionKey)
-    log.Println("gsiPartitionValue: ", gsiPartitionValue)
-
     // Query GSI to get primary key
     queryOut, err := d.svc.Query(context.TODO(), &dynamodb.QueryInput{
         TableName:              aws.String(d.tableName),
@@ -450,6 +453,37 @@ func (d *DynamoTable[T]) DeleteGSIItem(gsiName, gsiPartitionKey, gsiPartitionVal
     return nil
 }
 
+func (d *DynamoTable[T]) GetGSIItem(gsiName, gsiPartitionKey, gsiPartitionValue  string) (T, error) {
+    var t T
+
+    // Query GSI to get primary key
+    queryOut, err := d.svc.Query(context.TODO(), &dynamodb.QueryInput{
+        TableName:              aws.String(d.tableName),
+        IndexName:              aws.String(gsiName), // Specify the GSI name
+        KeyConditionExpression: aws.String(fmt.Sprintf("%s = :v", gsiPartitionKey)),
+        ExpressionAttributeValues: map[string]types.AttributeValue{
+            ":v": &types.AttributeValueMemberS{Value: gsiPartitionValue},
+        },
+    })
+    if err != nil {
+        log.Fatalf("Failed to query GSI: %v", err)
+        return t, err
+    }
+
+    // Check if we found any items
+    if len(queryOut.Items) == 0 {
+        log.Println("No matching item found in GSI.")
+        return t, errors.New("Could not find any item")
+    }
+
+    err = attributevalue.UnmarshalMap(queryOut.Items[0], &t)
+    if err != nil {
+        var f T
+        return f, errors.New(fmt.Sprintf("failed to unmarshal item: %v", err))
+    }
+    return t, nil
+}
+
 // CreateToolsTable will return an implementation of a table for the Tools dynamoDB  
 // table that is used to interact with tools in the f4rmhouse ecosystem.
 func NewDynamoTable[T any](tableName, pk, sk string) (*DynamoTable[T], error) {
@@ -463,4 +497,15 @@ func NewDynamoTable[T any](tableName, pk, sk string) (*DynamoTable[T], error) {
 
     table.svc = dynamodb.NewFromConfig(cfg)
     return &table, nil
+}
+
+func stringToBool(s string) (bool, error) {
+    switch strings.ToLower(s) {
+    case "true", "1":
+        return true, nil
+    case "false", "0":
+        return false, nil
+    default:
+        return false, fmt.Errorf("invalid boolean value: %s", s)
+    }
 }
