@@ -400,6 +400,10 @@ func (d *DynamoTable[T]) DeleteWithColumnName(pk, sk string) error {
 
 func (d *DynamoTable[T]) DeleteGSIItem(gsiName, gsiPartitionKey, gsiPartitionValue  string) error {
 
+    log.Println("gsiName: ", gsiName)
+    log.Println("gsiPartitionKey: ", gsiPartitionKey)
+    log.Println("gsiPartitionValue: ", gsiPartitionValue)
+
     // Query GSI to get primary key
     queryOut, err := d.svc.Query(context.TODO(), &dynamodb.QueryInput{
         TableName:              aws.String(d.tableName),

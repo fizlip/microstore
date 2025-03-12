@@ -45,6 +45,26 @@ func (s *Store) GetTrendingBusiness() ([]models.Tool, error){
     return ts, nil
 }
 
+func (s *Store) GetRecent() ([]models.Tool, error){
+    var ids []string
+
+    businessTrending, err := s.StoreStorage.ReadAll()
+    if err != nil {
+        return []models.Tool{}, errors.New("Could not read trending")
+    }
+
+    for _, item := range businessTrending {
+        ids = append(ids, item.UID)
+    }
+
+    ts, err := s.StoreStorage.BatchReadPks(ids)
+    if err != nil {
+        return []models.Tool{}, errors.New("Could not read trending")
+    }
+
+    return ts, nil
+}
+
 // NewVendorController is a factory method that initialised a data store and
 // returns a Vendor struct. If you need to change the data store for some reason
 // you only need to update this method.
