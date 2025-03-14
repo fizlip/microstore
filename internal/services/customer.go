@@ -5,9 +5,11 @@ package services
 import (
 
     "time"    
+    "fmt"
     "errors"
     "net/http"
     "io/ioutil"
+    "bytes"
 
     "github.com/fizlip/microstore/internal/models"
     "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -31,11 +33,27 @@ func (c *Customer) Run(uti, endpoint, params string) (string, error) {
     log.Println("Endpoint: ", endpoint)
     log.Println("params: ", params)
 
-    resp, err := http.Get("http://" + uti + ":8080/" + endpoint + "?" + params)
+    url := fmt.Sprintf("http://%s:8080/%s", uti, endpoint)
+
+    data := []byte(params)
+
+    req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+    // resp, err := http.Post("http://" + uti + ":8080/" + endpoint + "?" + params)
     if err != nil {
-        log.Printf("Error making GET request: %v\n", err)
+        log.Println("Error making GET request: %v\n", err)
         return "", err
     }
+    // Set headers
+    req.Header.Set("Content-Type", "application/json")
+
+    // Send the request
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        fmt.Println("Error sending request:", err)
+        return "", err
+    }
+
     defer resp.Body.Close()
 
     // Read response body
