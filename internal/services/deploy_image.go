@@ -177,7 +177,6 @@ func (d *DeployService) CreateCluster(clusterName string) (error) {
 // and a database container.
 //
 func (d *DeployService) CreateTaskDef(taskDef, tool_name, tool_uri string) (error) {
-    log.Println("Creating TaskDef...")    
 
     client := ecs.NewFromConfig(d.cfg)
 

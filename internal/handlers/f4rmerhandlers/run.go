@@ -47,6 +47,7 @@ func Run(w http.ResponseWriter, r *http.Request) {
 
     res, err := user.Run(result[0].IPs[0], runParams.Endpoint, runParams.Params)
     if err != nil {
+        log.Println("ERROR")
         log.Error(err)
         api.InternalErrorHandler(w)
         return
