@@ -30,9 +30,36 @@ func (r *ReviewService) GetInteractions(uids []string, username string) ([]model
     for i := range unames {
         unames[i] = username 
     }
-    log.Println("unames: ", unames)
-    log.Println("uids: ", uids)
     return r.interactionStorage.BatchRead(uids, unames)   
+}
+
+func (r *ReviewService) DeleteInteractions(username string) (error) {
+    userInteractions, err := r.interactionStorage.ReadCol("username", username)
+    if err != nil {
+        return errors.New("Could not read user interactions")
+    }
+    for _, interaction := range userInteractions {
+        err = r.interactionStorage.DeleteDetailed(interaction.UID, interaction.Username) 
+        if err != nil {
+            return errors.New(fmt.Sprintf("could not update a reviews: ", err))
+        }
+    }
+    return nil
+}
+
+// GetReviews returns all reviews associated with a product
+func (r *ReviewService) Anonymize(username string) (error) {
+    userReviews, err := r.reviewStorage.ReadCol("creator", username)
+    if err != nil {
+        return errors.New("Could not read reviews")
+    }
+    for _, review := range userReviews {
+        err = r.reviewStorage.Update(review.PID, review.UID, "S,creator", "anon") 
+        if err != nil {
+            return errors.New(fmt.Sprintf("could not update a reviews: ", err))
+        }
+    }
+    return nil
 }
 
 // GetReviews returns all reviews associated with a product

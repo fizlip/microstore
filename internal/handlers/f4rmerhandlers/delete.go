@@ -4,6 +4,8 @@ package f4rmerhandlers
 import (
 	"encoding/json"
 	"github.com/fizlip/microstore/api"
+    "github.com/fizlip/microstore/internal/services"
+
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -18,7 +20,24 @@ import (
 //      FAILURE: 403, An unexpected error occured
 func Delete(w http.ResponseWriter, r *http.Request) {
     var err error
-    err = json.NewEncoder(w).Encode("")
+
+    creator := r.URL.Query().Get("creator")
+    uid := r.URL.Query().Get("uid")
+    user, err := services.NewCustomer(creator)
+	if err != nil {
+        log.Error(err)
+        api.InternalErrorHandler(w)
+        return
+	}
+
+    err = (*user).DeleteF4rmer(creator, uid) 
+    if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+	}
+
+    err = json.NewEncoder(w).Encode("f4rmer has been deleted")
     if err != nil {
         log.Error(err)
         api.InternalErrorHandler(w)

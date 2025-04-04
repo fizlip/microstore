@@ -48,6 +48,10 @@ func Handle(r *chi.Mux) {
 		// Auth + auth utils
 		router.Use(middleware.Authorization)
 		router.Get("/valid", userhandlers.CheckValidSession)
+        // Is user new?
+		router.Get("/exists", userhandlers.DoesUserExist)
+		router.Post("/create/empty", userhandlers.CreateEmptyRecord)
+		router.Delete("/delete/analytics", userhandlers.DeleteAnalyticsRecord)
         // Execution 
 		router.Post("/tool/run", userhandlers.RunProduct)
 		// Invoice & usage
@@ -58,6 +62,9 @@ func Handle(r *chi.Mux) {
 		router.Post("/review/create", reviewhandlers.CreateReview)
 		router.Post("/review/delete", reviewhandlers.DeleteReview)
 		router.Post("/review/rate", reviewhandlers.RateReview)
+		router.Delete("/review/anonymize", reviewhandlers.AnonymizeReview)
+		router.Delete("/review/interactions/delete", reviewhandlers.DeleteInteractions)
+
         // F4rmers
         router.Post("/f4rmer/create", f4rmerhandlers.Create)
         router.Get("/f4rmer/read", f4rmerhandlers.Read)

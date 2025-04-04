@@ -5,6 +5,7 @@ package services
 import (
 
     "time"    
+    "strconv"
     "fmt"
     "errors"
     "net/http"
@@ -29,10 +30,6 @@ type Customer struct {
 
 // Run ...
 func (c *Customer) Run(uti, endpoint, params string) (string, error) {
-    log.Println("UTI: ", uti)
-    log.Println("Endpoint: ", endpoint)
-    log.Println("params: ", params)
-
     url := fmt.Sprintf("http://%s:8080/%s", uti, endpoint)
 
     data := []byte(params)
@@ -63,9 +60,16 @@ func (c *Customer) Run(uti, endpoint, params string) (string, error) {
         return "", err
     }
 
-    log.Println(string(body))
+    log.Println("Action has been executed with status 200")
 
     return string(body), nil
+}
+
+func (c *Customer) CreateEmptyAnalyticsRecord() error {
+    emptyObject := models.UserAnalytics{}
+    emptyObject.CustomerID = c.Name
+    emptyObject.Timestamp = strconv.FormatInt(time.Now().Unix(), 10)
+    return c.analyticsStore.Create(emptyObject, userAnalyticsToAttributeMapConverter)
 }
 
 // GetAnalytics returns all product analytics data related to the customer for 
@@ -79,6 +83,20 @@ func (c *Customer) GetAnalytics() ([]models.UserAnalytics, error) {
 // and how many times they have been used.
 func (c *Customer) GetUsage() ([]models.ProductAnalytics, error) {
     return []models.ProductAnalytics{}, nil
+}
+
+// DeleteF4rmer will delete a f4rmer
+func (c *Customer) DeleteAnalytics() (error) {
+    analytics, err := c.analyticsStore.Read(c.Name)
+    if err != nil {
+        log.Error("Could not read analytics for ", c.Name)
+        return err
+    }
+    if len(analytics) == 0 {
+        log.Error("There are no records with the name: ", c.Name)
+        return errors.New("Nothing to delete!") 
+    }
+    return c.analyticsStore.DeleteDetailed(analytics[0].CustomerID, analytics[0].Timestamp)
 }
 
 // incrementUsage is a private function that updates the user analytics of
