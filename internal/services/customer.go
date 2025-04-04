@@ -29,8 +29,15 @@ type Customer struct {
 }
 
 // Run ...
-func (c *Customer) Run(uti, endpoint, params string) (string, error) {
-    url := fmt.Sprintf("http://%s:8080/%s", uti, endpoint)
+func (c *Customer) Run(ip, endpoint, params, uti string) (string, error) {
+
+    evt := models.ProductAnalytics{
+		ProductID: uti,
+        Status: "400",
+		Consumer: c.Name,
+    }
+
+    url := fmt.Sprintf("http://%s:8080/%s", ip, endpoint)
 
     data := []byte(params)
 
@@ -60,7 +67,13 @@ func (c *Customer) Run(uti, endpoint, params string) (string, error) {
         return "", err
     }
 
-    log.Println("Action has been executed with status 200")
+    evt.Status = "200"
+    evt.Timestamp = time.Now().Format("2006-01-02 15:04:05")
+    err = c.toolAnalyticsStore.Create(evt, evtToAttributeMapConverter)
+    if err != nil {
+        return "", err
+    }
+
 
     return string(body), nil
 }
