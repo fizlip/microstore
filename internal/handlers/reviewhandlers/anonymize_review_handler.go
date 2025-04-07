@@ -29,8 +29,6 @@ func AnonymizeReview(w http.ResponseWriter, r *http.Request) {
 	}
 
     username := r.URL.Query().Get("username")
-    
-    log.Println("Anonymizing: ", username)
 
     // Execute function
     err = (*reviews).Anonymize(username)

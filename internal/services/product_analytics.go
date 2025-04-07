@@ -10,7 +10,11 @@ import (
 // ProductAnalyticsService is only used to do CRUD operations on the 
 // f4-analytics table.
 type ProductAnalyticsService struct {
-    AnalyticStorage     models.DatabaseReadWriter[models.ProductAnalytics]
+    analyticStore     models.DatabaseReadWriter[models.ProductAnalytics]
+}
+
+func (p *ProductAnalyticsService) GetRecentCalls(uti string) ([]models.ProductAnalytics, error) {
+	return p.analyticStore.Read(uti) 
 }
 
 func (p *ProductAnalyticsService) Insert(t *models.Tool) error {
@@ -49,11 +53,11 @@ func (p *ProductAnalyticsService) Delete(pid string) (bool, error) {
 	return true, nil
 }
 
-func NewProductAnalyticsService(tableName string) (*ProductAnalyticsService, error) {
-    analyticT, err := models.NewMockDynamoTable[models.ProductAnalytics]("f4-analytics", "developer", "uid")
+func NewActionAnalyticsService() (*ProductAnalyticsService, error) {
+    analyticsT, err := models.NewDynamoTable[models.ProductAnalytics]("f4-product-analytics", "product_id", "timestamp")
     if err != nil {
         return &ProductAnalyticsService{}, err 
     }
-    productAnalytics := ProductAnalyticsService{AnalyticStorage: analyticT}
+    productAnalytics := ProductAnalyticsService{analyticStore: analyticsT}
 	return &productAnalytics, nil
 }

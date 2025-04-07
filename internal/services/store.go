@@ -22,6 +22,17 @@ type Store struct {
 
 func (s *Store) GetProduct(uuid string) (models.Tool, error) {
     product, err := s.StoreStorage.Read(uuid)
+    if len(product) == 0 {
+        return models.Tool{}, err
+    }
+    return product[0], err
+}
+
+func (s *Store) GetUTIProduct(uti string) (models.Tool, error) {
+    product, err := s.StoreStorage.ReadCol("uti", uti)
+    if len(product) == 0 {
+        return models.Tool{}, err
+    }
     return product[0], err
 }
 

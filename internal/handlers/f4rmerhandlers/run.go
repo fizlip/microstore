@@ -45,7 +45,7 @@ func Run(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    res, err := user.Run(result[0].IPs[0], runParams.Endpoint, runParams.Params)
+    res, err := user.Run(result[0].IPs[0], runParams.Endpoint, runParams.Params, result[0].UTI)
     if err != nil {
         log.Println("ERROR")
         log.Error(err)

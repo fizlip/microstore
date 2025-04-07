@@ -9,6 +9,7 @@ import (
 	"github.com/fizlip/microstore/internal/handlers/storehandlers"
 	"github.com/fizlip/microstore/internal/handlers/f4rmerhandlers"
 	"github.com/fizlip/microstore/internal/handlers/apihealth"
+	"github.com/fizlip/microstore/internal/handlers/producthandlers"
 
 	"github.com/fizlip/microstore/internal/middleware"
 
@@ -78,9 +79,11 @@ func Handle(r *chi.Mux) {
 	r.Route("/store", func(router chi.Router) {
 		router.Get("/trending", storehandlers.GetTrending)
 		router.Get("/get/product", storehandlers.GetProduct)
+		router.Get("/get/uti/product", storehandlers.GetUTIProduct)
 		router.Get("/get/product/showcase", storehandlers.GetShowcase)
 		router.Get("/get/product/summary", storehandlers.GetSummary)
 		router.Get("/get/recent", storehandlers.GetRecent)
+		router.Get("/get/analytics", producthandlers.GetActionAnalytics)
 	})
 
     // VENDOR

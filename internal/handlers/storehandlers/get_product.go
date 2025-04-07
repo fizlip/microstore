@@ -24,6 +24,7 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 
 	result, err := (*store).GetProduct(uid)
     if err != nil {
+        log.Error(err)
 		api.InternalErrorHandler(w)
 		return
 	}
