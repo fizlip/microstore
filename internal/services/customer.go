@@ -90,6 +90,21 @@ func (c *Customer) Run(ip, endpoint, params, uti string) (string, error) {
     return string(body), nil
 }
 
+func (c *Customer) HasUsedAction(uti string) (bool, error) {
+    analytics, err := c.GetAnalytics()
+    if err != nil {
+        return false, err
+    }
+    for _, analytic := range analytics {
+        _, ok := analytic.Products[uti]
+        if ok {
+            return true, nil
+        }
+    }
+
+    return false, nil
+}
+
 func (c *Customer) CreateEmptyAnalyticsRecord() error {
     emptyObject := models.UserAnalytics{}
     emptyObject.CustomerID = c.Name

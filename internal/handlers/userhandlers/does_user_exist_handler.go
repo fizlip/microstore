@@ -35,7 +35,7 @@ func DoesUserExist(w http.ResponseWriter, r *http.Request) {
     user_analytics, err := (*user).GetAnalytics() 
     if len(user_analytics) == 1 {res = true}
 
-	err = json.NewEncoder(w).Encode(api.ExistsSuccess{Code: 200, Exists:res})
+	err = json.NewEncoder(w).Encode(api.ExistsSuccess{Code: 200, Message: res})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

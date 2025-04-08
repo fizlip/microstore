@@ -54,11 +54,28 @@ func CreateReview(w http.ResponseWriter, r *http.Request) {
         api.InternalErrorHandler(w)
         return
     } else {
-        err = (*reviews).Create(review)
+        user, err := services.NewCustomer(review.CreatorUID)
+        if err != nil {
+            log.Error(err)
+            api.InternalErrorHandler(w)
+            return
+        }
 
-        response = api.Success{
-            Code:    200,
-            Message: "Review was successfully created",
+        hasUsed, err := user.HasUsedAction(review.PID)
+        if hasUsed {
+            err = (*reviews).Create(review)
+
+            response = api.Success{
+                Code:    200,
+                Message: "Review was successfully created",
+            }
+        } else {
+
+            response = api.Success {
+                Code:    201,
+                Message: "User has not used the action.",
+            }
+
         }
     }
 

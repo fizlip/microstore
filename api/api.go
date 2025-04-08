@@ -68,8 +68,8 @@ type ActionUseSuccess struct {
 }
 
 type ExistsSuccess struct {
-    Code int
-    Exists bool
+    Code    int
+    Message bool
 }
 
 type RunSuccess struct {

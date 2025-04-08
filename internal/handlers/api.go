@@ -58,6 +58,7 @@ func Handle(r *chi.Mux) {
 		// Invoice & usage
 		router.Get("/invoice/upcoming", userhandlers.GetInvoice)
 		router.Get("/usage", userhandlers.GetUsage)
+		router.Get("/has/used/action", userhandlers.HasUsedAction)
 		router.Post("/activate/billing", userhandlers.ActivateBilling)
 		// Reviews
 		router.Post("/review/create", reviewhandlers.CreateReview)
@@ -65,7 +66,6 @@ func Handle(r *chi.Mux) {
 		router.Post("/review/rate", reviewhandlers.RateReview)
 		router.Delete("/review/anonymize", reviewhandlers.AnonymizeReview)
 		router.Delete("/review/interactions/delete", reviewhandlers.DeleteInteractions)
-
         // F4rmers
         router.Post("/f4rmer/create", f4rmerhandlers.Create)
         router.Get("/f4rmer/read", f4rmerhandlers.Read)
