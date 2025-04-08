@@ -31,8 +31,12 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+    var code int = 200
+    if result.UID == "" {
+       code = 201 
+    }
 
-	err = json.NewEncoder(w).Encode(result)
+	err = json.NewEncoder(w).Encode(api.ActionSuccess{Code: code, Message: result})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

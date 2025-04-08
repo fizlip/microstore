@@ -35,7 +35,7 @@ func GetTrending(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	err = json.NewEncoder(w).Encode(result)
+	err = json.NewEncoder(w).Encode(api.ActionsSuccess{Code: 200, Message: result})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
