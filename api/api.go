@@ -72,6 +72,11 @@ type RunSuccess struct {
     Message string 
 }
 
+type InvoiceSuccess struct {
+	Code    int
+	Invoice models.Invoice 
+}
+
 type Success struct {
 	Code    int
 	Message string

@@ -23,7 +23,7 @@ func GetInvoice(w http.ResponseWriter, r *http.Request) {
 
 	// And run the product with it
 	result, err := (*user).GetInvoice()
-	err = json.NewEncoder(w).Encode(result)
+	err = json.NewEncoder(w).Encode(api.InvoiceSuccess{Code: 200, Invoice: result})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
