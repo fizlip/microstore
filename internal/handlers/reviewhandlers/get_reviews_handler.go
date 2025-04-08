@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// GetReviews will return a slice of all reviews connected to a given product_id 
+// GetReviews will return a slice of all reviews writte for a product_id 
 //
 // Since each review has an optional interaction (like/no like) we also check to see whether
 // the instigator of the request has rated the review. If yes the Rated field 
@@ -27,6 +27,7 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
 
     queryParams := r.URL.Query()
     // get product id 
+    // UID in product model
     pid := queryParams.Get("product_id")
 
 	reviewService, err = services.NewReviewService()
@@ -36,6 +37,23 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
 	}
 
 	reviews, err := (*reviewService).GetReviews(pid)
+    if err != nil {
+        log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+    }
+
+    if len(reviews) == 0 {
+        log.Println("No reviews found")
+        err = json.NewEncoder(w).Encode(api.ReviewsSuccess{200, reviews})
+        if err != nil {
+            log.Error(err)
+            api.InternalErrorHandler(w)
+            return
+        }
+        return
+    }
+
     // Get the UIDs of all reviews so that we can see if user has interacted with them
     var interactionUids []string
     for _, r := range reviews {
@@ -53,7 +71,7 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
     
     // if there are no interactions just return all reviews with rated = false 
     if len(interactions) == 0 {
-	    err = json.NewEncoder(w).Encode(reviews)
+	    err = json.NewEncoder(w).Encode(api.ReviewsSuccess{200, reviews})
         if err != nil {
             log.Error(err)
             api.InternalErrorHandler(w)
@@ -69,7 +87,7 @@ func GetReviews(w http.ResponseWriter, r *http.Request) {
                 }
             }
         }
-        err = json.NewEncoder(w).Encode(reviews)
+        err = json.NewEncoder(w).Encode(api.ReviewsSuccess{200, reviews})
         if err != nil {
             log.Error(err)
             api.InternalErrorHandler(w)

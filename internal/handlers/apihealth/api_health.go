@@ -9,19 +9,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// AddTool will add a tool to a f4rmers toolbox. Each tool is represented
-// by a tool id (tid). To add a tool you need to define the user adding the 
-// tool (usr), the f4rmer that should have the tool (uid) and the tool to add (tid).
+// IsLive is used to see whether the api is online or not. Usually used as a utility for 
+// devs when they want to know if the API is online but can also be used by 
+// customers on the website to see if our services are online.
 //
-// example: POST https://<hostname>/user/f4rmer/add/tool?usr=<username>&uid=<f4rmer_id>&tid=<tool_id>
+// example: GET https://<hostname>/health/
 // response: 
-//      SUCCESS: 200, "tool was added", 
+//      SUCCESS: 200, "f4rmhouse api is live", 
 //      FAILURE: 403, An unexpected error occured 
 //
 func IsLive(w http.ResponseWriter, r *http.Request) {
     var err error
 
-    err = json.NewEncoder(w).Encode("f4rmhouse api is live!")
+    w.Header().Set("Content-Type", "application/json")
+    res := api.Success{200, "f4rmhouse api is live!"}
+    err = json.NewEncoder(w).Encode(res)
     if err != nil {
         log.Error(err)
         api.InternalErrorHandler(w)

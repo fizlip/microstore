@@ -30,7 +30,7 @@ func DeleteAnalyticsRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode("User analytics deleted")
+	err = json.NewEncoder(w).Encode(api.Success{Code: 200, Message: "User analytics deleted"})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

@@ -24,7 +24,7 @@ func Authorization(next http.Handler) http.Handler {
         var provider = r.Header.Get("X-Provider")
 		var instigator = r.Header.Get("X-Username")
 		var err error
-        
+
 		if provider == "" || token == "" || instigator == ""{
 			log.Error(AuthenticationError)
 			api.AuthenticationErrorHandler(w, AuthenticationError)

@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// GetProduct will return a product by it's unique identifier (uid)
 func GetProduct(w http.ResponseWriter, r *http.Request) {
 	var err error
 

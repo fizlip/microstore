@@ -56,7 +56,7 @@ func Handle(r *chi.Mux) {
         // Execution 
 		router.Post("/tool/run", userhandlers.RunProduct)
 		// Invoice & usage
-		router.Post("/invoice/upcoming", userhandlers.GetInvoice)
+		router.Get("/invoice/upcoming", userhandlers.GetInvoice)
 		router.Get("/usage", userhandlers.GetUsage)
 		router.Post("/activate/billing", userhandlers.ActivateBilling)
 		// Reviews

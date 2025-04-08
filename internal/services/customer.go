@@ -74,6 +74,18 @@ func (c *Customer) Run(ip, endpoint, params, uti string) (string, error) {
         return "", err
     }
 
+    log.Println("c.Name: ", c.Name)
+    log.Println("UTI: ", uti)
+    log.Println("evt.Timestamp: ", evt.Timestamp)
+
+    now := time.Now()
+    billingPeriod := now.Format("2006-01")
+
+    err = c.incrementUsage(c.Name, uti, billingPeriod)
+    if err != nil {
+        return "", err
+    }
+
 
     return string(body), nil
 }
@@ -89,6 +101,50 @@ func (c *Customer) CreateEmptyAnalyticsRecord() error {
 // the current month
 func (c *Customer) GetAnalytics() ([]models.UserAnalytics, error) {
     return c.analyticsStore.Read(c.Name) 
+}
+
+func (c *Customer) GetInvoice() (models.Invoice, error) {
+    analytics, err := c.GetAnalytics()
+    if err != nil {
+        log.Error("Could not read analytics for ", c.Name)
+        return models.Invoice{}, err
+    }
+
+    now := time.Now()
+    billingPeriod := now.Format("2006-01")
+    var analyticsForCurrentBillingPeriod  models.UserAnalytics
+    for _, analytics := range analytics {
+        if analytics.Timestamp == billingPeriod {
+            analyticsForCurrentBillingPeriod  = analytics
+            break
+        }
+    }
+
+    totalRequests := int64(analyticsForCurrentBillingPeriod.PaidRequests + analyticsForCurrentBillingPeriod.FreeRequests)
+
+    var actionsUsed []string
+    var actionPrices []float64
+
+    var costExTax float64 
+    var costIncTax float64 
+    const taxRate float64 = 1.0
+    for action, data := range analyticsForCurrentBillingPeriod.Products {
+        actionsUsed = append(actionsUsed, action)  
+        actionPrices = append(actionPrices, data.Price)
+        costExTax += data.Price * float64(data.NumRequests)
+        costIncTax += data.Price * float64(data.NumRequests) * taxRate
+    } 
+
+    return models.Invoice{
+        InvoiceID: "123",
+        BillingPeriod: analyticsForCurrentBillingPeriod.Timestamp,
+        Name: c.Name,
+        RequestsMade: totalRequests,
+        ActionsUsed: actionsUsed,
+        ActionPrices: actionPrices,
+        TotalCostExTax: costExTax,
+        TotalCostIncTax: costIncTax,
+    }, nil
 }
 
 
@@ -118,6 +174,7 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
     // Gives the current days analytics
     analytics, err := c.analyticsStore.ReadSpecific(uid, time)
     if err != nil {
+        log.Error("Could not read item from f4-user-analytics")
         return err
     }
 
@@ -133,12 +190,13 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
 
     // How do I make sure only one item returne? Need to add check when creating so that
     // all ids must be unique
-    tools, err := c.toolStore.Read(tid)
+    tools, err := c.toolStore.GetGSIItem("uti-index", "uti", tid)
     if err != nil {
+        log.Error("Could not read tool storage")
         return err
     }
 
-    if tools[0].Price == 0.0 {
+    if tools.Price == 0.0 {
         analytics.FreeRequests += 1
     } else {
         analytics.PaidRequests += 1
@@ -151,8 +209,8 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
     } else {
         analytics.Products[tid] = models.ProductData{
             ProductID: tid, 
-            ProductName: tools[0].Title, 
-            Price: tools[0].Price,
+            ProductName: tools.Title, 
+            Price: tools.Price,
             NumRequests: 1,
         }
     }

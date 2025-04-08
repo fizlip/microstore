@@ -146,6 +146,7 @@ func (v *Vendor) UploadShowcaseImage(tid string, filename string, replace string
 // GetToolUsage will return the analytics for a tool that the vendor has created
 func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 	vendorTools, err := v.GetTools()
+    log.Println(vendorTools)
     if err != nil {
         return []models.ProductAnalytics{}, err
     }
@@ -153,9 +154,9 @@ func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 	res := []models.ProductAnalytics{}
 
 	for _, product := range vendorTools {
-		analytics, err := v.AnalyticStorage.Read(product.UID)
+		analytics, err := v.AnalyticStorage.Read(product.UTI)
 		if err != nil {
-			log.Error("Cuould not read", product.UID)
+			log.Error("Could not read", product.UTI)
 		} else {
 			res = append(res, analytics...)
 		}

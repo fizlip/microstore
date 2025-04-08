@@ -11,13 +11,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// CheckValidSession lets a client check whether they have valid credentials. Returns an error 
-// iff the user is unauthorized otherwise returns 200. 
+// DoesUserExist will return true if a user with a given uid is in the database
+// this is used to check whether this is the first time a user logs in.
 func DoesUserExist(w http.ResponseWriter, r *http.Request) {
 
 	var err error
     var res bool = false
-    customer_id := r.URL.Query().Get("uid")
+
+    customer_id := r.Header.Get("X-Username")
+
+    if customer_id == "" {
+        log.Error("No customer_id specified")
+        api.InternalErrorHandler(w)
+        return
+    }
     user, err := services.NewCustomer(customer_id)
 	if err != nil {
         log.Error(err)
@@ -28,7 +35,7 @@ func DoesUserExist(w http.ResponseWriter, r *http.Request) {
     user_analytics, err := (*user).GetAnalytics() 
     if len(user_analytics) == 1 {res = true}
 
-	err = json.NewEncoder(w).Encode(res)
+	err = json.NewEncoder(w).Encode(api.ExistsSuccess{Code: 200, Exists:res})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

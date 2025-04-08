@@ -10,11 +10,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// CheckValidSession lets a client check whether they have valid credentials. Returns an error 
-// iff the user is unauthorized otherwise returns 200. 
+// CreateEmptyRecord will create empty records for the users analytics 
 func CreateEmptyRecord(w http.ResponseWriter, r *http.Request) {
 
 	var err error
+
+    w.Header().Set("Content-Type", "application/json")
+
     customer_id := r.URL.Query().Get("uid")
     user, err := services.NewCustomer(customer_id)
 	if err != nil {
@@ -30,7 +32,9 @@ func CreateEmptyRecord(w http.ResponseWriter, r *http.Request) {
 		return
     } 
 
-	err = json.NewEncoder(w).Encode("New user record created")
+    res := api.Success{200, "Empty analytics record created"}
+
+	err = json.NewEncoder(w).Encode(res)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

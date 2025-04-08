@@ -6,6 +6,8 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+    "github.com/fizlip/microstore/internal/models"
+
 )
 
 type RunBody struct {
@@ -48,6 +50,26 @@ type UpdateParams struct {
 type UserServiceResponse struct {
 	Code    int
 	Balance int64
+}
+
+type ReviewsSuccess struct {
+    Code int
+    Reviews []models.Review
+}
+
+type ReviewSuccess struct {
+    Code int
+    Review models.Review
+}
+
+type ExistsSuccess struct {
+    Code int
+    Exists bool
+}
+
+type RunSuccess struct {
+    Code int
+    Message string 
 }
 
 type Success struct {
