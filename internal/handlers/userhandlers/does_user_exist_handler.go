@@ -19,12 +19,12 @@ func DoesUserExist(w http.ResponseWriter, r *http.Request) {
     var res bool = false
 
     customer_id := r.Header.Get("X-Username")
-
     if customer_id == "" {
         log.Error("No customer_id specified")
         api.InternalErrorHandler(w)
         return
     }
+
     user, err := services.NewCustomer(customer_id)
 	if err != nil {
         log.Error(err)

@@ -62,6 +62,11 @@ type ReviewSuccess struct {
     Review models.Review
 }
 
+type ActionUseSuccess struct {
+    Code int
+    Message []models.ProductAnalytics 
+}
+
 type ExistsSuccess struct {
     Code int
     Exists bool
@@ -80,6 +85,16 @@ type InvoiceSuccess struct {
 type Success struct {
 	Code    int
 	Message string
+}
+
+type ActionsSuccess struct {
+	Code    int
+	Message []models.Tool 
+}
+
+type ActionSuccess struct {
+	Code    int
+	Message models.Tool 
 }
 
 type Error struct {

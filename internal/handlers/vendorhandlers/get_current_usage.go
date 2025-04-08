@@ -20,7 +20,9 @@ import (
 //      FAILURE: 500, An unexpected error occurred
 func GetCurrentUsage(w http.ResponseWriter, r *http.Request) {
 	var err error
-	vendor, err := services.NewVendorController("fillatino@gmail.com")
+
+    vendor_id := r.Header.Get("X-Username")
+	vendor, err := services.NewVendorController(vendor_id)
 
 	if err != nil {
 		log.Fatalf("failed to retrieve usage data, %v", err)
@@ -28,7 +30,7 @@ func GetCurrentUsage(w http.ResponseWriter, r *http.Request) {
 
 	tool_usage, err := vendor.GetToolUsage()
 
-	err = json.NewEncoder(w).Encode(tool_usage)
+	err = json.NewEncoder(w).Encode(api.ActionUseSuccess{Code: 200, Message: tool_usage})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

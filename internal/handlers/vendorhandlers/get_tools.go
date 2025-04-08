@@ -17,7 +17,8 @@ import (
 //      SUCCESS: 200, <slice of tools> 
 //      FAILURE: 500, An unexpected error occured
 func GetTools(w http.ResponseWriter, r *http.Request) {
-    vendor, err := services.NewVendorController("fillatino@gmail.com")
+    vendor_id := r.Header.Get("X-Username")
+    vendor, err := services.NewVendorController(vendor_id)
 	if err != nil {
 		log.Fatalf("failed to retrieve usage data, %v", err)
         return
@@ -30,7 +31,7 @@ func GetTools(w http.ResponseWriter, r *http.Request) {
 		return
     }
 
-	err = json.NewEncoder(w).Encode(result)
+	err = json.NewEncoder(w).Encode(api.ActionsSuccess{Code: 200, Message: result})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
