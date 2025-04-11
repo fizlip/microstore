@@ -138,6 +138,7 @@ func reviewToAttributeMapConverter(review models.Review) map[string]types.Attrib
         "value": &types.AttributeValueMemberS{Value: review.Value},
         "content": &types.AttributeValueMemberS{Value: review.Content},
         "creator": &types.AttributeValueMemberS{Value: review.Creator},
+        "creator_uid": &types.AttributeValueMemberS{Value: review.CreatorUID},
         "date": &types.AttributeValueMemberS{Value: review.Date},
         "rating": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", 0)},
     }

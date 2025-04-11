@@ -10,7 +10,7 @@ type Review struct {
 	Value       string `dynamodbav:"value" json:"value"`
 	Content     string `dynamodbav:"content" json:"content"`
 	Creator     string `dynamodbav:"creator" json:"creator"`
-	CreatorUID  string `dynamodbav:"creator" json:"creator_uid"`
+	CreatorUID  string `dynamodbav:"creator_uid" json:"creator_uid"`
 	Date        string `dynamodbav:"date" json:"date"`
 	Rating      int    `dynamodbav:"rating" json:"rating"`
     Rated       bool   `json:"rated"`
