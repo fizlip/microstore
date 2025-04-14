@@ -20,7 +20,9 @@ import (
 func ReadAPIKey(w http.ResponseWriter, r *http.Request) {
     var err error
     var vendor *services.Vendor
-    vendor, err = services.NewVendorController("fillatino@gmail.com")
+    var username = r.Header.Get("X-Username")
+
+    vendor, err = services.NewVendorController(username)
     if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

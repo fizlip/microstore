@@ -27,6 +27,7 @@ type Tool struct {
     EndpointDescriptions     []string `dynamodbav:"endpointDescriptions" json:"endpoint_descriptions"`
     EndpointParameters       []string `dynamodbav:"endpointParameters" json:"endpoint_parameters"`
     Created                  int      `dynamodbav:"created" json:"created"`
+    Deployed                 bool     `dynamodbav:"deployed" json:"deployed"`
 }
 
 type ToolData struct {

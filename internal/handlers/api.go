@@ -84,6 +84,7 @@ func Handle(r *chi.Mux) {
 		router.Get("/get/product/summary", storehandlers.GetSummary)
 		router.Get("/get/recent", storehandlers.GetRecent)
 		router.Get("/get/analytics", producthandlers.GetActionAnalytics)
+		router.Get("/get/endpoint", vendorhandlers.GetEndpoint)
 	})
 
     // VENDOR

@@ -56,6 +56,15 @@ func (v *Vendor) GetTools() ([]models.Tool, error){
     return v.ToolStorage.ReadCol("developer", v.Name)
 }
 
+// UpdateTool will return an array of all tools created by vendor
+func (v *Vendor) SetToolDeployed(uti, value string) (error){
+    tool, err := v.ToolStorage.GetGSIItem("uti-index", "uti", uti)
+    if err != nil {
+        return err
+    }
+    return v.ToolStorage.UpdateAll(tool.UID, "B,deployed", value)
+}
+
 // Create will create a tool by inserting it into the data store
 func (v *Vendor) CreateTool(tool models.Tool) error {
     return v.ToolStorage.Create(tool, productToAttributeMapConverter)
@@ -249,5 +258,6 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
         "endpoint_descriptions": &types.AttributeValueMemberSS{Value: tool.EndpointDescriptions},
         "endpoint_parameters": &types.AttributeValueMemberSS{Value: tool.EndpointParameters},
         "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", createdMs)},
+        "deployed": &types.AttributeValueMemberBOOL{Value: false},
     }
 }

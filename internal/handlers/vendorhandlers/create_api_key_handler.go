@@ -23,10 +23,11 @@ import (
 func CreateAPIKey(w http.ResponseWriter, r *http.Request) {
     var err error
     var vendor *services.Vendor
-    // TODO: change this to correcct email
-    vendor, err = services.NewVendorController("fillatino@gmail.com")
+    var username = r.Header.Get("X-Username")
 
-    apiKey, err := vendor.CreateAPIKey("fillatino@gmail.com")
+    vendor, err = services.NewVendorController(username)
+
+    apiKey, err := vendor.CreateAPIKey(username)
     if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

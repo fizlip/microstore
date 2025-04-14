@@ -21,6 +21,8 @@ func DeleteImage(w http.ResponseWriter, r *http.Request) {
     var vendor *services.Vendor
     var nameService *services.ToolNameService
 
+    var username = r.Header.Get("X-Username")
+
     // Create a docker client object to communicate w/ docker daemon
     dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
     if err != nil {
@@ -66,7 +68,7 @@ func DeleteImage(w http.ResponseWriter, r *http.Request) {
     }
 
     // Init tools table this will initialize a connection with the dynamodb table
-    vendor, err = services.NewVendorController("fillatino@gmail.com")
+    vendor, err = services.NewVendorController(username)
     if err != nil {
         log.Error("Cannot connect to tools database ", err)
         api.AuthenticationErrorHandler(w, ToLargeError)

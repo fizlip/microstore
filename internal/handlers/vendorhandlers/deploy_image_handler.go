@@ -29,12 +29,22 @@ import (
 //      FAILURE: 500, An unexpected error occurred
 func DeployImage(w http.ResponseWriter, r *http.Request) {
 	var err error
+    var username = r.Header.Get("X-Username")
     
     var deployer *services.DeployService 
     deployer, err = services.NewDeployService()
 
     var nameService *services.ToolNameService
     nameService, err = services.NewToolNameService()
+
+    var vendor *services.Vendor
+    vendor, err = services.NewVendorController(username)
+    if err != nil {
+        log.Error("Cannot connect to tools database ", err)
+        api.AuthenticationErrorHandler(w, ToLargeError)
+        return
+    }
+
 
     var store *services.Store
     store, err = services.NewStoreController()
@@ -75,6 +85,13 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
 	}
 
     err = store.VerifyProduct(uti)
+    if err != nil {
+        log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+    }
+
+    err = vendor.SetToolDeployed(uti, "true")
     if err != nil {
         log.Error(err)
 		api.InternalErrorHandler(w)

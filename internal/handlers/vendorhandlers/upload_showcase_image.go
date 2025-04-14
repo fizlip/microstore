@@ -21,8 +21,9 @@ import (
 func UploadShowcaseImage(w http.ResponseWriter, r *http.Request) {
     var err error
     var vendor *services.Vendor
+    var username = r.Header.Get("X-Username")
 
-    vendor, err = services.NewVendorController("fillatino@gmail.com")
+    vendor, err = services.NewVendorController(username)
 
     replace := r.FormValue("replace")
     uti := r.FormValue("uti")

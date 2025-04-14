@@ -56,10 +56,12 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 	var vendor *services.Vendor
     var nameService *services.ToolNameService
 
+    var username = r.Header.Get("X-Username")
+
     /** Init **/
 
     // Init tools table this will initialize a connection with the dynamodb table
-    vendor, err = services.NewVendorController("fillatino@gmail.com")
+    vendor, err = services.NewVendorController(username)
     if err != nil {
         log.Error("Cannot connect to tools database ", err)
         api.AuthenticationErrorHandler(w, ToLargeError)
@@ -151,7 +153,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    //// Create a tools item in the DB
+    // Create a tools item in the DB
     if err := (*vendor).CreateTool(product); err != nil {
         log.Println("Could not create new product ", err)
         // TODO: add error for this case in /api
