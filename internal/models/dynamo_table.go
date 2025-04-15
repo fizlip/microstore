@@ -124,13 +124,13 @@ func (d *DynamoTable[T]) ReadCol(col, val string) ([]T, error) {
     // Call the Query API
     result, err := d.svc.Scan(context.TODO(), input)
     if err != nil {
-        log.Fatalf("failed to query id, %v", err)
+        log.Error("failed to query id, %v", err)
         return []T{}, err
     }
 
     err = attributevalue.UnmarshalListOfMaps(result.Items, &ts)
     if err != nil {
-        log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
+        log.Error("Failed to unmarshal Query result into []Tool: %v", err)
         return []T{}, err
     }
     return ts, nil
@@ -176,13 +176,13 @@ func (d *DynamoTable[T]) Read(id string) ([]T, error) {
         // Call the Query API
         result, err := d.svc.Query(context.TODO(), input)
         if err != nil {
-            log.Fatalf("failed to query id, %v", err)
+            log.Error("Failed to query ID: ", err)
             return []T{}, err
         }
 
         err = attributevalue.UnmarshalListOfMaps(result.Items, &ts)
         if err != nil {
-            log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
+            log.Error("Failed to unmarshal Query result into []Tool: %v", err)
             return []T{}, err
         }
         return ts, nil
@@ -205,7 +205,7 @@ func (d *DynamoTable[T]) ReadAll() ([]T, error) {
     }
     err = attributevalue.UnmarshalListOfMaps(result.Items, &ts)
     if err != nil {
-        log.Fatalf("Failed to unmarshal Query result into []Tool: %v", err)
+        log.Error("Failed to unmarshal Query result into []Tool: %v", err)
         return []T{}, err
     }
 
@@ -417,7 +417,7 @@ func (d *DynamoTable[T]) DeleteGSIItem(gsiName, gsiPartitionKey, gsiPartitionVal
         },
     })
     if err != nil {
-        log.Fatalf("Failed to query GSI: %v", err)
+        log.Error("Failed to query GSI: %v", err)
         return err
     }
 
@@ -444,7 +444,7 @@ func (d *DynamoTable[T]) DeleteGSIItem(gsiName, gsiPartitionKey, gsiPartitionVal
 
         _, err := d.svc.DeleteItem(context.TODO(), deleteInput)
         if err != nil {
-            log.Fatalf("Failed to delete item: %v", err)
+            log.Error("Failed to delete item: %v", err)
         }
 
         log.Printf("Deleted item with primary key: %s", primaryKeyValue)
@@ -466,7 +466,7 @@ func (d *DynamoTable[T]) GetGSIItem(gsiName, gsiPartitionKey, gsiPartitionValue 
         },
     })
     if err != nil {
-        log.Fatalf("Failed to query GSI: %v", err)
+        log.Error("Failed to query GSI: %v", err)
         return t, err
     }
 
