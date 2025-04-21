@@ -22,6 +22,61 @@ func DeleteImage(w http.ResponseWriter, r *http.Request) {
     var nameService *services.ToolNameService
 
     var username = r.Header.Get("X-Username")
+    oci := r.URL.Query().Get("oci")
+
+    // Init tools table this will initialize a connection with the dynamodb table
+    vendor, err = services.NewVendorController(username)
+    if err != nil {
+        log.Error("Cannot connect to tools database ", err)
+        api.AuthenticationErrorHandler(w, ToLargeError)
+        return
+    }
+
+    ownsTool := false
+    isToolDeployed := false
+    vendorTools, err := vendor.GetTools()
+    if err != nil {
+        log.Error("Cannot read tools")
+        api.InternalErrorHandler(w)
+        return
+    }
+
+    for _, tool := range vendorTools {
+        if tool.UTI == oci && tool.Developer == username {
+            ownsTool = true
+            isToolDeployed = tool.Deployed
+        }
+    } 
+
+    if !ownsTool {
+        log.Error("Cannot delete image because user either does not own image or it does not exist")
+        response := api.Success{
+            Code: 201,
+            Message: "User does not own tool or the tool does not exist",
+        }
+        err = json.NewEncoder(w).Encode(response)
+	    if err != nil {
+            log.Error(err)
+            api.InternalErrorHandler(w)
+		    return
+        }
+        return
+    }
+
+    if isToolDeployed {
+        log.Error("Cannot delete an image that is deployed")
+        response := api.Success{
+            Code: 202,
+            Message: "Cannot delete an image that is deployed",
+        }
+        err = json.NewEncoder(w).Encode(response)
+	    if err != nil {
+            log.Error(err)
+            api.InternalErrorHandler(w)
+		    return
+        }
+        return
+    }
 
     // Create a docker client object to communicate w/ docker daemon
     dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -40,8 +95,6 @@ func DeleteImage(w http.ResponseWriter, r *http.Request) {
     }
 
     imageFactory := services.DockerInterface{dockerClient}
-
-    oci := r.URL.Query().Get("oci")
 
     log.Println("Deleting: ", oci)
     err = imageFactory.DeleteImageFromRepository("f4rmhouse", oci)
@@ -63,14 +116,6 @@ func DeleteImage(w http.ResponseWriter, r *http.Request) {
     err = nameService.DeleteRecord(oci)
     if err != nil {
         log.Error("Cannot delete name record from f4-ns: ", err)
-        api.AuthenticationErrorHandler(w, ToLargeError)
-        return
-    }
-
-    // Init tools table this will initialize a connection with the dynamodb table
-    vendor, err = services.NewVendorController(username)
-    if err != nil {
-        log.Error("Cannot connect to tools database ", err)
         api.AuthenticationErrorHandler(w, ToLargeError)
         return
     }

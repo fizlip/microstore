@@ -258,6 +258,6 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
         "endpoint_descriptions": &types.AttributeValueMemberSS{Value: tool.EndpointDescriptions},
         "endpoint_parameters": &types.AttributeValueMemberSS{Value: tool.EndpointParameters},
         "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", createdMs)},
-        "deployed": &types.AttributeValueMemberBOOL{Value: false},
+        "deployed": &types.AttributeValueMemberBOOL{Value: tool.Deployed},
     }
 }

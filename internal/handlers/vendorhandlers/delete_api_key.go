@@ -30,11 +30,14 @@ func DeleteAPIKey(w http.ResponseWriter, r *http.Request) {
     username    := r.Header.Get("X-Username") 
     partial     := r.Header.Get("X-Delete") 
 
+    log.Println(partial)
     vendor, err = services.NewVendorController(username)
 
     keys, err := vendor.APIKeyStorage.Read(username)
     var sk string
     for _, key := range keys {
+        log.Println(key.Partial)
+        log.Println(partial)
         if key.Partial == partial {
             sk = key.Key
         }
@@ -42,7 +45,16 @@ func DeleteAPIKey(w http.ResponseWriter, r *http.Request) {
     
     if sk == "" {
         log.Error("No such key")
-		api.InternalErrorHandler(w)
+        response := api.Success{
+            Code: 201, 
+            Message: fmt.Sprintf("No such key exists"),
+        }
+        err = json.NewEncoder(w).Encode(response)
+        if err != nil {
+            log.Error(err)
+            api.InternalErrorHandler(w)
+            return
+        }
 		return
     }
 
