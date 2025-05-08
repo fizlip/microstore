@@ -3,40 +3,40 @@
 package services
 
 import (
-    "mime/multipart"
-    "context"
-    "fmt"
-    "crypto/rand"
-    "encoding/base64"
-    "time"
-    
-    "github.com/fizlip/microstore/internal/models"
-    "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"context"
+	"crypto/rand"
+	"encoding/base64"
+	"fmt"
+	"mime/multipart"
+	"time"
 
-    "github.com/aws/aws-sdk-go-v2/config"
-    "github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/fizlip/microstore/internal/models"
 
-    log "github.com/sirupsen/logrus"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Vendor will handle the business logic related to vendors
 type Vendor struct {
-    Name                string
-	Email               string
-	Rating              float64
-	ProductsCreated     int
-	RequestHandled      int64
-	ProductCatalog      []models.Tool
-	PaymentExecutor     models.PaymentExecutor
-    ToolStorage         models.DatabaseReadWriter[models.Tool]
-    AnalyticStorage     models.DatabaseReadWriter[models.ProductAnalytics]
-    APIKeyStorage       models.DatabaseReadWriter[models.APIKey]
+	Name            string
+	Email           string
+	Rating          float64
+	ProductsCreated int
+	RequestHandled  int64
+	ProductCatalog  []models.Tool
+	PaymentExecutor models.PaymentExecutor
+	ToolStorage     models.DatabaseReadWriter[models.Tool]
+	AnalyticStorage models.DatabaseReadWriter[models.ProductAnalytics]
+	APIKeyStorage   models.DatabaseReadWriter[models.APIKey]
 }
 
 // VendorController is an interface that all Vendors implement
 type VendorController interface {
-    GetTools() ([]models.Tool, error)
-    CreateTool() error
+	GetTools() ([]models.Tool, error)
+	CreateTool() error
 }
 
 func (v *Vendor) Login() {
@@ -52,69 +52,69 @@ func (v *Vendor) Logout() {
 }
 
 // GetTools will return an array of all tools created by vendor
-func (v *Vendor) GetTools() ([]models.Tool, error){
-    return v.ToolStorage.ReadCol("developer", v.Name)
+func (v *Vendor) GetTools() ([]models.Tool, error) {
+	return v.ToolStorage.ReadCol("developer", v.Name)
 }
 
 // UpdateTool will return an array of all tools created by vendor
-func (v *Vendor) SetToolDeployed(uti, value string) (error){
-    tool, err := v.ToolStorage.GetGSIItem("uti-index", "uti", uti)
-    if err != nil {
-        return err
-    }
-    return v.ToolStorage.UpdateAll(tool.UID, "B,deployed", value)
+func (v *Vendor) SetToolDeployed(uti, value string) error {
+	tool, err := v.ToolStorage.GetGSIItem("uti-index", "uti", uti)
+	if err != nil {
+		return err
+	}
+	return v.ToolStorage.UpdateAll(tool.UID, "B,deployed", value)
 }
 
 // Create will create a tool by inserting it into the data store
 func (v *Vendor) CreateTool(tool models.Tool) error {
-    return v.ToolStorage.Create(tool, productToAttributeMapConverter)
+	return v.ToolStorage.Create(tool, productToAttributeMapConverter)
 }
 
 // CreateAPIKey will create an api key by inserting it into the data store
 func (v *Vendor) CreateAPIKey(username string) (string, error) {
-    var apiKey models.APIKey
-    var err error
-    apiKey, err  =  models.NewAPIKey(username)
-    if err != nil {
-        return "", err
-    }
+	var apiKey models.APIKey
+	var err error
+	apiKey, err = models.NewAPIKey(username)
+	if err != nil {
+		return "", err
+	}
 
-    return apiKey.Key, v.APIKeyStorage.Create(apiKey, apiToAttrMap)
+	return apiKey.Key, v.APIKeyStorage.Create(apiKey, apiToAttrMap)
 }
 
 // DeleteTool will delete a tool
 func (v *Vendor) DeleteTool(uti string) error {
-    log.Println("Deleting: ", uti)
-    return v.ToolStorage.DeleteGSIItem("uti-index", "uti", uti)
+	log.Println("Deleting: ", uti)
+	return v.ToolStorage.DeleteGSIItem("uti-index", "uti", uti)
 }
 
-// DeleteAPIKey will delete an api key 
+// DeleteAPIKey will delete an api key
 func (v *Vendor) DeleteAPIKey(username, partialKey string) error {
-    log.Println("Deleting key")
-    return v.APIKeyStorage.DeleteDetailed(username, partialKey)
+	log.Println("Deleting key")
+	return v.APIKeyStorage.DeleteDetailed(username, partialKey)
 }
 
 // ReadAllAPIKeys will read all api keys of a username, we remove the hashed api key
 // for security
 func (v *Vendor) ReadAllAPIKeys(username string) ([]models.APIKey, error) {
 
-    keys, err := v.APIKeyStorage.Read(username)
+	keys, err := v.APIKeyStorage.Read(username)
 
-    // Remove hashed value when reading users api keys, not needed by user
-    for i, _ := range keys {
-        keys[i].Key = ""
-    }
-    return keys, err
+	// Remove hashed value when reading users api keys, not needed by user
+	for i, _ := range keys {
+		keys[i].Key = ""
+	}
+	return keys, err
 }
 
 // ReadAPIKey will read api key of a username
 func (v *Vendor) ReadAPIKey(username, key string) (models.APIKey, error) {
-    return v.APIKeyStorage.ReadSpecific(username, key)
+	return v.APIKeyStorage.ReadSpecific(username, key)
 }
 
 // ReadAPIKey will read api key of a username
 func (v *Vendor) ValidateAPIKey(apiKey, storedKey string) bool {
-    return models.ValidateKey(apiKey, storedKey)
+	return models.ValidateKey(apiKey, storedKey)
 }
 
 // ExecuteTool ...
@@ -122,43 +122,43 @@ func (v *Vendor) ExecuteTool(cid string) {
 	log.Println("Give moeny to vendor")
 }
 
-// UploadShowcaseImage will upload a file to an S3 bucket 
+// UploadShowcaseImage will upload a file to an S3 bucket
 func (v *Vendor) UploadShowcaseImage(tid string, filename string, replace string, image multipart.File) error {
-    cfg, err := config.LoadDefaultConfig(context.TODO())
-    if err != nil {
-        return fmt.Errorf("unable to load SDK config: %v", err)
-    }
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		return fmt.Errorf("unable to load SDK config: %v", err)
+	}
 
-    bucketName := "f4-public"
-    objectKey := filename
+	bucketName := "f4-public"
+	objectKey := filename
 
-    // Create an S3 client
-    client := s3.NewFromConfig(cfg)
-    bucket := NewBucketManager(client, bucketName)
-    if replace == "true" {
-        bucket.ClearFolder(context.TODO(), "showcases/" + tid)
-    }
+	// Create an S3 client
+	client := s3.NewFromConfig(cfg)
+	bucket := NewBucketManager(client, bucketName)
+	if replace == "true" {
+		bucket.ClearFolder(context.TODO(), "showcases/"+tid)
+	}
 
-    err = bucket.PutObject(context.TODO(), "showcases/" + tid + "/" + objectKey, image)
+	err = bucket.PutObject(context.TODO(), "showcases/"+tid+"/"+objectKey, image)
 
-    if err != nil {
-        log.Error("Failed to upload image: ", err)
-        return err
-    } else {
-        log.Println("Uploaded: ", tid)
-    }
+	if err != nil {
+		log.Error("Failed to upload image: ", err)
+		return err
+	} else {
+		log.Println("Uploaded: ", tid)
+	}
 
-    log.Println("Showcase updated")
+	log.Println("Showcase updated")
 	return nil
 }
 
 // GetToolUsage will return the analytics for a tool that the vendor has created
 func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 	vendorTools, err := v.GetTools()
-    log.Println(vendorTools)
-    if err != nil {
-        return []models.ProductAnalytics{}, err
-    }
+	log.Println(vendorTools)
+	if err != nil {
+		return []models.ProductAnalytics{}, err
+	}
 
 	res := []models.ProductAnalytics{}
 
@@ -176,88 +176,89 @@ func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 // NewVendorController is a factory method that initialised a data store and
 // returns a Vendor struct. If you need to change the data store for some reason
 // you only need to update this method.
-func NewVendorController(name string) (*Vendor, error){
-    // Init tools data store connection
-    toolT, err := models.NewDynamoTable[models.Tool]("f4-tools-prod", "uid", "")
-    if err != nil {
-        return &Vendor{}, err 
-    }
-    // Init analytics data store connection
-    analyticsT, err := models.NewDynamoTable[models.ProductAnalytics]("f4-product-analytics", "product_id", "timestamp")
-    if err != nil {
-        return &Vendor{}, err 
-    }
+func NewVendorController(name string) (*Vendor, error) {
+	// Init tools data store connection
+	toolT, err := models.NewDynamoTable[models.Tool]("f4-tools-prod", "uid", "")
+	if err != nil {
+		return &Vendor{}, err
+	}
+	// Init analytics data store connection
+	analyticsT, err := models.NewDynamoTable[models.ProductAnalytics]("f4-product-analytics", "product_id", "timestamp")
+	if err != nil {
+		return &Vendor{}, err
+	}
 
-    apiKeyT, err := models.NewDynamoTable[models.APIKey]("f4-api-keys", "username", "key")
-    if err != nil {
-        return &Vendor{}, err 
-    }
-    
-    vendor := Vendor{
-        Name: name, 
-        ToolStorage: toolT, 
-        AnalyticStorage: analyticsT, 
-        APIKeyStorage: apiKeyT,
-    }
-    return &vendor, nil
+	apiKeyT, err := models.NewDynamoTable[models.APIKey]("f4-api-keys", "username", "key")
+	if err != nil {
+		return &Vendor{}, err
+	}
+
+	vendor := Vendor{
+		Name:            name,
+		ToolStorage:     toolT,
+		AnalyticStorage: analyticsT,
+		APIKeyStorage:   apiKeyT,
+	}
+	return &vendor, nil
 }
 
 func generateSecureString(length int) (string, error) {
-    bytes := make([]byte, length)
-    
-    if _, err := rand.Read(bytes); err != nil {
-        return "", err
-    }
-    
-    key := base64.RawURLEncoding.EncodeToString(bytes)
+	bytes := make([]byte, length)
 
-    if len(key) > length {
-        key = key[:length]
-    }
-    
-    return key, nil 
-} 
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+
+	key := base64.RawURLEncoding.EncodeToString(bytes)
+
+	if len(key) > length {
+		key = key[:length]
+	}
+
+	return key, nil
+}
 
 func apiToAttrMap(apikey models.APIKey) map[string]types.AttributeValue {
-    return map[string]types.AttributeValue{
-        "key": &types.AttributeValueMemberS{Value: apikey.HashedKey},
-        "username": &types.AttributeValueMemberS{Value: apikey.Username},
-        "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", apikey.Created)},
-        "partial": &types.AttributeValueMemberS{Value: apikey.Key[0:2] + "..." + apikey.Key[39:]},
-    }
+	return map[string]types.AttributeValue{
+		"key":      &types.AttributeValueMemberS{Value: apikey.HashedKey},
+		"username": &types.AttributeValueMemberS{Value: apikey.Username},
+		"created":  &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", apikey.Created)},
+		"partial":  &types.AttributeValueMemberS{Value: apikey.Key[0:2] + "..." + apikey.Key[39:]},
+	}
 }
 
 // Utils
 func productToAttributeMapConverter(tool models.Tool) map[string]types.AttributeValue {
 
-    currentTime := time.Now()
-    createdMs := currentTime.UnixNano() / int64(time.Millisecond)
+	currentTime := time.Now()
+	createdMs := currentTime.UnixNano() / int64(time.Millisecond)
 
-    return map[string]types.AttributeValue{
-        "uid": &types.AttributeValueMemberS{Value: tool.UID},
-        "developer": &types.AttributeValueMemberS{Value: tool.Developer},
-        "title": &types.AttributeValueMemberS{Value: tool.Title},
-        "uti": &types.AttributeValueMemberS{Value: tool.UTI},
-        "description": &types.AttributeValueMemberS{Value: tool.Description},
-        "rating": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Rating)},
-        "Pricing": &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Price)},
-        "thumbnail": &types.AttributeValueMemberS{Value: tool.Thumbnail},
-        "overview": &types.AttributeValueMemberS{Value: tool.Overview},
-        "communityURL": &types.AttributeValueMemberS{Value: tool.CommunityURL},
-        "reviews": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Reviews)},
-        "pricingType": &types.AttributeValueMemberS{Value: tool.PricingType},
-        "releaseType": &types.AttributeValueMemberS{Value: tool.ReleaseType},
-        "version": &types.AttributeValueMemberS{Value: tool.Version},
-        "showcase": &types.AttributeValueMemberSS{Value: tool.Showcase},
-        "tags": &types.AttributeValueMemberSS{Value: tool.Tags},
-        "runEndpoint": &types.AttributeValueMemberS{Value: tool.RunEndpoint},
-        "pulls": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Pulls)},
-        "license": &types.AttributeValueMemberS{Value: tool.License},
-        "verified": &types.AttributeValueMemberBOOL{Value: tool.Verified},
-        "endpoint_names": &types.AttributeValueMemberSS{Value: tool.EndpointNames},
-        "endpoint_descriptions": &types.AttributeValueMemberSS{Value: tool.EndpointDescriptions},
-        "endpoint_parameters": &types.AttributeValueMemberSS{Value: tool.EndpointParameters},
-        "created": &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", createdMs)},
-        "deployed": &types.AttributeValueMemberBOOL{Value: tool.Deployed},
-    }
+	return map[string]types.AttributeValue{
+		"uid":                   &types.AttributeValueMemberS{Value: tool.UID},
+		"developer":             &types.AttributeValueMemberS{Value: tool.Developer},
+		"title":                 &types.AttributeValueMemberS{Value: tool.Title},
+		"uti":                   &types.AttributeValueMemberS{Value: tool.UTI},
+		"description":           &types.AttributeValueMemberS{Value: tool.Description},
+		"rating":                &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Rating)},
+		"Pricing":               &types.AttributeValueMemberN{Value: fmt.Sprintf("%f", tool.Price)},
+		"thumbnail":             &types.AttributeValueMemberS{Value: tool.Thumbnail},
+		"overview":              &types.AttributeValueMemberS{Value: tool.Overview},
+		"communityURL":          &types.AttributeValueMemberS{Value: tool.CommunityURL},
+		"reviews":               &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Reviews)},
+		"pricingType":           &types.AttributeValueMemberS{Value: tool.PricingType},
+		"releaseType":           &types.AttributeValueMemberS{Value: tool.ReleaseType},
+		"version":               &types.AttributeValueMemberS{Value: tool.Version},
+		"showcase":              &types.AttributeValueMemberSS{Value: tool.Showcase},
+		"tags":                  &types.AttributeValueMemberSS{Value: tool.Tags},
+		"runEndpoint":           &types.AttributeValueMemberS{Value: tool.RunEndpoint},
+		"pulls":                 &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Pulls)},
+		"license":               &types.AttributeValueMemberS{Value: tool.License},
+		"verified":              &types.AttributeValueMemberBOOL{Value: tool.Verified},
+		"endpoint_names":        &types.AttributeValueMemberSS{Value: tool.EndpointNames},
+		"endpoint_descriptions": &types.AttributeValueMemberSS{Value: tool.EndpointDescriptions},
+		"endpoint_parameters":   &types.AttributeValueMemberSS{Value: tool.EndpointParameters},
+		"created":               &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", createdMs)},
+		"deployed":              &types.AttributeValueMemberBOOL{Value: tool.Deployed},
+		"deployment_type":       &types.AttributeValueMemberS{Value: tool.DeploymentType},
+	}
 }
