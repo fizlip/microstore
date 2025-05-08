@@ -164,7 +164,8 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := (*nameService).CreateRecord(models.ToolName{UTI: product.UTI, IPs: []string{}, Endpoints: product.EndpointNames, Descriptions: product.EndpointDescriptions, Parameters: product.EndpointParameters}); err != nil {
+	if err := (*nameService).CreateRecord(
+		models.ToolName{UTI: product.UTI, IPs: []string{}, Endpoints: product.EndpointNames, Descriptions: product.EndpointDescriptions, Parameters: product.EndpointParameters, DeploymentType: product.DeploymentType}); err != nil {
 		log.Println("Could not insert tool into TNS", err)
 		// TODO: add error for this case in /api
 		api.CustomInternalErrorHandler(w, ConnectionError)
