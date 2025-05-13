@@ -223,7 +223,7 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 	license := r.FormValue("license")
 	verified := false
 	endpoint_names := strings.Split(r.FormValue("endpoints_names"), ",")
-	endpoint_desc := strings.Split(r.FormValue("endpoints_descriptions"), ",")
+	endpoint_desc := strings.Split(r.FormValue("endpoints_descriptions"), "<f4-delimiter>")
 	endpoint_ps := strings.Split(r.FormValue("endpoints_parameters"), ",")
 	deploymentType := strings.ToLower(r.FormValue("deployment_type"))
 
