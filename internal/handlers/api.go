@@ -48,9 +48,7 @@ func Handle(r *chi.Mux) {
 		// router.Post("/run", f4rmerhandlers.Run)
 		router.Get("/run", f4rmerhandlers.Run)
 		router.Get("/sse", f4rmerhandlers.SSE)
-		router.Post("/sse", f4rmerhandlers.SSE)
 		router.Post("/messages", f4rmerhandlers.HandleUpdate)
-		router.Get("/messages", f4rmerhandlers.HandleUpdate)
 	})
 
 	// USER

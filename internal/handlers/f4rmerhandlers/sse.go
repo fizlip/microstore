@@ -2,9 +2,15 @@ package f4rmerhandlers
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
+
+	"github.com/fizlip/microstore/api"
+	"github.com/fizlip/microstore/internal/services"
+	log "github.com/sirupsen/logrus"
 )
 
 // Constants for SSE source and configuration
@@ -52,29 +58,12 @@ func SSE(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Cache-Control", "no-cache")
 
-	//clientIntilizationRequest := JsonRpcRequest{
-	//	JsonRpc: "2.0",
-	//	ID:      1,
-	//	Method:  "initialize",
-	//	Params: Params{
-	//		ProtocolVersion: "2025-03-26",
-	//		Capabilities: Capabilities{
-	//			Type:       "claude-3-5-haiku-20241022",
-	//			InputValue: []string{},
-	//		},
-	//		ClientInfo: ClientInfo{
-	//			Name:    "f4rmhouse-client",
-	//			Version: "1.0.0",
-	//		},
-	//	},
-	//}
-	// Convert to JSON
-	//jsonInitilizationRequest, err := json.Marshal(clientIntilizationRequest)
-	//if err != nil {
-	//	fmt.Printf("Error marshaling JSON: %v\n", err)
-	//	return
-	//}
+	uti := r.URL.Query().Get("uti")
+
+	log.Println("SSE UTI: ", uti)
+	pings := 0
 
 	// Flush writer
 	flusher, ok := w.(http.Flusher)
@@ -83,8 +72,27 @@ func SSE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// the tns is used to get the tools IP (like a DNS in classical web)
+	var tns *services.ToolNameService
+	tns, err := services.NewToolNameService()
+	if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+	}
+	result, err := (*tns).GetTool("ascii_gen")
+	if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+	}
+
+	baseURL := "http://" + result[0].IPs[0] + ":8080"
+
+	log.Println("BASEURL: ", baseURL)
+
 	// Connect to upstream SSE server
-	upstreamResp, err := http.Get("http://localhost:8080/sse")
+	upstreamResp, err := http.Get(baseURL + "/sse")
 	if err != nil {
 		http.Error(w, "Failed to connect to upstream SSE", http.StatusBadGateway)
 		return
@@ -94,64 +102,29 @@ func SSE(w http.ResponseWriter, r *http.Request) {
 	upstreamReader := bufio.NewReader(upstreamResp.Body)
 
 	// Stream each line from upstream to client
-	//
-	for {
+	for pings < 2 {
 		line, err := upstreamReader.ReadString('\n')
 		if err != nil {
 			fmt.Fprintf(w, "event: error\ndata: %s\n\n", err.Error())
 			flusher.Flush()
 			break
 		}
-
+		if strings.HasPrefix(line, "data: /messages") {
+			line = strings.ReplaceAll(line, "\r\n", "") + fmt.Sprintf("&uti=%s\r\n", uti)
+		}
+		// Return raw text to client
 		fmt.Fprintf(w, line)
-		fmt.Println("line: ", line)
 		flusher.Flush()
 
-		//err = json.NewEncoder(w).Encode(line)
-		//if err != nil {
-		//	log.Error(err)
-		//	api.InternalErrorHandler(w)
-		//}
+		// If too many pings exit endpoint
+		if strings.Contains(line, ": ping") {
+			pings++
+		}
+		flusher.Flush()
+	}
 
-		//if strings.HasPrefix(line, "data: {") {
-		//	fmt.Println("Return init from server: ", line)
-		//	fmt.Fprintf(w, strings.ReplaceAll(line, "\r\n", ""))
-		//	flusher.Flush()
-		//}
-
-		//if strings.HasPrefix(line, "data: /messages") {
-		//	url := "http://localhost:8080" + strings.ReplaceAll(strings.ReplaceAll(line, "data: ", ""), "\r\n", "")
-		//	fmt.Println(url)
-		//	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonInitilizationRequest))
-		//	if err != nil {
-		//		fmt.Printf("Error creating request: %v\n", err)
-		//		return
-		//	}
-
-		//	req.Header.Set("Content-Type", "application/json")
-
-		//	// Create HTTP client and send the request
-		//	client := &http.Client{}
-		//	resp, err := client.Do(req)
-		//	if err != nil {
-		//		fmt.Printf("Error sending request: %v\n", err)
-		//		return
-		//	}
-		//	defer resp.Body.Close()
-
-		//	body, err := ioutil.ReadAll(resp.Body)
-		//	if err != nil {
-		//		fmt.Printf("Error reading response: %v\n", err)
-		//		return
-		//	}
-
-		//	fmt.Println("Response Status:", resp.Status)
-		//	fmt.Println("Response Body:", string(body))
-
-		//	flusher.Flush()
-		//} else {
-		//	fmt.Fprint(w, line)
-		//	flusher.Flush()
-		//}
+	err = json.NewEncoder(w).Encode("Terminate connection")
+	if err != nil {
+		return
 	}
 }
