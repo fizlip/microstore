@@ -47,11 +47,23 @@ func NewToolNameService() (*ToolNameService, error) {
 
 // Utils
 func toolToAttributeMapConverter(tool models.ToolName) map[string]types.AttributeValue {
+	descList := make([]types.AttributeValue, len(tool.Descriptions))
+	for i, v := range tool.Descriptions {
+		descList[i] = &types.AttributeValueMemberS{Value: v}
+	}
+	psList := make([]types.AttributeValue, len(tool.Parameters))
+	for i, v := range tool.Parameters {
+		psList[i] = &types.AttributeValueMemberS{Value: v}
+	}
+	namesList := make([]types.AttributeValue, len(tool.Endpoints))
+	for i, v := range tool.Endpoints {
+		namesList[i] = &types.AttributeValueMemberS{Value: v}
+	}
 	return map[string]types.AttributeValue{
 		"uti":             &types.AttributeValueMemberS{Value: tool.UTI},
-		"endpoints":       &types.AttributeValueMemberSS{Value: tool.Endpoints},
-		"descriptions":    &types.AttributeValueMemberSS{Value: tool.Descriptions},
-		"parameters":      &types.AttributeValueMemberSS{Value: tool.Parameters},
+		"endpoints":       &types.AttributeValueMemberL{Value: namesList},
+		"descriptions":    &types.AttributeValueMemberL{Value: descList},
+		"parameters":      &types.AttributeValueMemberL{Value: psList},
 		"deployment_type": &types.AttributeValueMemberS{Value: tool.DeploymentType},
 	}
 }

@@ -233,6 +233,28 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
 	currentTime := time.Now()
 	createdMs := currentTime.UnixNano() / int64(time.Millisecond)
 
+	log.Println("desc 0: ", tool.EndpointDescriptions[0])
+	log.Println("desc 1: ", tool.EndpointDescriptions[1])
+	log.Println("desc 2: ", tool.EndpointDescriptions[2])
+
+	//descs, err := attributevalue.MarshalMap(tool.EndpointDescriptions)
+	//if err != nil {
+	//	log.Fatalf("failed to marshal item: %v", err)
+	//}
+
+	descList := make([]types.AttributeValue, len(tool.EndpointDescriptions))
+	for i, v := range tool.EndpointDescriptions {
+		descList[i] = &types.AttributeValueMemberS{Value: v}
+	}
+	psList := make([]types.AttributeValue, len(tool.EndpointParameters))
+	for i, v := range tool.EndpointParameters {
+		psList[i] = &types.AttributeValueMemberS{Value: v}
+	}
+	namesList := make([]types.AttributeValue, len(tool.EndpointNames))
+	for i, v := range tool.EndpointNames {
+		namesList[i] = &types.AttributeValueMemberS{Value: v}
+	}
+
 	return map[string]types.AttributeValue{
 		"uid":                   &types.AttributeValueMemberS{Value: tool.UID},
 		"developer":             &types.AttributeValueMemberS{Value: tool.Developer},
@@ -254,9 +276,9 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
 		"pulls":                 &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", tool.Pulls)},
 		"license":               &types.AttributeValueMemberS{Value: tool.License},
 		"verified":              &types.AttributeValueMemberBOOL{Value: tool.Verified},
-		"endpoint_names":        &types.AttributeValueMemberSS{Value: tool.EndpointNames},
-		"endpoint_descriptions": &types.AttributeValueMemberSS{Value: tool.EndpointDescriptions},
-		"endpoint_parameters":   &types.AttributeValueMemberSS{Value: tool.EndpointParameters},
+		"endpoint_names":        &types.AttributeValueMemberL{Value: namesList},
+		"endpoint_descriptions": &types.AttributeValueMemberL{Value: descList},
+		"endpoint_parameters":   &types.AttributeValueMemberL{Value: psList},
 		"created":               &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", createdMs)},
 		"deployed":              &types.AttributeValueMemberBOOL{Value: tool.Deployed},
 		"deployment_type":       &types.AttributeValueMemberS{Value: tool.DeploymentType},
