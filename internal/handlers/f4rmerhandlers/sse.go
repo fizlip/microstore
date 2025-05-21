@@ -80,7 +80,7 @@ func SSE(w http.ResponseWriter, r *http.Request) {
 		api.InternalErrorHandler(w)
 		return
 	}
-	result, err := (*tns).GetTool("ascii_gen")
+	result, err := (*tns).GetTool(uti)
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
@@ -104,6 +104,7 @@ func SSE(w http.ResponseWriter, r *http.Request) {
 	// Stream each line from upstream to client
 	for pings < 2 {
 		line, err := upstreamReader.ReadString('\n')
+		log.Println("line: ", line)
 		if err != nil {
 			fmt.Fprintf(w, "event: error\ndata: %s\n\n", err.Error())
 			flusher.Flush()

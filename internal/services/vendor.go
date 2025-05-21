@@ -233,15 +233,6 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
 	currentTime := time.Now()
 	createdMs := currentTime.UnixNano() / int64(time.Millisecond)
 
-	log.Println("desc 0: ", tool.EndpointDescriptions[0])
-	log.Println("desc 1: ", tool.EndpointDescriptions[1])
-	log.Println("desc 2: ", tool.EndpointDescriptions[2])
-
-	//descs, err := attributevalue.MarshalMap(tool.EndpointDescriptions)
-	//if err != nil {
-	//	log.Fatalf("failed to marshal item: %v", err)
-	//}
-
 	descList := make([]types.AttributeValue, len(tool.EndpointDescriptions))
 	for i, v := range tool.EndpointDescriptions {
 		descList[i] = &types.AttributeValueMemberS{Value: v}
