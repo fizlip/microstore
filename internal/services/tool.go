@@ -3,8 +3,9 @@
 package services
 
 import (
-	// log "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/fizlip/microstore/internal/models"
 )
@@ -14,6 +15,7 @@ type ToolNameService struct {
 }
 
 func (t *ToolNameService) GetTool(tool string) ([]models.ToolName, error) {
+	log.Println("Tool: ", tool)
 	return t.NameServiceStorage.Read(tool)
 }
 
@@ -51,19 +53,16 @@ func toolToAttributeMapConverter(tool models.ToolName) map[string]types.Attribut
 	for i, v := range tool.Descriptions {
 		descList[i] = &types.AttributeValueMemberS{Value: v}
 	}
-	psList := make([]types.AttributeValue, len(tool.Parameters))
-	for i, v := range tool.Parameters {
-		psList[i] = &types.AttributeValueMemberS{Value: v}
+
+	endpointList, err := attributevalue.Marshal(tool.Endpoints)
+	if err != nil {
+		log.Error(err)
 	}
-	namesList := make([]types.AttributeValue, len(tool.Endpoints))
-	for i, v := range tool.Endpoints {
-		namesList[i] = &types.AttributeValueMemberS{Value: v}
-	}
+
 	return map[string]types.AttributeValue{
 		"uti":             &types.AttributeValueMemberS{Value: tool.UTI},
-		"endpoints":       &types.AttributeValueMemberL{Value: namesList},
+		"endpoints":       endpointList,
 		"descriptions":    &types.AttributeValueMemberL{Value: descList},
-		"parameters":      &types.AttributeValueMemberL{Value: psList},
 		"deployment_type": &types.AttributeValueMemberS{Value: tool.DeploymentType},
 	}
 }

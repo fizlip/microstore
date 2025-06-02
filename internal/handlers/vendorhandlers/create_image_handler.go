@@ -87,7 +87,8 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = (*nameService).GetTool(product.UTI)
+	res, err := (*nameService).GetTool(product.UTI)
+	log.Println("Result from GetTool: ", res)
 	if err == nil {
 		log.Println("Name already exists ", err)
 		api.AuthenticationErrorHandler(w, NameExistsError)
@@ -165,7 +166,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := (*nameService).CreateRecord(
-		models.ToolName{UTI: product.UTI, IPs: []string{}, Endpoints: product.EndpointNames, Descriptions: product.EndpointDescriptions, Parameters: product.EndpointParameters, DeploymentType: product.DeploymentType}); err != nil {
+		models.ToolName{UTI: product.UTI, IPs: []string{}, Endpoints: product.Endpoints, Descriptions: product.EndpointDescriptions, Parameters: []string{}, DeploymentType: product.DeploymentType}); err != nil {
 		log.Println("Could not insert tool into TNS", err)
 		// TODO: add error for this case in /api
 		api.CustomInternalErrorHandler(w, ConnectionError)
@@ -224,12 +225,15 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 	verified := false
 	endpoint_names := strings.Split(r.FormValue("endpoints_names"), ",")
 	endpoint_desc := strings.Split(r.FormValue("endpoints_descriptions"), "<f4-delimiter>")
-	endpoint_ps := strings.Split(r.FormValue("endpoints_parameters"), ",")
+	endpoint_ps := r.FormValue("endpoints_parameters")
 	deploymentType := strings.ToLower(r.FormValue("deployment_type"))
 
 	if err != nil {
 		return models.Tool{}, err
 	}
+
+	var endpoints []models.Endpoint
+	json.Unmarshal([]byte(endpoint_ps), &endpoints)
 
 	// Generate error if required fields are empty
 	if len(title) == 0 ||
@@ -276,7 +280,7 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 		Verified:             verified,
 		EndpointNames:        endpoint_names,
 		EndpointDescriptions: endpoint_desc,
-		EndpointParameters:   endpoint_ps,
+		Endpoints:            endpoints,
 		DeploymentType:       deploymentType,
 	}, nil
 }

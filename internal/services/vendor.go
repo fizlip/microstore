@@ -10,6 +10,7 @@ import (
 	"mime/multipart"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/fizlip/microstore/internal/models"
 
@@ -155,7 +156,6 @@ func (v *Vendor) UploadShowcaseImage(tid string, filename string, replace string
 // GetToolUsage will return the analytics for a tool that the vendor has created
 func (v *Vendor) GetToolUsage() ([]models.ProductAnalytics, error) {
 	vendorTools, err := v.GetTools()
-	log.Println(vendorTools)
 	if err != nil {
 		return []models.ProductAnalytics{}, err
 	}
@@ -237,10 +237,12 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
 	for i, v := range tool.EndpointDescriptions {
 		descList[i] = &types.AttributeValueMemberS{Value: v}
 	}
-	psList := make([]types.AttributeValue, len(tool.EndpointParameters))
-	for i, v := range tool.EndpointParameters {
-		psList[i] = &types.AttributeValueMemberS{Value: v}
+
+	paramList, err := attributevalue.Marshal(tool.Endpoints)
+	if err != nil {
+		log.Error(err)
 	}
+
 	namesList := make([]types.AttributeValue, len(tool.EndpointNames))
 	for i, v := range tool.EndpointNames {
 		namesList[i] = &types.AttributeValueMemberS{Value: v}
@@ -269,7 +271,7 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
 		"verified":              &types.AttributeValueMemberBOOL{Value: tool.Verified},
 		"endpoint_names":        &types.AttributeValueMemberL{Value: namesList},
 		"endpoint_descriptions": &types.AttributeValueMemberL{Value: descList},
-		"endpoint_parameters":   &types.AttributeValueMemberL{Value: psList},
+		"endpoints":             paramList,
 		"created":               &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", createdMs)},
 		"deployed":              &types.AttributeValueMemberBOOL{Value: tool.Deployed},
 		"deployment_type":       &types.AttributeValueMemberS{Value: tool.DeploymentType},
