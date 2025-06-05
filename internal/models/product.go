@@ -29,6 +29,7 @@ type Tool struct {
 	Created              int        `dynamodbav:"created" json:"created"`
 	Deployed             bool       `dynamodbav:"deployed" json:"deployed"`
 	DeploymentType       string     `dynamodbav:"deployment_type" json:"deployment_type"`
+	Public               bool       `dynamodbav:"public" json:"public"`
 }
 
 type ToolData struct {
@@ -39,8 +40,9 @@ type ToolData struct {
 }
 
 type Endpoint struct {
-	Name       string             `dynamodbav:"name" json:"name"`
-	Parameters []ParameterWrapper `dynamodbav:"parameters" json:"parameters"`
+	Name        string             `dynamodbav:"name" json:"name"`
+	Parameters  []ParameterWrapper `dynamodbav:"parameters" json:"parameters"`
+	Description string             `dynamodbav:"description" json:"description"`
 }
 
 type ParameterWrapper struct {

@@ -87,8 +87,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := (*nameService).GetTool(product.UTI)
-	log.Println("Result from GetTool: ", res)
+	_, err = (*nameService).GetTool(product.UTI)
 	if err == nil {
 		log.Println("Name already exists ", err)
 		api.AuthenticationErrorHandler(w, NameExistsError)
@@ -96,65 +95,67 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a docker client object to communicate w/ docker daemon
-	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		log.Error("Cannot create docker client")
-		api.InternalErrorHandler(w)
-		return
-	}
+	if product.Public {
+		dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		if err != nil {
+			log.Error("Cannot create docker client")
+			api.InternalErrorHandler(w)
+			return
+		}
 
-	// Make sure docker daemon is running. Docker is used to push images to AWS ECR
-	_, err = dockerClient.Ping(context.Background())
-	if err != nil {
-		log.Error("Cannot connect to Docker daemon")
-		api.InternalErrorHandler(w)
-		return
-	}
+		// Make sure docker daemon is running. Docker is used to push images to AWS ECR
+		_, err = dockerClient.Ping(context.Background())
+		if err != nil {
+			log.Error("Cannot connect to Docker daemon")
+			api.InternalErrorHandler(w)
+			return
+		}
 
-	/** End init **/
+		/** End init **/
 
-	/** Execution **/
-	// imageFactory is used to interface with the docker client.
-	// DockerInterface exposes some utility functions used to load, tag and push
-	// images
-	imageFactory := services.DockerInterface{dockerClient}
+		/** Execution **/
+		// imageFactory is used to interface with the docker client.
+		// DockerInterface exposes some utility functions used to load, tag and push
+		// images
+		imageFactory := services.DockerInterface{dockerClient}
 
-	// We don't allow form data to be to large (this is not a restriction on image
-	// size)
-	err = r.ParseMultipartForm(32 << 20) // 32MB max memory
-	if err != nil {
-		api.PayloadTooLargeHandler(w, ToLargeError)
-		return
-	}
+		// We don't allow form data to be to large (this is not a restriction on image
+		// size)
+		err = r.ParseMultipartForm(32 << 20) // 32MB max memory
+		if err != nil {
+			api.PayloadTooLargeHandler(w, ToLargeError)
+			return
+		}
 
-	// Get image file from form
-	file, fileHeader, err := r.FormFile("image")
-	if err != nil {
-		api.CustomInternalErrorHandler(w, ImageNotFound)
-		return
-	}
-	defer file.Close()
+		// Get image file from form
+		file, fileHeader, err := r.FormFile("image")
+		if err != nil {
+			api.CustomInternalErrorHandler(w, ImageNotFound)
+			return
+		}
+		defer file.Close()
 
-	// Create /tmp file that will be pushed
-	fname, err := services.CreateTempFile(file, fileHeader.Filename)
-	if err != nil {
-		api.InternalErrorHandler(w)
-		return
-	}
-	defer services.CleanupTempFile(fname)
+		// Create /tmp file that will be pushed
+		fname, err := services.CreateTempFile(file, fileHeader.Filename)
+		if err != nil {
+			api.InternalErrorHandler(w)
+			return
+		}
+		defer services.CleanupTempFile(fname)
 
-	// Loads image into docker
-	if err := imageFactory.DockerLoad(fname); err != nil {
-		log.Println("Docker image not found ", err)
-		api.CustomInternalErrorHandler(w, ImageNotFound)
-		return
-	}
+		// Loads image into docker
+		if err := imageFactory.DockerLoad(fname); err != nil {
+			log.Println("Docker image not found ", err)
+			api.CustomInternalErrorHandler(w, ImageNotFound)
+			return
+		}
 
-	// Tags and pushes image according to AWS ECR specifications
-	if err := imageFactory.PushToECR(strings.Split(fileHeader.Filename, ".")[0]); err != nil {
-		log.Println(err)
-		api.CustomInternalErrorHandler(w, ConnectionError)
-		return
+		// Tags and pushes image according to AWS ECR specifications
+		if err := imageFactory.PushToECR(strings.Split(fileHeader.Filename, ".")[0]); err != nil {
+			log.Println(err)
+			api.CustomInternalErrorHandler(w, ConnectionError)
+			return
+		}
 	}
 
 	// Create a tools item in the DB
@@ -177,11 +178,11 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 
 	/** Result **/
 	w.Header().Set("Content-Type", "application/json")
-	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
-		return
-	}
+	// if err != nil {
+	// 	log.Error(err)
+	// 	api.InternalErrorHandler(w)
+	// 	return
+	// }
 
 	// Success message
 	sMsg := fmt.Sprintf("New container with ID: '%s' has successfully been created", product.UID)
@@ -227,7 +228,11 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 	endpoint_desc := strings.Split(r.FormValue("endpoints_descriptions"), "<f4-delimiter>")
 	endpoint_ps := r.FormValue("endpoints_parameters")
 	deploymentType := strings.ToLower(r.FormValue("deployment_type"))
-
+	public, parseErr := strconv.ParseBool(r.FormValue("public"))
+	if parseErr != nil {
+		log.Error("'public' value must be a bool", parseErr)
+		return models.Tool{}, err
+	}
 	if err != nil {
 		return models.Tool{}, err
 	}
@@ -282,5 +287,6 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 		EndpointDescriptions: endpoint_desc,
 		Endpoints:            endpoints,
 		DeploymentType:       deploymentType,
+		Public:               public,
 	}, nil
 }
