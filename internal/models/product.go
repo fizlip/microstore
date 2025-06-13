@@ -40,9 +40,10 @@ type ToolData struct {
 }
 
 type Endpoint struct {
-	Name        string             `dynamodbav:"name" json:"name"`
-	Parameters  []ParameterWrapper `dynamodbav:"parameters" json:"parameters"`
-	Description string             `dynamodbav:"description" json:"description"`
+	Name          string             `dynamodbav:"name" json:"name"`
+	Parameters    []ParameterWrapper `dynamodbav:"parameters" json:"parameters"`
+	Description   string             `dynamodbav:"description" json:"description"`
+	Authorization Authorization      `dynamodbav:"authorization" json:"authorization"`
 }
 
 type ParameterWrapper struct {
@@ -53,4 +54,10 @@ type Parameter struct {
 	Name        string `dynamodbav:"name" json:"name"`
 	Type        string `dynamodbav:"type" json:"type"`
 	Description string `dynamodbav:"description" json:"description"`
+}
+
+type Authorization struct {
+	Provider string `dynamodbav:"provider" json:"provider"`
+	Type     string `dynamodbav:"type" json:"type"`
+	Scope    string `dynamodbav:"scope" json:"scope"`
 }

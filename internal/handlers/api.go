@@ -56,6 +56,9 @@ func Handle(r *chi.Mux) {
 		// Auth + auth utils
 		router.Use(middleware.Authorization)
 		router.Get("/valid", userhandlers.CheckValidSession)
+		router.Get("/get/token", userhandlers.GetToken)
+		router.Delete("/delete/token", userhandlers.DeleteToken)
+		router.Post("/create/token", userhandlers.CreateToken)
 		// Is user new?
 		router.Get("/exists", userhandlers.DoesUserExist)
 		router.Post("/create/empty", userhandlers.CreateEmptyRecord)

@@ -237,6 +237,8 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 		return models.Tool{}, err
 	}
 
+	log.Println("endpoints: ", endpoint_ps)
+
 	var endpoints []models.Endpoint
 	json.Unmarshal([]byte(endpoint_ps), &endpoints)
 

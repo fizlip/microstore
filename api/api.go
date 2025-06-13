@@ -1,19 +1,21 @@
-/**
+/*
+*
 api package contains types that are used in server-client communication
-**/
+*
+*/
 package api
 
 import (
 	"encoding/json"
 	"net/http"
-    "github.com/fizlip/microstore/internal/models"
 
+	"github.com/fizlip/microstore/internal/models"
 )
 
 type RunBody struct {
-    UTI string      `json:uti`
-    Endpoint string `json:endpoint`
-    Params string   `json:params`
+	UTI      string `json:uti`
+	Endpoint string `json:endpoint`
+	Params   string `json:params`
 }
 
 type UsernameParams struct {
@@ -21,10 +23,10 @@ type UsernameParams struct {
 }
 
 type UpdateReviewParams struct {
-    TID     string `json:"tid"`
-    UID     string `json:"uid"`
-    Col     string `json:"col"`
-    Val     string `json:"val"`
+	TID string `json:"tid"`
+	UID string `json:"uid"`
+	Col string `json:"col"`
+	Val string `json:"val"`
 }
 
 // HTTP parameter structs
@@ -53,33 +55,38 @@ type UserServiceResponse struct {
 }
 
 type ReviewsSuccess struct {
-    Code int
-    Reviews []models.Review
+	Code    int
+	Reviews []models.Review
 }
 
 type ReviewSuccess struct {
-    Code int
-    Review models.Review
+	Code   int
+	Review models.Review
 }
 
 type ActionUseSuccess struct {
-    Code int
-    Message []models.ProductAnalytics 
+	Code    int
+	Message []models.ProductAnalytics
 }
 
 type ExistsSuccess struct {
-    Code    int
-    Message bool
+	Code    int
+	Message bool
 }
 
 type RunSuccess struct {
-    Code int
-    Message string 
+	Code    int
+	Message string
 }
 
 type InvoiceSuccess struct {
 	Code    int
-	Invoice models.Invoice 
+	Invoice models.Invoice
+}
+
+type TokenSuccess struct {
+	Code  int
+	Token string
 }
 
 type Success struct {
@@ -89,12 +96,12 @@ type Success struct {
 
 type ActionsSuccess struct {
 	Code    int
-	Message []models.Tool 
+	Message []models.Tool
 }
 
 type ActionSuccess struct {
 	Code    int
-	Message models.Tool 
+	Message models.Tool
 }
 
 type Error struct {
@@ -142,19 +149,19 @@ var (
 	RequestErrorHandler = func(w http.ResponseWriter, err error) {
 		writeError(w, err.Error(), http.StatusBadRequest)
 	}
-    AuthenticationErrorHandler = func(w http.ResponseWriter, err error) {
+	AuthenticationErrorHandler = func(w http.ResponseWriter, err error) {
 		writeError(w, err.Error(), http.StatusUnauthorized)
 	}
-    AuthorizationErrorHandler = func(w http.ResponseWriter, err error) {
+	AuthorizationErrorHandler = func(w http.ResponseWriter, err error) {
 		writeError(w, err.Error(), http.StatusForbidden)
 	}
 	InternalErrorHandler = func(w http.ResponseWriter) {
 		writeError(w, "An unexpected error occured", http.StatusInternalServerError)
 	}
-    PayloadTooLargeHandler = func(w http.ResponseWriter, err error) {
+	PayloadTooLargeHandler = func(w http.ResponseWriter, err error) {
 		writeError(w, err.Error(), http.StatusRequestEntityTooLarge)
 	}
-    CustomInternalErrorHandler = func(w http.ResponseWriter, err error) {
+	CustomInternalErrorHandler = func(w http.ResponseWriter, err error) {
 		writeError(w, err.Error(), http.StatusInternalServerError)
 	}
 )
