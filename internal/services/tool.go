@@ -5,7 +5,6 @@ package services
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/fizlip/microstore/internal/models"
 )
@@ -49,20 +48,7 @@ func NewToolNameService() (*ToolNameService, error) {
 
 // Utils
 func toolToAttributeMapConverter(tool models.ToolName) map[string]types.AttributeValue {
-	descList := make([]types.AttributeValue, len(tool.Descriptions))
-	for i, v := range tool.Descriptions {
-		descList[i] = &types.AttributeValueMemberS{Value: v}
-	}
-
-	endpointList, err := attributevalue.Marshal(tool.Endpoints)
-	if err != nil {
-		log.Error(err)
-	}
-
 	return map[string]types.AttributeValue{
-		"uti":             &types.AttributeValueMemberS{Value: tool.UTI},
-		"endpoints":       endpointList,
-		"descriptions":    &types.AttributeValueMemberL{Value: descList},
-		"deployment_type": &types.AttributeValueMemberS{Value: tool.DeploymentType},
+		"uti": &types.AttributeValueMemberS{Value: tool.UTI},
 	}
 }

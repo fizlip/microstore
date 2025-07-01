@@ -167,7 +167,7 @@ func CreateImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := (*nameService).CreateRecord(
-		models.ToolName{UTI: product.UTI, IPs: []string{}, Endpoints: product.Endpoints, Descriptions: product.EndpointDescriptions, Parameters: []string{}, DeploymentType: product.DeploymentType}); err != nil {
+		models.ToolName{UTI: product.UTI, IPs: []string{}, DeploymentType: product.DeploymentType}); err != nil {
 		log.Println("Could not insert tool into TNS", err)
 		// TODO: add error for this case in /api
 		api.CustomInternalErrorHandler(w, ConnectionError)
@@ -217,17 +217,21 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 	developer := r.Header.Get("X-Username")
 	pricingType := "pay-as-you-go"
 	releaseType := r.FormValue("releaseType")
-	version := r.FormValue("version")
 	showcase := strings.Split(r.FormValue("showcase"), ",") // comma-separated values
 	tags := strings.Split(r.FormValue("tags"), ",")         // comma-separated values
-	runEndpoint := ""
 	pulls := 0
 	license := r.FormValue("license")
 	verified := false
-	endpoint_names := strings.Split(r.FormValue("endpoints_names"), ",")
-	endpoint_desc := strings.Split(r.FormValue("endpoints_descriptions"), "<f4-delimiter>")
-	endpoint_ps := r.FormValue("endpoints_parameters")
 	deploymentType := strings.ToLower(r.FormValue("deployment_type"))
+
+	serverTransport := r.FormValue("server_transport")
+	serverURI := r.FormValue("server_uri")
+	serverAuthorizationURL := r.FormValue("server_authorization_url")
+	serverTokenURL := r.FormValue("server_token_url")
+	serverRevocationURL := r.FormValue("server_revocation_url")
+	serverRedirectURI := r.FormValue("server_redirect_uri")
+	serverAuthProvider := r.FormValue("server_auth_provider")
+
 	public, parseErr := strconv.ParseBool(r.FormValue("public"))
 	if parseErr != nil {
 		log.Error("'public' value must be a bool", parseErr)
@@ -237,10 +241,17 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 		return models.Tool{}, err
 	}
 
-	log.Println("endpoints: ", endpoint_ps)
-
-	var endpoints []models.Endpoint
-	json.Unmarshal([]byte(endpoint_ps), &endpoints)
+	server := models.Server{
+		Transport: serverTransport,
+		URI:       serverURI,
+		Authorization: models.Authorization{
+			AuthorizationURL: serverAuthorizationURL,
+			TokenURL:         serverTokenURL,
+			RevocationURL:    serverRevocationURL,
+			RedirectURI:      serverRedirectURI,
+		},
+		AuthProvider: serverAuthProvider,
+	}
 
 	// Generate error if required fields are empty
 	if len(title) == 0 ||
@@ -249,9 +260,8 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 		len(developer) == 0 ||
 		len(pricingType) == 0 ||
 		len(releaseType) == 0 ||
-		len(version) == 0 ||
 		len(showcase) == 0 ||
-		len(deploymentType) == 0 ||
+		len(serverTransport) == 0 ||
 		len(license) == 0 {
 
 		log.Error("Missing value make sure that all product fields are present")
@@ -259,36 +269,32 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 	}
 
 	// If no deployment type is selected or if the deployment type is not MCP or REST
-	if !slices.Contains([]string{"mcp_sse", "mcp_streamable", "rest"}, deploymentType) {
+	if !slices.Contains([]string{"sse", "streamable_http"}, serverTransport) {
 		log.Error("deployment_type needs to be either 'MCP_SSE', 'MCP_STREAMABLE' or 'REST'. Current request has selected the invalid: ", deploymentType)
 		return models.Tool{}, errors.New("Cannot deploy action without a valid deployment type.")
 	}
 
 	return models.Tool{
-		UID:                  uuid.New().String(),
-		Title:                title,
-		UTI:                  uti,
-		Description:          description,
-		Rating:               rating,
-		Price:                price,
-		Thumbnail:            thumbnail,
-		Overview:             overview,
-		CommunityURL:         communityURL,
-		Reviews:              reviews,
-		Developer:            developer,
-		PricingType:          pricingType,
-		ReleaseType:          releaseType,
-		Version:              version,
-		Showcase:             showcase,
-		Tags:                 tags,
-		RunEndpoint:          runEndpoint,
-		Pulls:                pulls,
-		License:              license,
-		Verified:             verified,
-		EndpointNames:        endpoint_names,
-		EndpointDescriptions: endpoint_desc,
-		Endpoints:            endpoints,
-		DeploymentType:       deploymentType,
-		Public:               public,
+		UID:            uuid.New().String(),
+		Title:          title,
+		UTI:            uti,
+		Description:    description,
+		Rating:         rating,
+		Price:          price,
+		Thumbnail:      thumbnail,
+		Overview:       overview,
+		CommunityURL:   communityURL,
+		Reviews:        reviews,
+		Developer:      developer,
+		PricingType:    pricingType,
+		ReleaseType:    releaseType,
+		Showcase:       showcase,
+		Tags:           tags,
+		Pulls:          pulls,
+		License:        license,
+		Verified:       verified,
+		DeploymentType: deploymentType,
+		Public:         public,
+		Server:         server,
 	}, nil
 }

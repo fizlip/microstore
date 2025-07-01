@@ -8,8 +8,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/fizlip/microstore/api"
-	"github.com/fizlip/microstore/internal/services"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -73,21 +71,21 @@ func SSE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// the tns is used to get the tools IP (like a DNS in classical web)
-	var tns *services.ToolNameService
-	tns, err := services.NewToolNameService()
-	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
-		return
-	}
-	result, err := (*tns).GetTool(uti)
-	if err != nil {
-		log.Error(err)
-		api.InternalErrorHandler(w)
-		return
-	}
+	// var tns *services.ToolNameService
+	// tns, err := services.NewToolNameService()
+	// if err != nil {
+	// 	log.Error(err)
+	// 	api.InternalErrorHandler(w)
+	// 	return
+	// }
+	// result := "linear_official"
+	// if err != nil {
+	// 	log.Error(err)
+	// 	api.InternalErrorHandler(w)
+	// 	return
+	// }
 
-	baseURL := "http://" + result[0].IPs[0] + ":8080"
+	baseURL := "https://mcp.linear.app/sse"
 
 	log.Println("BASEURL: ", baseURL)
 

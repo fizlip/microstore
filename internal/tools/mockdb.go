@@ -2,11 +2,12 @@ package tools
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	"github.com/fizlip/microstore/api"
 	"github.com/fizlip/microstore/internal/models"
-	"strconv"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -83,7 +84,6 @@ func (d *mockDB) GetProduct(uid string) models.Tool {
 		Developer:    "Sample Developer",
 		PricingType:  "One-time purchase",
 		ReleaseType:  "Stable",
-		Version:      "1.0.0",
 		Showcase:     []string{"https://example.com/showcase1.jpg", "https://example.com/showcase2.jpg"},
 		Tags:         []string{"sample", "product", "example"},
 	}
@@ -106,7 +106,6 @@ func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []models.Tool {
 			Developer:    "Sample Developer",
 			PricingType:  "One-time purchase",
 			ReleaseType:  "Stable",
-			Version:      "1.0.0",
 			Showcase:     []string{"https://example.com/showcase1.jpg", "https://example.com/showcase2.jpg"},
 			Tags:         []string{"sample", "product", "example"},
 		}
@@ -116,7 +115,6 @@ func (d *mockDB) GetMetadata(digests []types.ImageIdentifier) []models.Tool {
 }
 
 func (d *mockDB) CreateMetadata(product models.Tool) error {
-	log.Println(fmt.Sprintf("Created OCI with title: '%s' and endpoint: '%s'", product.Title, product.RunEndpoint))
 	return nil
 }
 
@@ -192,7 +190,6 @@ func (d *mockDB) SearchProduct(query string) []models.Tool {
 			Developer:    "ProductiveSoft Inc.",
 			PricingType:  "Subscription",
 			ReleaseType:  "Stable",
-			Version:      "2.5.1",
 			Showcase: []string{
 				"https://example.com/showcase/productivity-app-1.jpg",
 				"https://example.com/showcase/productivity-app-2.jpg",
@@ -213,7 +210,6 @@ func (d *mockDB) SearchProduct(query string) []models.Tool {
 			Developer:    "GameTech Solutions",
 			PricingType:  "One-time purchase",
 			ReleaseType:  "Beta",
-			Version:      "0.9.5",
 			Showcase: []string{
 				"https://example.com/showcase/game-engine-1.jpg",
 				"https://example.com/showcase/game-engine-2.jpg",
@@ -234,7 +230,6 @@ func (d *mockDB) SearchProduct(query string) []models.Tool {
 			Developer:    "SmartTech Innovations",
 			PricingType:  "Freemium",
 			ReleaseType:  "Stable",
-			Version:      "3.2.0",
 			Showcase: []string{
 				"https://example.com/showcase/smart-home-1.jpg",
 				"https://example.com/showcase/smart-home-2.jpg",
@@ -245,7 +240,7 @@ func (d *mockDB) SearchProduct(query string) []models.Tool {
 		{
 			UID:          "uuid4", // Replace with actual UUIDs
 			Title:        "Photo Editor Pro",
-            UTI:          "net-tool",
+			UTI:          "net-tool",
 			Description:  "Edit your photos like a pro with our powerful tools!",
 			Rating:       4.8,
 			Price:        79.99,
@@ -256,7 +251,6 @@ func (d *mockDB) SearchProduct(query string) []models.Tool {
 			Developer:    "CreativeSoft Labs",
 			PricingType:  "Subscription",
 			ReleaseType:  "Stable",
-			Version:      "5.1.3",
 			Showcase: []string{
 				"https://example.com/showcase/photo-editor-1.jpg",
 				"https://example.com/showcase/photo-editor-2.jpg",
@@ -277,7 +271,6 @@ func (d *mockDB) SearchProduct(query string) []models.Tool {
 			Developer:    "HealthTech Solutions",
 			PricingType:  "Free with in-app purchases",
 			ReleaseType:  "Stable",
-			Version:      "4.0.2",
 			Showcase: []string{
 				"https://example.com/showcase/fitness-tracker-1.jpg",
 				"https://example.com/showcase/fitness-tracker-2.jpg",

@@ -7,7 +7,6 @@ import (
 	"sort"
 
 	"github.com/fizlip/microstore/internal/models"
-	log "github.com/sirupsen/logrus"
 	// log "github.com/sirupsen/logrus"
 )
 
@@ -33,7 +32,6 @@ func (s *Store) GetUTIProduct(uti string) (models.Tool, error) {
 	if len(product) == 0 {
 		return models.Tool{}, err
 	}
-	log.Println("Endpoints: ", product[0].Endpoints)
 	return product[0], err
 }
 

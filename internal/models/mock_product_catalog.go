@@ -1,4 +1,4 @@
-package models 
+package models
 
 var MockProductCatalog = []Tool{
 	{
@@ -14,12 +14,10 @@ var MockProductCatalog = []Tool{
 		Developer:    "CRM Corp",
 		PricingType:  "Subscription",
 		ReleaseType:  "Stable",
-		Version:      "v3.2.1",
 		Showcase:     []string{"Feature 1", "Feature 2", "Feature 3"},
 		Tags:         []string{"CRM", "Sales", "Cloud"},
-		RunEndpoint:  "https://api.example.com/run/crm",
 		Pulls:        12000,
-        License:      "MIT",
+		License:      "MIT",
 	},
 	{
 		UID:          "prod-002",
@@ -34,12 +32,10 @@ var MockProductCatalog = []Tool{
 		Developer:    "PM Tools Inc",
 		PricingType:  "One-time",
 		ReleaseType:  "Beta",
-		Version:      "v2.5.3",
 		Showcase:     []string{"Gantt Charts", "Task Automation", "Kanban"},
 		Tags:         []string{"Project Management", "Collaboration"},
-		RunEndpoint:  "https://api.example.com/run/pm",
 		Pulls:        9500,
-        License:      "MIT",
+		License:      "MIT",
 	},
 	{
 		UID:          "p_001",
@@ -54,11 +50,9 @@ var MockProductCatalog = []Tool{
 		Developer:    "PM Tools Inc",
 		PricingType:  "One-time",
 		ReleaseType:  "Beta",
-		Version:      "v2.5.3",
 		Showcase:     []string{"Gantt Charts", "Task Automation", "Kanban"},
 		Tags:         []string{"Project Management", "Collaboration"},
-		RunEndpoint:  "https://api.example.com/run/pm",
 		Pulls:        9500,
-        License:      "MIT",
+		License:      "MIT",
 	},
 }

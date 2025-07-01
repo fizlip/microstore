@@ -31,7 +31,11 @@ func GetToken(w http.ResponseWriter, r *http.Request) {
 
 	// And run the product with it
 	// result, err := (*user).GetInvoice()
-	err = json.NewEncoder(w).Encode(api.TokenSuccess{Code: 200, Token: token.Token})
+	var code = 200
+	if len(token.Token) == 0 {
+		code = 404
+	}
+	err = json.NewEncoder(w).Encode(api.TokenSuccess{Code: code, Token: token.Token})
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

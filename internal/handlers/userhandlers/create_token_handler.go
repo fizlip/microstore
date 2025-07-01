@@ -16,6 +16,7 @@ func CreateToken(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	body, err := ioutil.ReadAll(r.Body)
+
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)
