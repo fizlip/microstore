@@ -214,7 +214,8 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 	overview := ""
 	communityURL := r.FormValue("communityURL")
 	reviews := 0
-	developer := r.Header.Get("X-Username")
+	developer := r.FormValue("creator")
+	uploader := r.Header.Get("X-Username")
 	pricingType := "pay-as-you-go"
 	releaseType := r.FormValue("releaseType")
 	showcase := strings.Split(r.FormValue("showcase"), ",") // comma-separated values
@@ -286,6 +287,7 @@ func getProductFromForm(r *http.Request) (models.Tool, error) {
 		CommunityURL:   communityURL,
 		Reviews:        reviews,
 		Developer:      developer,
+		Uploader:       uploader,
 		PricingType:    pricingType,
 		ReleaseType:    releaseType,
 		Showcase:       showcase,

@@ -241,6 +241,7 @@ func productToAttributeMapConverter(tool models.Tool) map[string]types.Attribute
 	return map[string]types.AttributeValue{
 		"uid":             &types.AttributeValueMemberS{Value: tool.UID},
 		"developer":       &types.AttributeValueMemberS{Value: tool.Developer},
+		"uploader":        &types.AttributeValueMemberS{Value: tool.Uploader},
 		"title":           &types.AttributeValueMemberS{Value: tool.Title},
 		"uti":             &types.AttributeValueMemberS{Value: tool.UTI},
 		"description":     &types.AttributeValueMemberS{Value: tool.Description},

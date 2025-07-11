@@ -5,10 +5,11 @@ import (
 
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/fizlip/microstore/internal/models"
-	// log "github.com/sirupsen/logrus"
-	// log "github.com/sirupsen/logrus"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type TokenService struct {
@@ -39,10 +40,16 @@ func NewTokenService() (*TokenService, error) {
 func tokenToAttributeMapConverter(token models.Token) map[string]types.AttributeValue {
 	currentTime := time.Now()
 	formattedDate := currentTime.Format("2006-01-02 15:04:05")
+
+	tokenSecret, err := attributevalue.Marshal(token.Token)
+	if err != nil {
+		log.Error(err)
+	}
+
 	return map[string]types.AttributeValue{
 		"username": &types.AttributeValueMemberS{Value: token.Username},
 		"server":   &types.AttributeValueMemberS{Value: token.Server},
-		"token":    &types.AttributeValueMemberS{Value: token.Token},
+		"token":    tokenSecret,
 		"created":  &types.AttributeValueMemberS{Value: formattedDate},
 		"provider": &types.AttributeValueMemberS{Value: token.Provider},
 	}

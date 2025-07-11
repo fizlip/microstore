@@ -86,7 +86,7 @@ type InvoiceSuccess struct {
 
 type TokenSuccess struct {
 	Code  int
-	Token string
+	Token interface{}
 }
 
 type Success struct {

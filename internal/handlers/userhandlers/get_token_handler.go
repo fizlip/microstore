@@ -32,7 +32,7 @@ func GetToken(w http.ResponseWriter, r *http.Request) {
 	// And run the product with it
 	// result, err := (*user).GetInvoice()
 	var code = 200
-	if len(token.Token) == 0 {
+	if len(token.Token.EncryptedData) == 0 {
 		code = 404
 	}
 	err = json.NewEncoder(w).Encode(api.TokenSuccess{Code: code, Token: token.Token})

@@ -14,6 +14,7 @@ type Tool struct {
 	CommunityURL   string   `dynamodbav:"communityURL" json:"communityURL"`
 	Reviews        int      `dynamodbav:"reviews" json:"reviews"`
 	Developer      string   `dynamodbav:"developer" json:"developer"`
+	Uploader       string   `dynamodbav:"uploader" json:"uploader"`
 	PricingType    string   `dynamodbav:"pricingType" json:"pricingType"`
 	ReleaseType    string   `dynamodbav:"releaseType" json:"releaseType"`
 	Showcase       []string `dynamodbav:"showcase" json:"showcase"`
