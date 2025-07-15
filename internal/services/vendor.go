@@ -54,7 +54,7 @@ func (v *Vendor) Logout() {
 
 // GetTools will return an array of all tools created by vendor
 func (v *Vendor) GetTools() ([]models.Tool, error) {
-	return v.ToolStorage.ReadCol("developer", v.Name)
+	return v.ToolStorage.ReadCol("uploader", v.Name)
 }
 
 // UpdateTool will return an array of all tools created by vendor
