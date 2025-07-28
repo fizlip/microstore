@@ -5,8 +5,8 @@ import (
 	//"github.com/google/uuid"
 	"net/http"
 
-	"github.com/fizlip/microstore/internal/services"
 	"github.com/fizlip/microstore/api"
+	"github.com/fizlip/microstore/internal/services"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -14,39 +14,25 @@ import (
 // usage of the tool that has been used
 func RunProduct(w http.ResponseWriter, r *http.Request) {
 	var err error
-    var data map[string]interface{}
 
-    user_id := r.Header.Get("X-Username")
-    tool_id := r.URL.Query().Get("tid")
-    // TODO: Get this from body
-    datastr := `{
-        "name": "Bob",
-        "age": 25,
-        "hobbies": ["gaming", "cooking"]
-    }`
-
-    err = json.Unmarshal([]byte(datastr), &data)
-    if err != nil {
-        log.Error("Cannot connect to customer service", err)
-        api.InternalErrorHandler(w)
-        return
-    }
+	user_id := r.Header.Get("X-Username")
+	tool_id := r.URL.Query().Get("tid")
 
 	user, err := services.NewCustomer(user_id)
 	if err != nil {
-        log.Error("Cannot connect to customer service", err)
-        api.InternalErrorHandler(w)
-        return
+		log.Error("Cannot connect to customer service", err)
+		api.InternalErrorHandler(w)
+		return
 	}
 
-	res, err := user.RunProduct(user_id, tool_id, data)
-    if err != nil {
-        log.Error("Cannot connect to customer service", err)
-        api.CustomInternalErrorHandler(w, err)
-        return
-    }
+	err = user.RunProduct(user_id, tool_id)
+	if err != nil {
+		log.Error("Cannot connect to customer service", err)
+		api.CustomInternalErrorHandler(w, err)
+		return
+	}
 
-	err = json.NewEncoder(w).Encode(res)
+	err = json.NewEncoder(w).Encode("Product usage updated")
 	if err != nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

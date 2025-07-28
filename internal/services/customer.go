@@ -241,13 +241,15 @@ func (c *Customer) incrementUsage(uid, tid, time string) error {
 }
 
 // RunProduct will execute a tool and also update the user analytics
-func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{}) (string, error) {
+func (c *Customer) RunProduct(uid string, tid string) error {
 	var err error
-	tool, err := c.toolStore.Read(tid)
-	if err != nil {
-		return "", errors.New("The tool you want to run does not exist.")
-	}
-	log.Println("tool", tool[0])
+	// tool, err := c.toolStore.Read(tid)
+	// if err != nil {
+	// 	return errors.New("The tool you want to run does not exist.")
+	// }
+	//
+	log.Println("UID: ", uid)
+	log.Println("TID: ", tid)
 	evt := models.ProductAnalytics{
 		ProductID: tid,
 		Status:    "400",
@@ -258,15 +260,15 @@ func (c *Customer) RunProduct(uid string, tid string, data map[string]interface{
 	evt.Timestamp = time.Now().Format("2006-01-02 15:04:05")
 	err = c.toolAnalyticsStore.Create(evt, evtToAttributeMapConverter)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	err = c.incrementUsage(uid, tid, time.Now().Format("2006-01-02"))
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return "Hello world!", nil
+	return nil
 }
 
 // CreateF4rmer will create a new f4rmer
