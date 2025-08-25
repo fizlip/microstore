@@ -51,6 +51,10 @@ func Handle(r *chi.Mux) {
 		router.Post("/messages", f4rmerhandlers.HandleUpdate)
 	})
 
+	r.Route("/public", func(router chi.Router) {
+		router.Get("/f4rmer/read_specific", f4rmerhandlers.ReadSpecific)
+	})
+
 	// USER
 	r.Route("/user", func(router chi.Router) {
 		// Auth + auth utils
