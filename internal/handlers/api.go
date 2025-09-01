@@ -53,6 +53,7 @@ func Handle(r *chi.Mux) {
 
 	r.Route("/public", func(router chi.Router) {
 		router.Get("/f4rmer/read_specific", f4rmerhandlers.ReadSpecific)
+		router.Post("/comms/create", storehandlers.CreateCommunication)
 	})
 
 	// USER

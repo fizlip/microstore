@@ -4,9 +4,12 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/fizlip/microstore/internal/models"
+	"github.com/google/uuid"
 	// log "github.com/sirupsen/logrus"
 )
 
@@ -17,6 +20,7 @@ type DBItem struct {
 type Store struct {
 	StoreStorage            models.DatabaseReadWriter[models.Tool]
 	TrendingBusinessStorage models.DatabaseReadWriter[DBItem]
+	CommunicationStorage    models.DatabaseReadWriter[models.Communication]
 }
 
 func (s *Store) GetProduct(uuid string) (models.Tool, error) {
@@ -90,6 +94,10 @@ func (s *Store) VerifyProduct(uti string) error {
 	return err
 }
 
+func (s *Store) CreateCommunication(c models.Communication) error {
+	return s.CommunicationStorage.Create(c, communicationToAttributeMapConverter)
+}
+
 // NewVendorController is a factory method that initialised a data store and
 // returns a Vendor struct. If you need to change the data store for some reason
 // you only need to update this method.
@@ -103,9 +111,26 @@ func NewStoreController() (*Store, error) {
 	if err != nil {
 		return &Store{}, err
 	}
+
+	communicationT, err := models.NewDynamoTable[models.Communication]("f4-communication", "user", "id")
+	if err != nil {
+		return &Store{}, err
+	}
 	store := Store{
 		StoreStorage:            storeT,
 		TrendingBusinessStorage: trendingBT,
+		CommunicationStorage:    communicationT,
 	}
 	return &store, nil
+}
+
+// Utils
+func communicationToAttributeMapConverter(comm models.Communication) map[string]types.AttributeValue {
+	return map[string]types.AttributeValue{
+		"user":    &types.AttributeValueMemberS{Value: comm.User},
+		"id":      &types.AttributeValueMemberS{Value: uuid.New().String()},
+		"type":    &types.AttributeValueMemberS{Value: comm.Type},
+		"content": &types.AttributeValueMemberS{Value: comm.Content},
+		"number":  &types.AttributeValueMemberN{Value: fmt.Sprintf("%d", comm.Number)},
+	}
 }
