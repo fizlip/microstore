@@ -29,7 +29,7 @@ func (a *APIKey) generateSecretKey() ([]byte, error) {
 }
 
 func getSecretKey() ([]byte, error) {
-    return []byte("123"), nil
+    return []byte(""), nil
 }
 
 func ValidateKey(apiKey, storedHash string) bool {

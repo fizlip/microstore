@@ -59,7 +59,6 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
 	secretsStr := r.FormValue("secrets")
 	taskDef := uti + "-taskdef"
 	serviceName := uti + "-service"
-	// [{"key":"AWS_ACCESS_KEY_ID","value":"AKIATOISD5HQ7CFF5PRK"},{"key":"AWS_REGION","value":"eu-central-1"},{"key":"AWS_SECRET_ACCESS_KEY","value":"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"}]
 	// [{"key": ..., "value": ...}, ...]
 	// [{"Key": ..., "Value": ...}, ...]
 
@@ -73,7 +72,7 @@ func DeployImage(w http.ResponseWriter, r *http.Request) {
 		api.InternalErrorHandler(w)
 		return
 	}
-	err = deployer.CreateTaskDef(taskDef, "tool-test-1", "236798077409.dkr.ecr.eu-central-1.amazonaws.com/f4rmhouse:"+uti, secrets)
+	err = deployer.CreateTaskDef(taskDef, "tool-test-1", ""+uti, secrets)
 	err = deployer.CreateService(uti, serviceName, taskDef)
 
 	if err != nil {

@@ -13,7 +13,7 @@ import (
 func ActivateBilling(w http.ResponseWriter, r *http.Request) {
 	var params = api.UsernameParams{}
 	var decoder *schema.Decoder = schema.NewDecoder()
-	pk := "sk_test_51Q0fHUG9IK8VP5Ow1GeRlhjEG6fQPXEozXyegjNbNTl7QT1uCZGcz6rCKcXBGMWkWNJGDQyR88bfIGjbP53NzGBs00uYLlMnJp"
+	pk := ""
 
 	//_, err := api.NewCustomer("some_email")
 	//if err != nil {

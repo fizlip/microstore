@@ -213,10 +213,10 @@ func (d *DeployService) CreateTaskDef(taskDef, tool_name, tool_uri string, secre
 		ContainerDefinitions: containerDefinitions,
 
 		// Task execution role (for pulling ECR images, sending logs, etc.)
-		ExecutionRoleArn: aws.String("arn:aws:iam::236798077409:role/ecsTaskExecutionRole"),
+		ExecutionRoleArn: aws.String(""),
 
 		// Task role (for application permissions)
-		TaskRoleArn: aws.String("arn:aws:iam::236798077409:role/ecsTaskExecutionRole"),
+		TaskRoleArn: aws.String(""),
 
 		// Network mode
 		NetworkMode: types.NetworkModeAwsvpc,
@@ -272,13 +272,13 @@ func (d *DeployService) CreateService(clusterName, serviceName, taskDefinition s
 		NetworkConfiguration: &types.NetworkConfiguration{
 			AwsvpcConfiguration: &types.AwsVpcConfiguration{
 				Subnets: []string{
-					"subnet-fd1bbd97",
-					"subnet-7d917231",
-					"subnet-8e001cf3",
+					"",
+					"",
+					"",
 				},
 				SecurityGroups: []string{
-					"sg-3f2ecd5a", // Replace with your security group IDs
-					"sg-02e04cfdc02886613",
+					"", // Replace with your security group IDs
+					"",
 				},
 				AssignPublicIp: types.AssignPublicIpEnabled,
 			},
